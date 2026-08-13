@@ -88,3 +88,19 @@ reseed.
 
 - Data lives in `backend/tracker.db` (SQLite) — delete it and restart the backend to reseed from scratch.
 - CORS allows `localhost:5174` and `localhost:5173` for the dev frontend.
+
+## Deploying
+
+### Backend — Render
+
+1. Create a new **Web Service** from the `dsa-tracker/backend` directory (or push this repo and select the `render.yaml` blueprint — it auto-configures the service, disk, and env vars).
+2. Environment variables:
+   - `DB_PATH` → `/data/tracker.db` (SQLite needs a **persistent disk** so progress survives redeploys; attach a 1 GB disk mounted at `/data`).
+   - `CORS_ORIGINS` → comma-separated list of your frontend URLs, e.g. `https://your-app.netlify.app,https://your-app.vercel.app`.
+3. Render starts it with `uvicorn app.main:app --host 0.0.0.0 --port $PORT`. Health check: `/api/health`.
+
+### Frontend — Netlify or Vercel
+
+1. Push the repo and connect `dsa-tracker/frontend` (Netlify auto-detects `netlify.toml`, Vercel auto-detects `vercel.json` — both include SPA rewrites so `/topics/:slug` routes work).
+2. Set the env var `VITE_API_URL` to your deployed backend, e.g. `https://dsa-tracker-api.onrender.com/api` (with trailing `/api`).
+3. Deploy. Local example: `VITE_API_URL` defaults to `http://127.0.0.1:8000/api`.
