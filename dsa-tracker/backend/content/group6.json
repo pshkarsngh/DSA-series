@@ -1,0 +1,3065 @@
+[
+ {
+  "slug": "graph-representation",
+  "name": "Graph representation",
+  "difficulty": "easy",
+  "overview": "A graph is a collection of vertices (nodes) connected by edges. The three standard ways to store a graph in code are the edge list, adjacency matrix, and adjacency list.",
+  "why": "Every graph problem begins with choosing a representation. The right choice determines both the time and space complexity of the algorithm you apply, and interviewers often ask you to justify your pick.",
+  "when": "Use an adjacency list for sparse graphs (most interview graphs) where you need fast neighbor iteration. Use an adjacency matrix for dense graphs or when edge lookup in O(1) matters. Use an edge list when sorting edges, as in Kruskal's algorithm.",
+  "complexity": {
+   "time": "O(V + E) for building adjacency list",
+   "space": "O(V + E) adjacency list; O(V^2) adjacency matrix"
+  },
+  "concepts": [
+   {
+    "name": "Vertex",
+    "description": "A node in the graph, typically numbered from 0 to V-1."
+   },
+   {
+    "name": "Edge",
+    "description": "A connection between two vertices; can be undirected or directed."
+   },
+   {
+    "name": "Adjacency list",
+    "description": "An array of lists where graph[u] holds all neighbors of vertex u; the default representation in practice."
+   },
+   {
+    "name": "Adjacency matrix",
+    "description": "A VxV grid where matrix[u][v] is 1 (or weight) if an edge exists from u to v."
+   },
+   {
+    "name": "Edge list",
+    "description": "A flat list of (u, v, weight) tuples; useful for algorithms that sort edges."
+   },
+   {
+    "name": "Sparse vs dense",
+    "description": "Sparse graphs have few edges relative to V^2; dense graphs have close to V^2 edges."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Adjacency list from edge list",
+    "description": "Iterate the edges and append each vertex to the other's neighbor list.",
+    "code": "def build_graph(n, edges):\n    g = [[] for _ in range(n)]\n    for u, v in edges:\n        g[u].append(v)\n        g[v].append(u)\n    return g"
+   },
+   {
+    "name": "Weighted adjacency list",
+    "description": "Store neighbor and weight as a tuple so weighted algorithms can read both.",
+    "code": "def build_weighted(n, edges):\n    g = [[] for _ in range(n)]\n    for u, v, w in edges:\n        g[u].append((v, w))\n        g[v].append((u, w))\n    return g"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Represent a triangle",
+    "problem": "Build an adjacency list for 3 vertices with edges (0,1), (1,2), (2,0).",
+    "input": "n = 3, edges = [(0,1), (1,2), (2,0)]",
+    "output": "[[1, 2], [0, 2], [0, 1]]",
+    "explanation": "For an undirected graph each edge is inserted twice, once per endpoint.",
+    "steps": [
+     "Create a list of 3 empty lists.",
+     "For edge (0,1), append 1 to graph[0] and 0 to graph[1].",
+     "For edge (1,2), append 2 to graph[1] and 1 to graph[2].",
+     "For edge (2,0), append 0 to graph[2] and 2 to graph[0]."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V + E)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Forgetting to add both directions for an undirected graph, causing searches to miss reachable nodes.",
+    "fix": "Always append both u to g[v] and v to g[u] when edges are undirected."
+   },
+   {
+    "mistake": "Using a 2D adjacency matrix for a large sparse graph, wasting O(V^2) memory.",
+    "fix": "Prefer the adjacency list, which uses only O(V + E) space."
+   },
+   {
+    "mistake": "Ignoring 1-indexed or 0-indexed input and reading out of bounds.",
+    "fix": "Normalize vertex numbers to 0-indexing or size the arrays to n + 1."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Clone Graph",
+    "slug": "clone-graph",
+    "difficulty": "medium",
+    "description": "Given a reference to a node in a connected undirected graph, return a deep copy of the graph.",
+    "constraints": "Number of nodes in [0, 100]; node.val unique; graph connected.",
+    "hints": [
+     "Use a hash map from original node to its clone.",
+     "Perform BFS or DFS to traverse all original nodes."
+    ],
+    "approach": "BFS from the given node, creating a clone for each unvisited neighbor and wiring up the copies.",
+    "pattern": "BFS",
+    "time": "O(V + E)",
+    "space": "O(V)",
+    "solution": "Map original nodes to cloned nodes. Start BFS at the input node, creating its clone. For each popped node, visit neighbors; if a neighbor is not yet cloned, clone it and enqueue it. Always add the clone of the neighbor to the current node's clone. When the queue empties, every node has been copied exactly once.",
+    "tags": [
+     "graph",
+     "bfs",
+     "hash-map"
+    ]
+   },
+   {
+    "name": "Find Center of Star Graph",
+    "slug": "find-center-of-star-graph",
+    "difficulty": "easy",
+    "description": "Given an undirected star graph with n nodes labeled 1..n and its edges, find the center node.",
+    "constraints": "3 <= n <= 100000; star graph guaranteed.",
+    "hints": [
+     "The center appears in every edge.",
+     "Compare only the first two edges."
+    ],
+    "approach": "The center must be shared by the first two edges; return the common vertex.",
+    "pattern": "Graph representation",
+    "time": "O(1)",
+    "space": "O(1)",
+    "solution": "In a star graph, every edge contains the center. Take the first two edges. The center is the vertex that appears in both of them, so return the common endpoint of edges[0] and edges[1].",
+    "tags": [
+     "graph",
+     "math",
+     "easy"
+    ]
+   },
+   {
+    "name": "Number of Provinces",
+    "slug": "number-of-provinces",
+    "difficulty": "medium",
+    "description": "Given an n x n adjacency matrix isConnected, return the number of provinces (connected components).",
+    "constraints": "1 <= n <= 200; matrix symmetric with 1s on the diagonal.",
+    "hints": [
+     "Each city is a vertex and matrix[i][j] is an edge.",
+     "Count how many times DFS/BFS starts from an unvisited city."
+    ],
+    "approach": "Run BFS or DFS from each unvisited city, counting one province per traversal.",
+    "pattern": "Connected components",
+    "time": "O(n^2)",
+    "space": "O(n)",
+    "solution": "Maintain a visited array. For each city that has not been visited, run a traversal (DFS via stack or recursion) marking all reachable cities visited and increment the province counter. Each traversal covers exactly one connected component.",
+    "tags": [
+     "graph",
+     "bfs",
+     "matrix"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "bfs",
+  "name": "BFS",
+  "difficulty": "easy",
+  "overview": "Breadth-First Search (BFS) explores a graph level by level, visiting all neighbors of the current frontier before moving deeper. It relies on a queue to track the next nodes to process.",
+  "why": "BFS is the go-to algorithm whenever you need the shortest path in an unweighted graph or the minimum number of steps to reach a state, both of which are very common interview themes.",
+  "when": "Use BFS when edge weights are uniform or absent and you need shortest distances, or when you need to process nodes by distance level (level-order traversal, word ladder, zero-one matrices).",
+  "complexity": {
+   "time": "O(V + E)",
+   "space": "O(V)"
+  },
+  "concepts": [
+   {
+    "name": "Queue",
+    "description": "FIFO structure used to expand nodes in the order they were discovered."
+   },
+   {
+    "name": "Level / frontier",
+    "description": "The set of nodes at the current distance from the source; BFS processes one frontier at a time."
+   },
+   {
+    "name": "Visited set",
+    "description": "Prevents revisiting nodes and guarantees each node is processed once."
+   },
+   {
+    "name": "Shortest path in unweighted graph",
+    "description": "The first time BFS discovers a node, the path length used is minimal."
+   },
+   {
+    "name": "Multisource BFS",
+    "description": "Start the queue with several sources at once, often to simulate simultaneous expansion."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Classic BFS with distances",
+    "description": "Standard queue-based traversal that records the distance from the source to each node.",
+    "code": "from collections import deque\n\ndef bfs(g, start):\n    dist = {start: 0}\n    q = deque([start])\n    while q:\n        u = q.popleft()\n        for v in g[u]:\n            if v not in dist:\n                dist[v] = dist[u] + 1\n                q.append(v)\n    return dist"
+   },
+   {
+    "name": "Level-by-level BFS",
+    "description": "Capture the queue size before expanding so nodes can be grouped by distance level.",
+    "code": "from collections import deque\n\ndef levels(g, start):\n    seen = {start}\n    q = deque([start])\n    res = []\n    while q:\n        res.append(list(q))\n        for _ in range(len(q)):\n            u = q.popleft()\n            for v in g[u]:\n                if v not in seen:\n                    seen.add(v)\n                    q.append(v)\n    return res"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Shortest path in a small unweighted graph",
+    "problem": "Find the shortest number of edges from node 0 to node 4 in the graph with edges (0,1),(1,2),(2,4),(0,3),(3,4).",
+    "input": "n = 5, edges as listed, source = 0, target = 4",
+    "output": "2 (via 0 -> 3 -> 4)",
+    "explanation": "BFS explores node 0, then its neighbors 1 and 3 at distance 1, then their neighbors; node 4 is discovered from 3 at distance 2, which is minimal.",
+    "steps": [
+     "Initialize queue with 0 and dist[0] = 0.",
+     "Pop 0; enqueue neighbors 1 and 3 with distance 1.",
+     "Pop 1; enqueue neighbor 2 with distance 2.",
+     "Pop 3; discover 4 with distance 2 and return it as the answer.",
+     "No shorter route exists because BFS explores by increasing distance."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Pushing a node into the queue before marking it visited, causing duplicates and possible infinite loops in cyclic graphs.",
+    "fix": "Mark a node as visited at the same moment you enqueue it."
+   },
+   {
+    "mistake": "Using a stack or recursion, which turns BFS into DFS and breaks shortest-path guarantees.",
+    "fix": "Always use a FIFO queue (collections.deque) for BFS."
+   },
+   {
+    "mistake": "Forgetting the visited set entirely on graphs with cycles, leading to revisits.",
+    "fix": "Maintain a visited set or distance dictionary initialized with the source."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Shortest Path in Binary Matrix",
+    "slug": "shortest-path-in-binary-matrix",
+    "difficulty": "medium",
+    "description": "Given an n x n binary grid, return the length of the shortest clear path from the top-left to the bottom-right, moving in 8 directions through 0 cells.",
+    "constraints": "1 <= n <= 100; grid[i][j] in {0,1}.",
+    "hints": [
+     "Treat every 0 cell as a node and 8-way moves as edges.",
+     "Run BFS from (0,0) and stop at the target."
+    ],
+    "approach": "Standard BFS over the grid cells using a queue of coordinates, returning the distance when the target is reached.",
+    "pattern": "BFS",
+    "time": "O(n^2)",
+    "space": "O(n^2)",
+    "solution": "If the start cell is blocked, return -1. Push (0,0) into the queue with distance 1 and mark it visited. For each cell popped, try all 8 directions; any in-bounds unvisited 0 cell is enqueued with distance + 1. The first time the bottom-right corner is popped, return its distance; if the queue empties first, return -1.",
+    "tags": [
+     "bfs",
+     "matrix",
+     "grid"
+    ]
+   },
+   {
+    "name": "Word Ladder",
+    "slug": "word-ladder",
+    "difficulty": "hard",
+    "description": "Given beginWord, endWord, and wordList, return the number of words in the shortest transformation sequence where each step changes one letter and intermediate words are in wordList.",
+    "constraints": "1 <= len(beginWord) <= 10; up to 5000 words in wordList.",
+    "hints": [
+     "Model each word as a node with edges between words differing by one letter.",
+     "Generate all one-letter wildcard patterns to find neighbors quickly."
+    ],
+    "approach": "BFS from beginWord; for each word generate wildcard patterns to find unvisited neighbors in wordList.",
+    "pattern": "BFS",
+    "time": "O(M^2 * N)",
+    "space": "O(M^2 * N)",
+    "solution": "Build a map from each wildcard pattern (word with one letter replaced by a star) to the list of words matching it. Run BFS from beginWord using this map to find all neighbors differing by one letter. Return the depth when endWord is reached, else 0.",
+    "tags": [
+     "bfs",
+     "string",
+     "hash-map"
+    ]
+   },
+   {
+    "name": "01 Matrix",
+    "slug": "01-matrix",
+    "difficulty": "medium",
+    "description": "Given an m x n binary matrix, return the distance to the nearest 0 for each cell.",
+    "constraints": "1 <= m, n <= 1000; at least one 0 exists.",
+    "hints": [
+     "Run BFS from all 0 cells at once.",
+     "The distance of each cell is its BFS level from the nearest 0."
+    ],
+    "approach": "Multisource BFS seeded with every 0 cell at distance 0, propagating distances to 1 cells.",
+    "pattern": "Multisource BFS",
+    "time": "O(m * n)",
+    "space": "O(m * n)",
+    "solution": "Initialize a distance grid with 0 on all zero cells and -1 elsewhere, then push all zero cells into the queue. Pop cells and relax their in-bounds neighbors: if a neighbor has not been assigned a distance, set it to the current distance plus 1 and enqueue it. BFS guarantees these distances are minimal.",
+    "tags": [
+     "bfs",
+     "matrix",
+     "dynamic-programming"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "connected-components",
+  "name": "Connected components",
+  "difficulty": "easy",
+  "overview": "A connected component is a maximal set of vertices where every pair is connected by a path. In directed graphs the analogous idea is weak connectivity and, more strictly, strongly connected components.",
+  "why": "Many problems boil down to 'how many groups' or 'which nodes belong together', and component counting is a standard first step in graph problems.",
+  "when": "Use component detection when you need to group connected nodes, count islands or provinces, or check graph connectivity before running other algorithms.",
+  "complexity": {
+   "time": "O(V + E)",
+   "space": "O(V)"
+  },
+  "concepts": [
+   {
+    "name": "Connected component",
+    "description": "A maximal subset of vertices connected by paths; no edge links it to the rest of the graph."
+   },
+   {
+    "name": "Undirected connectivity",
+    "description": "Two vertices are connected if an undirected path exists between them."
+   },
+   {
+    "name": "Component ID labeling",
+    "description": "Assigning every vertex a component label so membership queries are O(1)."
+   },
+   {
+    "name": "Weakly connected",
+    "description": "A directed graph is weakly connected if its underlying undirected graph is connected."
+   },
+   {
+    "name": "Strongly connected",
+    "description": "Every vertex can reach every other vertex via directed paths."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Counting components with DFS",
+    "description": "Run DFS from each unvisited node; each new start begins a new component.",
+    "code": "def count_components(g):\n    visited = [False] * len(g)\n    count = 0\n    for u in range(len(g)):\n        if not visited[u]:\n            count += 1\n            stack = [u]\n            visited[u] = True\n            while stack:\n                v = stack.pop()\n                for w in g[v]:\n                    if not visited[w]:\n                        visited[w] = True\n                        stack.append(w)\n    return count"
+   },
+   {
+    "name": "Union-Find component grouping",
+    "description": "Union edges and count the distinct roots to get the number of components.",
+    "code": "def components_from_dsu(n, edges):\n    parent = list(range(n))\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n    for u, v in edges:\n        pu, pv = find(u), find(v)\n        if pu != pv:\n            parent[pu] = pv\n    return len({find(i) for i in range(n)})"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Counting components in a graph with an isolated vertex",
+    "problem": "Graph has edges (0,1),(1,2) and an isolated vertex 3.",
+    "input": "n = 4, edges = [(0,1),(1,2)]",
+    "output": "2 components",
+    "explanation": "Vertices 0,1,2 form one component; vertex 3 is isolated and is its own component.",
+    "steps": [
+     "Start DFS at 0, visiting 1 and 2; component 1 is complete.",
+     "Move to vertex 1, already visited; skip.",
+     "Move to vertex 2, already visited; skip.",
+     "Start DFS at 3, a new component with just itself.",
+     "Total components = 2."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Counting a component for every node by running a fresh traversal without global visited tracking.",
+    "fix": "Share one visited array across all traversals so each node is claimed once."
+   },
+   {
+    "mistake": "Treating directed graph weak connectivity as full connectivity.",
+    "fix": "For directed graphs decide whether you need weakly or strongly connected components."
+   },
+   {
+    "mistake": "Forgetting isolated vertices, which are valid single-node components.",
+    "fix": "Iterate over all vertices, including those with no edges."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Number of Provinces",
+    "slug": "number-of-provinces-2",
+    "difficulty": "medium",
+    "description": "Given an adjacency matrix of cities, count the number of provinces (connected groups of directly or indirectly connected cities).",
+    "constraints": "1 <= n <= 200.",
+    "hints": [
+     "Run DFS/BFS per unvisited city.",
+     "Each traversal marks one full province."
+    ],
+    "approach": "Iterate cities; every unvisited city starts a traversal that marks its entire province.",
+    "pattern": "Connected components",
+    "time": "O(n^2)",
+    "space": "O(n)",
+    "solution": "For each city that is not visited, perform DFS over the matrix: mark it visited and recurse over every column j where isConnected[i][j] == 1 and j is unvisited. Each DFS root corresponds to exactly one province, so the counter equals the number of components.",
+    "tags": [
+     "graph",
+     "dfs",
+     "matrix"
+    ]
+   },
+   {
+    "name": "Keys and Rooms",
+    "slug": "keys-and-rooms",
+    "difficulty": "medium",
+    "description": "You start in room 0 and can unlock any room whose key you collect. Return whether you can visit every room.",
+    "constraints": "n == rooms.length; 2 <= n <= 1000.",
+    "hints": [
+     "Rooms are vertices and keys are directed edges.",
+     "Check whether BFS/DFS reaches every room."
+    ],
+    "approach": "Run DFS from room 0 and verify the visited count equals the number of rooms.",
+    "pattern": "Connected components",
+    "time": "O(V + E)",
+    "space": "O(V)",
+    "solution": "Start DFS at room 0, visiting any room reachable through collected keys, marking each room visited. After the traversal, if all n rooms were visited then every room is reachable; otherwise some room is unreachable and the answer is false.",
+    "tags": [
+     "graph",
+     "dfs",
+     "reachability"
+    ]
+   },
+   {
+    "name": "Accounts Merge",
+    "slug": "accounts-merge",
+    "difficulty": "medium",
+    "description": "Given a list of accounts with names and email addresses, merge accounts belonging to the same person and return sorted merged accounts.",
+    "constraints": "1 <= accounts.length <= 1000; each account has 1..10 emails.",
+    "hints": [
+     "Treat emails as nodes connected by appearing in the same account.",
+     "Group connected emails into one component."
+    ],
+    "approach": "Build a graph of emails, find connected components with DFS, and emit one account per component.",
+    "pattern": "Connected components",
+    "time": "O(E log E)",
+    "space": "O(E)",
+    "solution": "Give each email a unique vertex id and add edges between every pair of emails in the same account. Run DFS to label connected components of emails. For each component, collect all emails, sort them, and pair them with the name taken from the first account that contained any email in the component.",
+    "tags": [
+     "graph",
+     "dfs",
+     "union-find"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "bipartite-graphs",
+  "name": "Bipartite graphs",
+  "difficulty": "medium",
+  "overview": "A bipartite graph has vertices that can be split into two disjoint sets such that every edge connects a vertex in one set to a vertex in the other. This is equivalent to the graph containing no odd-length cycle.",
+  "why": "Bipartite checks appear in problems about teams, scheduling conflicts, and matching, and the two-coloring idea generalizes to graph coloring questions.",
+  "when": "Reach for bipartite testing when you must split nodes into two groups with no conflicts inside a group, or when a graph must be 2-colorable.",
+  "complexity": {
+   "time": "O(V + E)",
+   "space": "O(V)"
+  },
+  "concepts": [
+   {
+    "name": "2-coloring",
+    "description": "Assigning two colors so adjacent vertices always differ; possible iff the graph is bipartite."
+   },
+   {
+    "name": "Odd cycle condition",
+    "description": "A graph is bipartite if and only if it has no odd-length cycle."
+   },
+   {
+    "name": "Partition",
+    "description": "The two independent sets the vertices are split into."
+   },
+   {
+    "name": "Bipartite matching",
+    "description": "Pairing vertices across partitions, e.g., workers to jobs."
+   },
+   {
+    "name": "Checkerboard parity",
+    "description": "Grid graphs are bipartite by coloring cells by (r + c) parity."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "BFS two-coloring",
+    "description": "Color the source red, alternate colors level by level, and detect conflicts.",
+    "code": "from collections import deque\n\ndef is_bipartite(g):\n    color = [-1] * len(g)\n    for s in range(len(g)):\n        if color[s] != -1:\n            continue\n        color[s] = 0\n        q = deque([s])\n        while q:\n            u = q.popleft()\n            for v in g[u]:\n                if color[v] == -1:\n                    color[v] = color[u] ^ 1\n                    q.append(v)\n                elif color[v] == color[u]:\n                    return False\n    return True"
+   },
+   {
+    "name": "DFS two-coloring",
+    "description": "Recursive alternate coloring with an early conflict check.",
+    "code": "def dfs_color(g, u, c, color):\n    color[u] = c\n    for v in g[u]:\n        if color[v] == -1:\n            if not dfs_color(g, v, c ^ 1, color):\n                return False\n        elif color[v] == c:\n            return False\n    return True\n\ndef is_bipartite(g):\n    color = [-1] * len(g)\n    return all(\n        color[u] != -1 or dfs_color(g, u, 0, color)\n        for u in range(len(g))\n    )"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Coloring a 4-cycle",
+    "problem": "Determine if the cycle 0-1-2-3-0 is bipartite.",
+    "input": "g = [[1,3],[0,2],[1,3],[0,2]]",
+    "output": "True",
+    "explanation": "Color 0 red, neighbors 1 and 3 blue, then 2 red; no edge has same-colored endpoints.",
+    "steps": [
+     "Color 0 with color 0.",
+     "Color neighbors 1 and 3 with color 1.",
+     "Color neighbor 2 of 1 with color 0.",
+     "All neighbors already colored with the opposite color; no conflict.",
+     "The even cycle is bipartite."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Starting the coloring check from only one node and missing other components.",
+    "fix": "Loop over all nodes and run the coloring on every unvisited component."
+   },
+   {
+    "mistake": "Using a visited boolean without storing color and failing to compare neighbor colors.",
+    "fix": "Store a color per node and check every edge endpoint's colors."
+   },
+   {
+    "mistake": "Assuming disconnected graphs are automatically bipartite without checking each part.",
+    "fix": "Each connected component must be separately 2-colorable."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Is Graph Bipartite?",
+    "slug": "is-graph-bipartite",
+    "difficulty": "medium",
+    "description": "Given an undirected graph as an adjacency list, return true if the graph is bipartite.",
+    "constraints": "graph.length in [1, 100]; no self-loops or parallel edges.",
+    "hints": [
+     "Try to 2-color the graph with BFS.",
+     "A conflict means an odd cycle and a non-bipartite graph."
+    ],
+    "approach": "BFS/DFS color every component and return false on any same-color edge.",
+    "pattern": "Bipartite graphs",
+    "time": "O(V + E)",
+    "space": "O(V)",
+    "solution": "Initialize a color array with -1. For each uncolored node, color it 0 and BFS through its component, assigning each neighbor the opposite color. If a neighbor is already colored the same as the current node, the graph is not bipartite and we return false. If no conflicts occur across all components, return true.",
+    "tags": [
+     "graph",
+     "bfs",
+     "coloring"
+    ]
+   },
+   {
+    "name": "Possible Bipartition",
+    "slug": "possible-bipartition",
+    "difficulty": "medium",
+    "description": "Given n people and dislike pairs, return whether the people can be split into two groups with no disliked pair in the same group.",
+    "constraints": "1 <= n <= 2000; dislike pairs up to 10000.",
+    "hints": [
+     "Model people as nodes and dislikes as edges.",
+     "Two groups is exactly 2-colorability."
+    ],
+    "approach": "Build the dislike graph and test bipartiteness via BFS coloring.",
+    "pattern": "Bipartite graphs",
+    "time": "O(V + E)",
+    "space": "O(V + E)",
+    "solution": "Create an adjacency list where each dislike pair is an undirected edge. Run the standard 2-coloring BFS over all components. If any edge connects two nodes assigned the same color, return false; otherwise the split into two groups is possible.",
+    "tags": [
+     "graph",
+     "bfs",
+     "coloring"
+    ]
+   },
+   {
+    "name": "Bipartite Graph Maximum Matching",
+    "slug": "bipartite-max-matching",
+    "difficulty": "hard",
+    "description": "Given left and right node sets and allowed edges, find the maximum number of disjoint matching pairs.",
+    "constraints": "Sizes up to a few hundred nodes on each side.",
+    "hints": [
+     "Use augmenting path search (Kuhn's algorithm).",
+     "Repeat DFS that tries to rematch matched right nodes."
+    ],
+    "approach": "Kuhn's algorithm: for each left node try to find an augmenting path through unmatched or displaceable right nodes.",
+    "pattern": "Bipartite graphs",
+    "time": "O(V * E)",
+    "space": "O(V + E)",
+    "solution": "Maintain a match array for right nodes. For each left node, run a DFS that marks visited left nodes and tries: if a right neighbor is unmatched, match it; otherwise try to rematch the left node currently matched to that right neighbor. If the DFS succeeds, increment the matching count. The greedy set of augmenting paths yields the maximum matching.",
+    "tags": [
+     "graph",
+     "matching",
+     "dfs"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "topological-sorting",
+  "name": "Topological sorting",
+  "difficulty": "medium",
+  "overview": "Topological sorting orders the vertices of a directed acyclic graph (DAG) so that for every edge u -> v, vertex u appears before v. It is only defined for DAGs.",
+  "why": "Topological order models dependency resolution and scheduling, and it is the basis of course prerequisite and task ordering questions.",
+  "when": "Use topological sort when a problem describes precedence constraints, such as 'u must happen before v', and asks for a valid order.",
+  "complexity": {
+   "time": "O(V + E)",
+   "space": "O(V)"
+  },
+  "concepts": [
+   {
+    "name": "DAG",
+    "description": "A directed acyclic graph; the only graphs with a valid topological order."
+   },
+   {
+    "name": "Precedence constraint",
+    "description": "An edge u -> v meaning u must come before v in the final order."
+   },
+   {
+    "name": "Source vertex",
+    "description": "A vertex with in-degree zero, which has no prerequisites and can be placed next."
+   },
+   {
+    "name": "DFS finish order",
+    "description": "The reverse of DFS finishing times gives a valid topological order."
+   },
+   {
+    "name": "Cycle invalidates order",
+    "description": "If the graph has a cycle, no topological order exists."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "DFS-based topological sort",
+    "description": "Append nodes at finish time and reverse the result.",
+    "code": "def topo_sort(g):\n    visited = [False] * len(g)\n    order = []\n    def dfs(u):\n        visited[u] = True\n        for v in g[u]:\n            if not visited[v]:\n                dfs(v)\n        order.append(u)\n    for u in range(len(g)):\n        if not visited[u]:\n            dfs(u)\n    return order[::-1]"
+   },
+   {
+    "name": "Topological sort with cycle detection",
+    "description": "Track recursion state so a cycle aborts the sort early.",
+    "code": "def topo_sort_detect(g):\n    WHITE, GRAY, BLACK = 0, 1, 2\n    state = [WHITE] * len(g)\n    order = []\n    def dfs(u):\n        state[u] = GRAY\n        for v in g[u]:\n            if state[v] == GRAY:\n                return False\n            if state[v] == WHITE and not dfs(v):\n                return False\n        state[u] = BLACK\n        order.append(u)\n        return True\n    for u in range(len(g)):\n        if state[u] == WHITE and not dfs(u):\n            return None\n    return order[::-1]"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Ordering three tasks",
+    "problem": "Tasks A, B, C with constraints A before C and B before C.",
+    "input": "Edges: A -> C, B -> C",
+    "output": "[A, B, C] (also valid: [B, A, C])",
+    "explanation": "C depends on both A and B, so A and B must precede it.",
+    "steps": [
+     "Compute in-degrees: A=0, B=0, C=2.",
+     "Pick A (in-degree 0) and reduce C's in-degree to 1.",
+     "Pick B and reduce C's in-degree to 0.",
+     "Pick C last since all its dependencies are done.",
+     "Result order satisfies every edge."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Applying topological sort to a graph with a cycle and silently missing nodes.",
+    "fix": "If fewer than V nodes are output, the graph has a cycle; report it."
+   },
+   {
+    "mistake": "Forgetting to reverse the DFS finish list for DFS-based topo sort.",
+    "fix": "Append at finish time, then reverse the entire order once."
+   },
+   {
+    "mistake": "Assuming the topological order is unique.",
+    "fix": "Any valid order is acceptable; multiple orders usually exist."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Course Schedule II",
+    "slug": "course-schedule-2",
+    "difficulty": "medium",
+    "description": "Given numCourses and prerequisites, return an ordering of courses to finish all, or empty array if impossible.",
+    "constraints": "1 <= numCourses <= 2000; prerequisites are edges.",
+    "hints": [
+     "A valid course order is a topological sort.",
+     "If the graph has a cycle, no order exists."
+    ],
+    "approach": "Run a topological sort and return its result only if it includes all courses.",
+    "pattern": "Topological sorting",
+    "time": "O(V + E)",
+    "space": "O(V + E)",
+    "solution": "Build an adjacency list and in-degree array. Repeatedly take a course with in-degree zero, append it to the result, and decrement the in-degrees of its dependents. If the output length equals numCourses, return it; otherwise a cycle blocks some courses and we return an empty array.",
+    "tags": [
+     "graph",
+     "topological-sort",
+     "bfs"
+    ]
+   },
+   {
+    "name": "Course Schedule IV",
+    "slug": "course-schedule-4",
+    "difficulty": "medium",
+    "description": "For each query (a, b), answer whether course a is a prerequisite of course b (a before b transitively).",
+    "constraints": "2 <= numCourses <= 100; up to 10000 queries.",
+    "hints": [
+     "Precompute transitive prerequisites per course.",
+     "Use Floyd-Warshall style reachability or memoized DFS."
+    ],
+    "approach": "Compute a reachability closure with bitsets or Floyd-Warshall, then answer queries in O(1).",
+    "pattern": "Topological sorting",
+    "time": "O(V^3 + Q)",
+    "space": "O(V^2)",
+    "solution": "Build a boolean reach matrix initialized with direct edges. For each intermediate course k, for each i and j set reach[i][j] = reach[i][j] or (reach[i][k] and reach[k][j]). Each query is answered directly from the reach matrix.",
+    "tags": [
+     "graph",
+     "floyd-warshall",
+     "reachability"
+    ]
+   },
+   {
+    "name": "Alien Dictionary",
+    "slug": "alien-dictionary",
+    "difficulty": "hard",
+    "description": "Given words sorted lexicographically in an alien language, return the order of characters in that language.",
+    "constraints": "1 <= words.length <= 100; lowercase letters only.",
+    "hints": [
+     "Compare adjacent words to derive character ordering edges.",
+     "Topologically sort the character graph; a cycle means invalid input."
+    ],
+    "approach": "Derive edges from adjacent word comparisons, then run a topological sort over the 26 letters.",
+    "pattern": "Topological sorting",
+    "time": "O(N * L + U)",
+    "space": "O(U)",
+    "solution": "Create a graph node for each letter that appears. Compare consecutive words and add an edge from the first differing character of word[i] to that of word[i+1], stopping at the first difference. Detect invalid inputs where a longer word is a prefix of a shorter one. Run a topological sort; if it outputs fewer letters than exist, return an empty string.",
+    "tags": [
+     "graph",
+     "topological-sort",
+     "string"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "kahn-s-algorithm",
+  "name": "Kahn's algorithm",
+  "difficulty": "medium",
+  "overview": "Kahn's algorithm produces a topological order by repeatedly removing vertices with in-degree zero. It is the BFS-style alternative to the DFS-based topological sort.",
+  "why": "Kahn's algorithm is simple to implement iteratively and doubles as a cycle detector, making it ideal for scheduling and dependency problems in interviews.",
+  "when": "Use Kahn's algorithm whenever you need a topological order of a DAG, or to detect a cycle by checking whether all nodes get processed.",
+  "complexity": {
+   "time": "O(V + E)",
+   "space": "O(V)"
+  },
+  "concepts": [
+   {
+    "name": "In-degree",
+    "description": "The number of incoming edges to a vertex; zero in-degree means no prerequisites."
+   },
+   {
+    "name": "Queue of sources",
+    "description": "A queue seeded with all vertices of in-degree zero and refilled as processing frees new sources."
+   },
+   {
+    "name": "Processing order",
+    "description": "The order in which vertices leave the queue is a valid topological order."
+   },
+   {
+    "name": "Cycle detection via count",
+    "description": "If the output has fewer than V vertices, the graph contains a cycle."
+   },
+   {
+    "name": "Determinism",
+    "description": "Different tie-breaking on the queue yields different but equally valid orders."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Kahn's algorithm",
+    "description": "Queue-based processing of zero in-degree nodes.",
+    "code": "from collections import deque\n\ndef kahn(g):\n    n = len(g)\n    indeg = [0] * n\n    for u in range(n):\n        for v in g[u]:\n            indeg[v] += 1\n    q = deque(u for u in range(n) if indeg[u] == 0)\n    order = []\n    while q:\n        u = q.popleft()\n        order.append(u)\n        for v in g[u]:\n            indeg[v] -= 1\n            if indeg[v] == 0:\n                q.append(v)\n    return order if len(order) == n else []"
+   },
+   {
+    "name": "Kahn with tie-breaking heap",
+    "description": "When a deterministic order matters, use a heap instead of a plain queue.",
+    "code": "import heapq\n\ndef kahn_lex(g):\n    n = len(g)\n    indeg = [0] * n\n    for u in range(n):\n        for v in g[u]:\n            indeg[v] += 1\n    pq = [u for u in range(n) if indeg[u] == 0]\n    heapq.heapify(pq)\n    order = []\n    while pq:\n        u = heapq.heappop(pq)\n        order.append(u)\n        for v in g[u]:\n            indeg[v] -= 1\n            if indeg[v] == 0:\n                heapq.heappush(pq, v)\n    return order if len(order) == n else []"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Kahn on a small DAG",
+    "problem": "Find the topological order of edges 1->2, 1->3, 2->4, 3->4.",
+    "input": "Edges: 1->2, 1->3, 2->4, 3->4",
+    "output": "[1, 2, 3, 4] (or [1, 3, 2, 4])",
+    "explanation": "1 has no dependencies; removing it frees 2 and 3, and removing those frees 4.",
+    "steps": [
+     "Compute in-degrees: 1=0, 2=1, 3=1, 4=2.",
+     "Seed the queue with vertex 1.",
+     "Pop 1 and decrement in-degrees of 2 and 3 to 0.",
+     "Pop 2 and 3, decrementing 4 to 0.",
+     "Pop 4; order [1,2,3,4] is valid."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Not seeding the queue with all zero in-degree nodes across the graph.",
+    "fix": "Scan every vertex once and enqueue all with in-degree zero."
+   },
+   {
+    "mistake": "Decrementing in-degrees only for the removed vertex's successors once per vertex total.",
+    "fix": "Decrement each successor exactly when its predecessor is removed."
+   },
+   {
+    "mistake": "Returning a partial order without noticing the graph had a cycle.",
+    "fix": "Compare the output length to V; a shortfall means a cycle exists."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Course Schedule II (Kahn)",
+    "slug": "course-schedule-2-kahn",
+    "difficulty": "medium",
+    "description": "Return any valid order to take all courses given prerequisites, or an empty array if impossible.",
+    "constraints": "1 <= numCourses <= 2000.",
+    "hints": [
+     "Use in-degree counts and a queue.",
+     "An incomplete order means a cycle."
+    ],
+    "approach": "Run Kahn's algorithm and validate the output length.",
+    "pattern": "Kahn's algorithm",
+    "time": "O(V + E)",
+    "space": "O(V + E)",
+    "solution": "Build the graph and in-degree array. Push all zero in-degree courses into a queue. While the queue is non-empty, pop a course, append it to the order, and decrement the in-degree of each dependent, enqueueing any that reach zero. If the order length equals numCourses, return it; otherwise return an empty array because a cycle blocks completion.",
+    "tags": [
+     "graph",
+     "topological-sort",
+     "kahn"
+    ]
+   },
+   {
+    "name": "Find All Possible Recipes from Given Supplies",
+    "slug": "find-possible-recipes",
+    "difficulty": "medium",
+    "description": "Given recipes, their ingredients, and a supply of items, return all recipes you can make, where one recipe's output can be another's ingredient.",
+    "constraints": "Up to 100 recipes and 100 supply items.",
+    "hints": [
+     "Treat recipes as nodes whose incoming edges are their ingredients.",
+     "Process ingredients in dependency order with a queue."
+    ],
+    "approach": "Kahn-like processing starting from available supplies, producing recipes as their ingredients become available.",
+    "pattern": "Kahn's algorithm",
+    "time": "O(R + I)",
+    "space": "O(R + I)",
+    "solution": "Map each ingredient to the list of recipes needing it, and record each recipe's ingredient count. Seed a queue with all supply items. Pop an item; for every recipe that needs it, decrement its missing-ingredient count, and when it hits zero add the recipe to the answer and to the queue as a newly available item. Return all produced recipes.",
+    "tags": [
+     "graph",
+     "topological-sort",
+     "bfs"
+    ]
+   },
+   {
+    "name": "Parallel Courses",
+    "slug": "parallel-courses",
+    "difficulty": "medium",
+    "description": "Given n courses and prerequisites, return the minimum number of semesters needed if all courses without prerequisites can be taken together each semester.",
+    "constraints": "1 <= n <= 5000; prerequisites up to 5000.",
+    "hints": [
+     "Process courses in BFS levels by Kahn's algorithm.",
+     "Each level of the queue is one semester."
+    ],
+    "approach": "Kahn's algorithm where each level of simultaneously removed sources counts as one semester.",
+    "pattern": "Kahn's algorithm",
+    "time": "O(V + E)",
+    "space": "O(V + E)",
+    "solution": "Compute in-degrees and build adjacency. Run Kahn's algorithm while tracking the batch: in each round, process the whole current queue (one semester), appending all new zero in-degree courses to the next batch. If fewer than n courses are processed, return -1; otherwise return the number of batches.",
+    "tags": [
+     "graph",
+     "topological-sort",
+     "bfs"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "shortest-path",
+  "name": "Shortest path",
+  "difficulty": "medium",
+  "overview": "Shortest path problems ask for the path between two vertices that minimizes the sum of edge weights. The right algorithm depends on the graph's properties: BFS for unweighted, Dijkstra for non-negative weights, Bellman-Ford for negatives.",
+  "why": "Shortest path questions are among the most frequent in interviews because routing, networking, and map problems all reduce to them.",
+  "when": "Reach for BFS when edges are unweighted, Dijkstra when weights are non-negative, and Bellman-Ford or Floyd-Warshall when negative weights or all-pairs distances are involved.",
+  "complexity": {
+   "time": "Depends on algorithm (BFS O(V+E), Dijkstra O((V+E) log V), Bellman-Ford O(V*E))",
+   "space": "O(V) typically"
+  },
+  "concepts": [
+   {
+    "name": "Relaxation",
+    "description": "Improving a tentative distance estimate by checking whether a neighbor offers a shorter route."
+   },
+   {
+    "name": "Source and target",
+    "description": "The start and end vertices; single-source shortest path solves all targets at once."
+   },
+   {
+    "name": "Unweighted graph",
+    "description": "All edges count as 1; BFS finds shortest paths in O(V + E)."
+   },
+   {
+    "name": "Weighted graph",
+    "description": "Edges carry costs; distances depend on the chosen path weights."
+   },
+   {
+    "name": "Negative weight edges",
+    "description": "Weights below zero that can invalidate greedy algorithms and, if in a cycle, make shortest paths undefined."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "BFS shortest path in unweighted graph",
+    "description": "Level-order traversal that records the distance to the first discovery of each node.",
+    "code": "from collections import deque\n\ndef shortest_unweighted(g, s):\n    dist = [-1] * len(g)\n    dist[s] = 0\n    q = deque([s])\n    while q:\n        u = q.popleft()\n        for v in g[u]:\n            if dist[v] == -1:\n                dist[v] = dist[u] + 1\n                q.append(v)\n    return dist"
+   },
+   {
+    "name": "Dijkstra shortest path in weighted graph",
+    "description": "Heap-based relaxation for non-negative edge weights.",
+    "code": "import heapq\n\ndef dijkstra_dist(g, s):\n    dist = [float('inf')] * len(g)\n    dist[s] = 0\n    pq = [(0, s)]\n    while pq:\n        d, u = heapq.heappop(pq)\n        if d > dist[u]:\n            continue\n        for v, w in g[u]:\n            if dist[u] + w < dist[v]:\n                dist[v] = dist[u] + w\n                heapq.heappush(pq, (dist[v], v))\n    return dist"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Shortest path on a line",
+    "problem": "Find the distance from node 0 to node 4 in an unweighted path 0-1-2-3-4.",
+    "input": "g = [[1],[0,2],[1,3],[2,4],[3]]",
+    "output": "dist[4] = 4",
+    "explanation": "There is only one route, so BFS assigns consecutive distances along the path.",
+    "steps": [
+     "Set dist[0] = 0 and enqueue 0.",
+     "Discover 1 at distance 1.",
+     "Discover 2 at distance 2.",
+     "Discover 3 at distance 3.",
+     "Discover 4 at distance 4."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using Dijkstra on a graph with negative edges and getting wrong distances.",
+    "fix": "Use Bellman-Ford for graphs with negative weights (absent negative cycles)."
+   },
+   {
+    "mistake": "Using DFS to compute distances in an unweighted graph.",
+    "fix": "DFS does not guarantee minimal distances; use BFS."
+   },
+   {
+    "mistake": "Forgetting to re-relax after each Dijkstra pop or initializing distances to 0 instead of infinity.",
+    "fix": "Initialize dist to a large value and relax only when a shorter path is found."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Network Delay Time",
+    "slug": "network-delay-time",
+    "difficulty": "medium",
+    "description": "Given n nodes, a source k, and directed edges with travel times, return the time for all nodes to receive a signal.",
+    "constraints": "1 <= n <= 100; edges with positive weights.",
+    "hints": [
+     "Compute single-source shortest paths from k.",
+     "The answer is the maximum distance among reachable nodes."
+    ],
+    "approach": "Run Dijkstra from k and take the maximum distance, or -1 if any node is unreachable.",
+    "pattern": "Shortest path",
+    "time": "O((V + E) log V)",
+    "space": "O(V + E)",
+    "solution": "Build a weighted adjacency list and run Dijkstra from k to get the shortest time to every node. If any node remains at infinity, return -1. Otherwise return the maximum distance, which is when the signal has reached everyone.",
+    "tags": [
+     "graph",
+     "dijkstra",
+     "heap"
+    ]
+   },
+   {
+    "name": "Minimum Cost to Reach Destination",
+    "slug": "minimum-cost-reach-destination",
+    "difficulty": "medium",
+    "description": "Find the minimum cost path in a weighted graph from source to target.",
+    "constraints": "Weights non-negative; n up to 10^5.",
+    "hints": [
+     "Use Dijkstra with a min-heap.",
+     "Stop when the target is popped from the heap."
+    ],
+    "approach": "Dijkstra's algorithm with early exit once the target is finalized.",
+    "pattern": "Shortest path",
+    "time": "O((V + E) log V)",
+    "space": "O(V + E)",
+    "solution": "Push (0, source) into a min-heap and maintain dist[] initialized to infinity. Pop the smallest distance node; if it is the target, return it since Dijkstra guarantees finality on pop. Otherwise relax each neighbor and push any improved distance. If the heap empties without the target, no path exists.",
+    "tags": [
+     "graph",
+     "dijkstra",
+     "heap"
+    ]
+   },
+   {
+    "name": "01 BFS",
+    "slug": "01-bfs",
+    "difficulty": "medium",
+    "description": "Find shortest distances in a graph where every edge has weight 0 or 1.",
+    "constraints": "Weights restricted to {0, 1}; n up to 10^5.",
+    "hints": [
+     "Use a deque; push 0-weight edges to the front and 1-weight edges to the back.",
+     "This matches Dijkstra but runs in O(V + E)."
+    ],
+    "approach": "Deque-based BFS that orders nodes by distance using edge weight as a priority.",
+    "pattern": "Shortest path",
+    "time": "O(V + E)",
+    "space": "O(V)",
+    "solution": "Maintain a deque initialized with the source at distance 0. When relaxing an edge, if its weight is 0, push the neighbor to the front of the deque; if 1, push to the back. Since the deque stays ordered by distance, popping the front always yields the next node to finalize, achieving linear time.",
+    "tags": [
+     "graph",
+     "bfs",
+     "deque"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "dijkstra",
+  "name": "Dijkstra",
+  "difficulty": "medium",
+  "overview": "Dijkstra's algorithm finds the shortest path from a single source to all vertices in a graph with non-negative edge weights by greedily expanding the closest unvisited vertex.",
+  "why": "Dijkstra is the standard answer for weighted shortest-path problems and appears across navigation, networking, and routing questions in interviews.",
+  "when": "Use Dijkstra when edge weights are non-negative and you need single-source shortest paths; its heap-based form is the default weighted shortest-path tool.",
+  "complexity": {
+   "time": "O((V + E) log V)",
+   "space": "O(V + E)"
+  },
+  "concepts": [
+   {
+    "name": "Min-heap",
+    "description": "Priority queue that always yields the node with the smallest current distance."
+   },
+   {
+    "name": "Relaxation",
+    "description": "Updating a neighbor's distance when a shorter route through the current node exists."
+   },
+   {
+    "name": "Finalized distances",
+    "description": "Once a node is popped from the heap, its distance is final and never improves."
+   },
+   {
+    "name": "Non-negative weights",
+    "description": "A requirement for correctness; negative edges break the greedy invariant."
+   },
+   {
+    "name": "Decrease-key pattern",
+    "description": "Re-inserting nodes with improved distances instead of true decrease-key operations."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Dijkstra with heap",
+    "description": "Standard implementation using a min-heap of (distance, node) pairs.",
+    "code": "import heapq\n\ndef dijkstra(g, s):\n    dist = [float('inf')] * len(g)\n    dist[s] = 0\n    pq = [(0, s)]\n    while pq:\n        d, u = heapq.heappop(pq)\n        if d > dist[u]:\n            continue\n        for v, w in g[u]:\n            if dist[u] + w < dist[v]:\n                dist[v] = dist[u] + w\n                heapq.heappush(pq, (dist[v], v))\n    return dist"
+   },
+   {
+    "name": "Dijkstra path reconstruction",
+    "description": "Track the predecessor of each finalized node to rebuild the path.",
+    "code": "import heapq\n\ndef dijkstra_path(g, s, t):\n    dist = {s: 0}\n    prev = {}\n    pq = [(0, s)]\n    while pq:\n        d, u = heapq.heappop(pq)\n        if u == t:\n            break\n        if d > dist.get(u, float('inf')):\n            continue\n        for v, w in g[u]:\n            nd = d + w\n            if nd < dist.get(v, float('inf')):\n                dist[v] = nd\n                prev[v] = u\n                heapq.heappush(pq, (nd, v))\n    if t not in dist:\n        return []\n    path = []\n    while t in prev:\n        path.append(t)\n        t = prev[t]\n    path.append(s)\n    return path[::-1]"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Dijkstra on a small weighted graph",
+    "problem": "Shortest distances from 0 in a graph with edges 0-1(w1), 0-2(w4), 1-2(w2), 2-3(w1).",
+    "input": "g = [[(1,1),(2,4)],[(0,1),(2,2)],[(0,4),(1,2),(3,1)],[(2,1)]]",
+    "output": "dist = [0, 1, 3, 4]",
+    "explanation": "The direct edge 0->2 costs 4, but 0->1->2 costs 1+2=3, which is shorter, so Dijkstra picks the cheaper route via node 1.",
+    "steps": [
+     "Initialize dist[0]=0, rest infinity; heap has (0,0).",
+     "Pop 0, relax 1 to 1 and 2 to 4.",
+     "Pop 1, relax 2 to 3 (better than 4).",
+     "Pop 2, relax 3 to 4.",
+     "Pop 3; all distances final."
+    ],
+    "complexity": {
+     "time": "O((V + E) log V)",
+     "space": "O(V + E)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using Dijkstra with negative edge weights, producing incorrect distances.",
+    "fix": "Use Bellman-Ford for graphs with negative weights."
+   },
+   {
+    "mistake": "Skipping the stale-entry check and processing an outdated heap entry twice.",
+    "fix": "Skip any entry whose recorded distance exceeds dist[u]."
+   },
+   {
+    "mistake": "Building an O(V) array scan instead of a heap, making the algorithm O(V^2).",
+    "fix": "Use a heap to select the next minimum in O(log V)."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Network Delay Time",
+    "slug": "network-delay-time-dijkstra",
+    "difficulty": "medium",
+    "description": "Return the minimum time for a signal sent from node k to reach all n nodes, or -1 if impossible.",
+    "constraints": "1 <= k <= n <= 100; weights positive.",
+    "hints": [
+     "Run Dijkstra from k.",
+     "Answer is the largest finite distance."
+    ],
+    "approach": "Dijkstra from k, then return the max finite distance or -1.",
+    "pattern": "Dijkstra",
+    "time": "O((V + E) log V)",
+    "space": "O(V + E)",
+    "solution": "Build a weighted adjacency list and run Dijkstra from node k. After the algorithm, inspect all distances: if any is infinity, a node never receives the signal and we return -1; otherwise the answer is the maximum distance, since the last node to hear the signal defines the total delay.",
+    "tags": [
+     "graph",
+     "dijkstra",
+     "heap"
+    ]
+   },
+   {
+    "name": "Path with Maximum Probability",
+    "slug": "path-with-maximum-probability",
+    "difficulty": "medium",
+    "description": "Given edges with success probabilities, return the maximum probability of reaching end from start.",
+    "constraints": "2 <= n <= 10000; probabilities in (0, 1].",
+    "hints": [
+     "Maximizing probability equals a longest-path problem on logs, but a max-heap Dijkstra works directly.",
+     "Use a max-heap on probability."
+    ],
+    "approach": "Dijkstra variant using a max-heap where relaxing multiplies probabilities instead of adding weights.",
+    "pattern": "Dijkstra",
+    "time": "O((V + E) log V)",
+    "space": "O(V + E)",
+    "solution": "Represent each edge by its success probability. Run a max-heap Dijkstra storing the best probability to each node, relaxing via multiplication: prob[v] = max(prob[v], prob[u] * p). Pop the node with the highest probability; if it is end, return its value. If the heap empties first, return 0.0.",
+    "tags": [
+     "graph",
+     "dijkstra",
+     "heap"
+    ]
+   },
+   {
+    "name": "Cheapest Flights Within K Stops",
+    "slug": "cheapest-flights-within-k-stops",
+    "difficulty": "medium",
+    "description": "Return the cheapest price from src to dst with at most k stops, or -1 if impossible.",
+    "constraints": "0 <= k <= 100; up to 10^4 edges.",
+    "hints": [
+     "Track the number of stops along with cost in the heap.",
+     "Skip states that exceed k stops."
+    ],
+    "approach": "Modified Dijkstra where each heap entry carries (cost, node, stops) and we cap stops at k.",
+    "pattern": "Dijkstra",
+    "time": "O((V + E) log V)",
+    "space": "O(V + E)",
+    "solution": "Push (0, src, 0) into a min-heap. Pop entries ordered by cost; if the node is dst, return the cost immediately. Otherwise for each neighbor, if the new stop count is at most k, push (cost + price, neighbor, stops + 1). Track the minimum cost seen per (node, stops) to prune dominated states. Return -1 if dst is never reached.",
+    "tags": [
+     "graph",
+     "dijkstra",
+     "heap"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "bellman-ford",
+  "name": "Bellman-Ford",
+  "difficulty": "hard",
+  "overview": "Bellman-Ford computes single-source shortest paths in graphs that may contain negative edge weights. It relaxes all edges V-1 times, then checks for negative cycles.",
+  "why": "It is the standard algorithm when negative weights appear, and detecting negative cycles (arbitrage, profit loops) is a common interview and real-world theme.",
+  "when": "Use Bellman-Ford when edge weights can be negative, when you must detect a negative cycle, or when you need a simpler implementation over a dense graph's edge list.",
+  "complexity": {
+   "time": "O(V * E)",
+   "space": "O(V)"
+  },
+  "concepts": [
+   {
+    "name": "Relaxation over all edges",
+    "description": "Repeatedly scanning every edge and improving distances; V-1 full passes suffice in the absence of negative cycles."
+   },
+   {
+    "name": "Negative weight edge",
+    "description": "An edge whose weight is below zero, which can produce shorter paths through a different route."
+   },
+   {
+    "name": "Negative cycle",
+    "description": "A cycle whose total weight is negative; distances become unbounded, so shortest paths are undefined."
+   },
+   {
+    "name": "Edge list input",
+    "description": "Bellman-Ford works naturally from a flat (u, v, w) edge list without building adjacency."
+   },
+   {
+    "name": "Early stopping",
+    "description": "If a full pass changes no distances, the algorithm can stop before V-1 passes."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Bellman-Ford core",
+    "description": "Relax all edges V-1 times and then verify no negative cycle.",
+    "code": "def bellman_ford(n, edges, s):\n    dist = [float('inf')] * n\n    dist[s] = 0\n    for _ in range(n - 1):\n        updated = False\n        for u, v, w in edges:\n            if dist[u] != float('inf') and dist[u] + w < dist[v]:\n                dist[v] = dist[u] + w\n                updated = True\n        if not updated:\n            break\n    for u, v, w in edges:\n        if dist[u] != float('inf') and dist[u] + w < dist[v]:\n            return None\n    return dist"
+   },
+   {
+    "name": "Bellman-Ford with SPFA-style queue",
+    "description": "Relax only edges whose source was recently improved, using a queue.",
+    "code": "from collections import deque\n\ndef spfa(n, edges, s):\n    g = [[] for _ in range(n)]\n    for u, v, w in edges:\n        g[u].append((v, w))\n    dist = [float('inf')] * n\n    dist[s] = 0\n    q = deque([s])\n    inq = [False] * n\n    inq[s] = True\n    while q:\n        u = q.popleft()\n        inq[u] = False\n        for v, w in g[u]:\n            if dist[u] + w < dist[v]:\n                dist[v] = dist[u] + w\n                if not inq[v]:\n                    q.append(v)\n                    inq[v] = True\n    return dist"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Bellman-Ford with a negative edge",
+    "problem": "Find shortest distances from 0 with edges 0->1(w4), 1->2(w-2), 0->2(w3).",
+    "input": "Edges: (0,1,4), (1,2,-2), (0,2,3)",
+    "output": "dist = [0, 4, 2]",
+    "explanation": "The direct edge to 2 costs 3, but 0->1->2 costs 4 + (-2) = 2, which the algorithm discovers in the second pass.",
+    "steps": [
+     "Pass 1: relax 0->1 to 4, 0->2 to 3.",
+     "Pass 2: relax 1->2 to 2 (4 + (-2)), beating 3.",
+     "Pass 3: no further improvements.",
+     "No negative cycle; return [0, 4, 2]."
+    ],
+    "complexity": {
+     "time": "O(V * E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Stopping after fewer than V-1 passes and missing a shortest path that requires later relaxation.",
+    "fix": "Relax for V-1 full passes (or until a pass changes nothing)."
+   },
+   {
+    "mistake": "Relaxing edges from unreachable nodes by treating infinity plus weight as a finite value.",
+    "fix": "Skip any edge whose source distance is still infinity."
+   },
+   {
+    "mistake": "Claiming a shortest path exists when a negative cycle is present.",
+    "fix": "Run the extra verification pass; if any edge still relaxes, report a negative cycle."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Find Negative Cycle",
+    "slug": "find-negative-cycle",
+    "difficulty": "hard",
+    "description": "Given a weighted directed graph, return whether it contains a negative weight cycle.",
+    "constraints": "1 <= n <= 1000; edges up to 10^4.",
+    "hints": [
+     "Run Bellman-Ford from every node or a virtual source.",
+     "A change in the V-th pass means a negative cycle."
+    ],
+    "approach": "Run Bellman-Ford from a virtual source connected to all nodes with zero weight; a relaxing edge in the V-th pass proves a negative cycle.",
+    "pattern": "Bellman-Ford",
+    "time": "O(V * E)",
+    "space": "O(V)",
+    "solution": "Add a virtual source with zero-weight edges to every node so all components are reachable. Run V-1 passes of relaxation. Then perform one more full pass; if any edge still relaxes a distance, a negative cycle exists and the answer is true; otherwise false.",
+    "tags": [
+     "graph",
+     "bellman-ford",
+     "cycle"
+    ]
+   },
+   {
+    "name": "Cheapest Flights Within K Stops (Bellman-Ford)",
+    "slug": "cheapest-flights-within-k-stops-bellman",
+    "difficulty": "medium",
+    "description": "Find the cheapest price from src to dst with at most k stops, or -1 if impossible.",
+    "constraints": "0 <= k <= 100.",
+    "hints": [
+     "Relax edges k+1 times using the previous iteration's distances.",
+     "Copy the distance array each pass to respect the stop limit."
+    ],
+    "approach": "Bellman-Ford limited to k+1 rounds of edge relaxation.",
+    "pattern": "Bellman-Ford",
+    "time": "O(k * E)",
+    "space": "O(V)",
+    "solution": "Initialize dist[src] = 0. Repeat k+1 times: snapshot the current distances into a temp array, then relax every edge using the snapshot so that each pass adds exactly one flight. After the rounds, return dist[dst] if finite, else -1.",
+    "tags": [
+     "graph",
+     "bellman-ford",
+     "dp"
+    ]
+   },
+   {
+    "name": "Check If Arbitrage Exists",
+    "slug": "arbitrage-detection",
+    "difficulty": "hard",
+    "description": "Given currency exchange rates, return whether a profitable arbitrage cycle exists.",
+    "constraints": "n currencies up to 100; rate matrix n x n.",
+    "hints": [
+     "Take the negative logarithm of each rate to convert multiplication into addition.",
+     "A negative cycle in the transformed graph equals arbitrage."
+    ],
+    "approach": "Transform rates with -log and run Bellman-Ford to detect a negative cycle.",
+    "pattern": "Bellman-Ford",
+    "time": "O(V * E)",
+    "space": "O(V)",
+    "solution": "Build edges u -> v with weight -log(rate[u][v]). A profit exists if some product of rates exceeds 1, which after the log transform becomes a cycle of negative total weight. Run Bellman-Ford; if the V-th pass still relaxes an edge, arbitrage exists.",
+    "tags": [
+     "graph",
+     "bellman-ford",
+     "negative-cycle"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "floyd-warshall",
+  "name": "Floyd-Warshall",
+  "difficulty": "medium",
+  "overview": "Floyd-Warshall computes the shortest path between every pair of vertices in a weighted graph by iteratively allowing each vertex as an intermediate node.",
+  "why": "It solves all-pairs shortest paths and transitive closure problems in a compact triple loop, which is often the simplest correct approach when V is small.",
+  "when": "Use Floyd-Warshall when you need distances between all pairs of nodes and V is small enough (roughly <= 400) for O(V^3) work.",
+  "complexity": {
+   "time": "O(V^3)",
+   "space": "O(V^2)"
+  },
+  "concepts": [
+   {
+    "name": "All-pairs shortest paths",
+    "description": "Distances for every ordered pair of vertices in one run."
+   },
+   {
+    "name": "Intermediate vertex",
+    "description": "The algorithm considers each vertex k and whether routing i->k->j shortens i->j."
+   },
+   {
+    "name": "Dynamic programming structure",
+    "description": "dist[k][i][j] uses only intermediate vertices from {0..k}; the in-place loop collapses it to a 2D matrix."
+   },
+   {
+    "name": "Transitive closure",
+    "description": "Replacing distance updates with boolean reachability gives the reachability matrix."
+   },
+   {
+    "name": "Negative cycle detection",
+    "description": "If any dist[i][i] turns negative, a negative cycle exists."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Floyd-Warshall all-pairs",
+    "description": "Triple loop over intermediate, source, and destination vertices.",
+    "code": "def floyd_warshall(adj):\n    n = len(adj)\n    dist = [row[:] for row in adj]\n    for k in range(n):\n        for i in range(n):\n            for j in range(n):\n                if dist[i][k] + dist[k][j] < dist[i][j]:\n                    dist[i][j] = dist[i][k] + dist[k][j]\n    return dist"
+   },
+   {
+    "name": "Floyd-Warshall transitive closure",
+    "description": "Boolean reachability variant for 'can i reach j' queries.",
+    "code": "def transitive_closure(adj):\n    n = len(adj)\n    reach = [row[:] for row in adj]\n    for k in range(n):\n        for i in range(n):\n            if reach[i][k]:\n                for j in range(n):\n                    reach[i][j] = reach[i][j] or reach[k][j]\n    return reach"
+   }
+  ],
+  "examples": [
+   {
+    "title": "All-pairs distances on 3 nodes",
+    "problem": "Graph with edges 0->1(w3), 1->2(w1), 0->2(w10).",
+    "input": "adj = [[0,3,10],[inf,0,1],[inf,inf,0]]",
+    "output": "dist[0][2] improves from 10 to 4",
+    "explanation": "Routing through vertex 1 gives 3 + 1 = 4, which beats the direct weight of 10.",
+    "steps": [
+     "Initialize dist from the adjacency matrix.",
+     "k=0: no changes.",
+     "k=1: dist[0][2] = min(10, 3 + 1) = 4.",
+     "k=2: no further improvements.",
+     "Final dist[0][2] = 4."
+    ],
+    "complexity": {
+     "time": "O(V^3)",
+     "space": "O(V^2)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Forgetting to set dist[i][i] = 0 and inf for missing edges before running the loops.",
+    "fix": "Initialize the matrix with 0 on the diagonal and infinity elsewhere."
+   },
+   {
+    "mistake": "Not copying the original matrix, mutating the input graph.",
+    "fix": "Work on a deep copy of the adjacency matrix."
+   },
+   {
+    "mistake": "Running O(V^3) Floyd-Warshall on huge graphs where it times out.",
+    "fix": "For large sparse graphs prefer Dijkstra per source, which is O(V*(E+V) log V)."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Course Schedule IV (Floyd-Warshall)",
+    "slug": "course-schedule-4-floyd",
+    "difficulty": "medium",
+    "description": "Answer whether course a is an (indirect) prerequisite of course b for many queries.",
+    "constraints": "2 <= numCourses <= 100; up to 10^4 queries.",
+    "hints": [
+     "Compute the transitive closure of the prerequisite graph.",
+     "Use Floyd-Warshall-style boolean propagation."
+    ],
+    "approach": "Floyd-Warshall over booleans to compute reachability, then answer each query in O(1).",
+    "pattern": "Floyd-Warshall",
+    "time": "O(V^3 + Q)",
+    "space": "O(V^2)",
+    "solution": "Build a boolean reach matrix from direct prerequisites. For each intermediate k, update reach[i][j] |= reach[i][k] and reach[k][j]. After the closure, each query (a, b) is answered by reach[a][b] in constant time.",
+    "tags": [
+     "graph",
+     "floyd-warshall",
+     "reachability"
+    ]
+   },
+   {
+    "name": "Find the City With the Smallest Number of Neighbors",
+    "slug": "find-the-city-with-the-smallest-number-of-neighbors",
+    "difficulty": "medium",
+    "description": "Given n cities and weighted edges, find the city that can reach the fewest other cities within distance threshold, breaking ties by the largest index.",
+    "constraints": "2 <= n <= 100; threshold up to 10^4.",
+    "hints": [
+     "Compute all-pairs shortest paths with Floyd-Warshall.",
+     "Count reachable cities per source within the threshold."
+    ],
+    "approach": "Floyd-Warshall for all pairs, then count cities within the threshold per source.",
+    "pattern": "Floyd-Warshall",
+    "time": "O(V^3 + V^2)",
+    "space": "O(V^2)",
+    "solution": "Run Floyd-Warshall to get all-pairs distances. For each city i, count how many cities j satisfy dist[i][j] <= threshold (excluding itself). Track the minimum count, and among ties pick the largest city index. Return that city.",
+    "tags": [
+     "graph",
+     "floyd-warshall",
+     "all-pairs"
+    ]
+   },
+   {
+    "name": "Minimize the Maximum Distance",
+    "slug": "minimize-maximum-distance",
+    "difficulty": "medium",
+    "description": "Given weighted edges, answer for multiple queries the smallest possible maximum edge weight along a path between two nodes.",
+    "constraints": "n up to a few hundred; queries up to 10^4.",
+    "hints": [
+     "Reformulate distances as the max edge weight on the path.",
+     "Floyd-Warshall style min-of-max relaxation."
+    ],
+    "approach": "Floyd-Warshall variant where the combine operator is min over max of edges.",
+    "pattern": "Floyd-Warshall",
+    "time": "O(V^3 + Q)",
+    "space": "O(V^2)",
+    "solution": "Initialize best[i][j] with direct edge weights. Replace addition with max: best[i][j] = min(best[i][j], max(best[i][k], best[k][j])). After the triple loop, each query reads best[a][b] directly. This yields the minimax path value.",
+    "tags": [
+     "graph",
+     "floyd-warshall",
+     "minimax"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "minimum-spanning-tree",
+  "name": "Minimum Spanning Tree",
+  "difficulty": "medium",
+  "overview": "A minimum spanning tree (MST) of a weighted undirected graph is a subset of edges that connects all vertices with minimum total weight and no cycles.",
+  "why": "MST problems model optimal network design (wiring, roads, pipelines) and appear regularly as interview questions, especially with greedy strategies.",
+  "when": "Reach for MST when you must connect all nodes at minimum total cost, or solve minimax bottleneck problems where the answer is the MST's largest edge.",
+  "complexity": {
+   "time": "O(E log V) with Prim or O(E log E) with Kruskal",
+   "space": "O(V + E)"
+  },
+  "concepts": [
+   {
+    "name": "Spanning tree",
+    "description": "A tree of V-1 edges connecting all V vertices."
+   },
+   {
+    "name": "Cut property",
+    "description": "The lightest edge crossing any cut belongs to some MST; the basis of both Prim and Kruskal."
+   },
+   {
+    "name": "Cycle property",
+    "description": "The heaviest edge in any cycle is never in an MST."
+   },
+   {
+    "name": "Minimax path",
+    "description": "The path that minimizes the largest edge weight is found on the MST."
+   },
+   {
+    "name": "Number of edges",
+    "description": "An MST always has exactly V-1 edges."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "MST total weight via Kruskal",
+    "description": "Sort edges by weight and union the cheapest ones that do not create a cycle.",
+    "code": "def kruskal_mst(n, edges):\n    parent = list(range(n))\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n    total = 0\n    for u, v, w in sorted(edges, key=lambda e: e[2]):\n        pu, pv = find(u), find(v)\n        if pu != pv:\n            parent[pu] = pv\n            total += w\n    return total"
+   },
+   {
+    "name": "Prim's MST",
+    "description": "Heap-based tree growth from a chosen root vertex.",
+    "code": "import heapq\n\ndef prim_mst(g, start=0):\n    n = len(g)\n    in_tree = [False] * n\n    total = 0\n    pq = [(0, start)]\n    while pq:\n        w, u = heapq.heappop(pq)\n        if in_tree[u]:\n            continue\n        in_tree[u] = True\n        total += w\n        for v, w2 in g[u]:\n            if not in_tree[v]:\n                heapq.heappush(pq, (w2, v))\n    return total"
+   }
+  ],
+  "examples": [
+   {
+    "title": "MST of a 4-node graph",
+    "problem": "Graph with edges (0,1,1),(1,2,2),(0,3,3),(1,3,4),(2,3,5).",
+    "input": "n = 4, edges as listed",
+    "output": "Total weight 6 using edges (0,1,1), (1,2,2), (0,3,3)",
+    "explanation": "Adding the cheapest edges without forming cycles yields weight 1 + 2 + 3 = 6, which is minimal.",
+    "steps": [
+     "Sort edges by weight: (0,1,1), (1,2,2), (0,3,3), (1,3,4), (2,3,5).",
+     "Take (0,1,1); union 0 and 1.",
+     "Take (1,2,2); union 1 and 2.",
+     "Take (0,3,3); union 0 and 3; all 4 nodes connected.",
+     "Skip the remaining edges; total = 6."
+    ],
+    "complexity": {
+     "time": "O(E log E)",
+     "space": "O(V + E)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Adding an edge that connects two nodes already in the same set, creating a cycle.",
+    "fix": "Check connectivity with DSU before accepting an edge."
+   },
+   {
+    "mistake": "Stopping before all vertices are connected.",
+    "fix": "Continue until V-1 edges are chosen or no edges remain."
+   },
+   {
+    "mistake": "Applying MST thinking to directed graphs, where the concept is an arborescence.",
+    "fix": "MST applies to undirected graphs only."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Min Cost to Connect All Points",
+    "slug": "min-cost-to-connect-all-points",
+    "difficulty": "medium",
+    "description": "Given points on a plane, return the minimum cost to connect all points, where cost between two points is the Manhattan distance.",
+    "constraints": "1 <= points.length <= 1000.",
+    "hints": [
+     "Build edges with Manhattan distances.",
+     "Run Kruskal or Prim."
+    ],
+    "approach": "Kruskal with all O(V^2) Manhattan-distance edges, or Prim to avoid materializing all edges.",
+    "pattern": "Minimum Spanning Tree",
+    "time": "O(V^2 log V)",
+    "space": "O(V^2)",
+    "solution": "Generate the complete graph where edge (i, j) has weight equal to the Manhattan distance between points[i] and points[j]. Run Kruskal: sort edges by weight, union endpoints with DSU, and accumulate weight only when the endpoints belong to different sets. Stop when V-1 edges are chosen.",
+    "tags": [
+     "mst",
+     "kruskal",
+     "graph"
+    ]
+   },
+   {
+    "name": "Connect Cities with Minimum Cost",
+    "slug": "connect-cities-minimum-cost",
+    "difficulty": "medium",
+    "description": "Given n cities and possible roads with costs, return the minimum cost to connect all cities, or -1 if impossible.",
+    "constraints": "1 <= n <= 10^4; roads up to 3 * 10^4.",
+    "hints": [
+     "Run Kruskal and count connected cities.",
+     "If fewer than n-1 edges are usable, the graph is disconnected."
+    ],
+    "approach": "Kruskal's algorithm, returning -1 when not all cities are connected.",
+    "pattern": "Minimum Spanning Tree",
+    "time": "O(E log E)",
+    "space": "O(V)",
+    "solution": "Sort candidate roads by cost and process them with DSU. Accept a road only when its endpoints are in different sets, adding its cost and the number of accepted edges. After scanning, if the accepted edge count is less than n - 1, some city cannot be reached and we return -1; otherwise return the accumulated cost.",
+    "tags": [
+     "mst",
+     "kruskal",
+     "union-find"
+    ]
+   },
+   {
+    "name": "Connecting Cities With Minimum Cost (Prim)",
+    "slug": "connect-cities-prim",
+    "difficulty": "medium",
+    "description": "Same connect-all-cities problem solved with Prim's algorithm for efficiency on dense inputs.",
+    "constraints": "1 <= n <= 10^4; roads up to 3 * 10^4.",
+    "hints": [
+     "Prim grows a tree from node 0 using a min-heap.",
+     "Stop when all nodes are in the tree."
+    ],
+    "approach": "Prim's algorithm with an adjacency list and a priority queue.",
+    "pattern": "Minimum Spanning Tree",
+    "time": "O((V + E) log V)",
+    "space": "O(V + E)",
+    "solution": "Build an adjacency list of the road network. Start Prim from city 0 with a min-heap of (cost, city). Maintain a visited set; pop the cheapest edge, and if its endpoint is unvisited, add the cost, mark it visited, and push all of its edges. If all n cities become visited, return the total; otherwise return -1.",
+    "tags": [
+     "mst",
+     "prim",
+     "heap"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "prim-s",
+  "name": "Prim's",
+  "difficulty": "medium",
+  "overview": "Prim's algorithm grows an MST one vertex at a time, always adding the cheapest edge connecting the current tree to an outside vertex.",
+  "why": "Prim is a classic greedy algorithm and the natural fit for dense graphs and problems where you start from a fixed source, such as network building.",
+  "when": "Use Prim when you want a straightforward heap-based MST on a dense graph, or when the problem explicitly starts from one node.",
+  "complexity": {
+   "time": "O((V + E) log V) with heap",
+   "space": "O(V + E)"
+  },
+  "concepts": [
+   {
+    "name": "Growing tree",
+    "description": "The MST is built incrementally from a single starting vertex."
+   },
+   {
+    "name": "Cheapest crossing edge",
+    "description": "At each step, take the minimum-weight edge between the tree and the rest of the graph."
+   },
+   {
+    "name": "Min-heap of edges",
+    "description": "A priority queue of (weight, neighbor) candidates for the next expansion."
+   },
+   {
+    "name": "In-tree marking",
+    "description": "A visited array distinguishes vertices already in the tree from candidates."
+   },
+   {
+    "name": "Cut property",
+    "description": "The cheapest edge across the tree boundary is always safe to add."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Prim with heap",
+    "description": "Grow from a source, expanding via the cheapest frontier edge.",
+    "code": "import heapq\n\ndef prim(g, start=0):\n    n = len(g)\n    in_tree = [False] * n\n    total = 0\n    pq = [(0, start)]\n    count = 0\n    while pq:\n        w, u = heapq.heappop(pq)\n        if in_tree[u]:\n            continue\n        in_tree[u] = True\n        total += w\n        count += 1\n        for v, w2 in g[u]:\n            if not in_tree[v]:\n                heapq.heappush(pq, (w2, v))\n    return total if count == n else None"
+   },
+   {
+    "name": "Prim O(V^2) dense variant",
+    "description": "Array scan for the minimum key when the graph is dense.",
+    "code": "def prim_dense(adj):\n    n = len(adj)\n    in_tree = [False] * n\n    key = [float('inf')] * n\n    key[0] = 0\n    total = 0\n    for _ in range(n):\n        u = -1\n        best = float('inf')\n        for i in range(n):\n            if not in_tree[i] and key[i] < best:\n                best = key[i]\n                u = i\n        if u == -1:\n            break\n        in_tree[u] = True\n        total += best\n        for v in range(n):\n            if not in_tree[v] and adj[u][v] < key[v]:\n                key[v] = adj[u][v]\n    return total"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Prim's on a small graph",
+    "problem": "MST from node 0 with edges (0,1,2),(0,2,3),(1,2,1),(1,3,4),(2,3,5).",
+    "input": "g = [[(1,2),(2,3)],[(0,2),(2,1),(3,4)],[(0,3),(1,1),(3,5)],[(1,4),(2,5)]]",
+    "output": "Total weight 7",
+    "explanation": "Prim picks 0->1 (2), then 1->2 (1) over 0->2 (3), then 1->3 (4), totaling 7.",
+    "steps": [
+     "Start at 0; candidate edges 0->1 (2), 0->2 (3).",
+     "Take 0->1 (2); add 1->2 (1), 1->3 (4).",
+     "Take 1->2 (1) since it is cheapest; add 2->3 (5).",
+     "Take 1->3 (4) over 2->3 (5).",
+     "All 4 nodes in tree; total 2+1+4=7."
+    ],
+    "complexity": {
+     "time": "O((V + E) log V)",
+     "space": "O(V + E)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Processing an already finalized vertex and double-counting its weight.",
+    "fix": "Skip any popped vertex that is already in the tree."
+   },
+   {
+    "mistake": "Only pushing edges from the initial source instead of from every newly added vertex.",
+    "fix": "Push all edges of each vertex as it joins the tree."
+   },
+   {
+    "mistake": "Confusing Prim's edge weights with Dijkstra's path distances.",
+    "fix": "Prim minimizes total tree weight, not distances from a source."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Connecting Cities With Minimum Cost",
+    "slug": "connect-cities-prim-2",
+    "difficulty": "medium",
+    "description": "Return the minimum cost to build roads connecting all cities, or -1 if impossible.",
+    "constraints": "1 <= n <= 10^4; up to 3 * 10^4 roads.",
+    "hints": [
+     "Run Prim from city 0.",
+     "If the tree does not include all cities, return -1."
+    ],
+    "approach": "Heap-based Prim over the road adjacency list.",
+    "pattern": "Prim's",
+    "time": "O((V + E) log V)",
+    "space": "O(V + E)",
+    "solution": "Build an adjacency list from the roads. Seed the heap with (0, 0) for city 0 and track visited. Pop the cheapest edge; if the vertex is unvisited, add its weight, mark it visited, and push all its incident edges. If the visited count reaches n, return the accumulated cost; otherwise return -1.",
+    "tags": [
+     "mst",
+     "prim",
+     "heap"
+    ]
+   },
+   {
+    "name": "Minimum Cost to Connect All Points (Prim)",
+    "slug": "min-cost-connect-points-prim",
+    "difficulty": "medium",
+    "description": "Return the minimum cost to connect all points using Manhattan distance edges.",
+    "constraints": "1 <= points.length <= 1000.",
+    "hints": [
+     "Avoid materializing all O(V^2) edges by computing distances on the fly.",
+     "Heap stores (cost, i)."
+    ],
+    "approach": "Prim using implicit edges whose weights are Manhattan distances.",
+    "pattern": "Prim's",
+    "time": "O(V^2 log V)",
+    "space": "O(V)",
+    "solution": "Maintain a min-heap of (cost, point index). Pop the cheapest candidate; if unvisited, add the cost, mark it visited, and push every other unvisited point with its Manhattan distance as the edge weight. Stop after all V points are visited and return the total cost.",
+    "tags": [
+     "mst",
+     "prim",
+     "heap"
+    ]
+   },
+   {
+    "name": "Minimum Cost to Connect Servers",
+    "slug": "min-cost-connect-servers",
+    "difficulty": "medium",
+    "description": "Given a weighted network of servers, find the cheapest way to link them all into one connected system.",
+    "constraints": "Servers up to a few thousand; edges up to 10^5.",
+    "hints": [
+     "This is exactly an MST problem.",
+     "Either Prim or Kruskal works."
+    ],
+    "approach": "Apply Prim's algorithm with a heap over the adjacency list.",
+    "pattern": "Prim's",
+    "time": "O((V + E) log V)",
+    "space": "O(V + E)",
+    "solution": "Treat servers as vertices and cables as weighted edges. Run Prim starting from any server, always extending the tree with the cheapest cable to an unconnected server. When every server is included, return the total cable cost; if the graph is disconnected, return -1.",
+    "tags": [
+     "mst",
+     "prim",
+     "graph"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "kruskal-s",
+  "name": "Kruskal's",
+  "difficulty": "medium",
+  "overview": "Kruskal's algorithm finds an MST by sorting all edges by weight and adding the cheapest edge that does not create a cycle, using a disjoint set union (DSU).",
+  "why": "Kruskal is simple to reason about and pairs perfectly with DSU, making it a favorite for edge-list based MST questions.",
+  "when": "Use Kruskal when the input is naturally an edge list, when you want the MST as a sorted set of edges, or when you already have a DSU ready.",
+  "complexity": {
+   "time": "O(E log E)",
+   "space": "O(V + E)"
+  },
+  "concepts": [
+   {
+    "name": "Sorting by weight",
+    "description": "Edges are processed in ascending weight order, greedily."
+   },
+   {
+    "name": "Cycle avoidance",
+    "description": "An edge is skipped if its endpoints already lie in the same DSU set."
+   },
+   {
+    "name": "Union-find",
+    "description": "The DSU answers 'are these connected?' and merges sets in near-constant time."
+   },
+   {
+    "name": "Edge count condition",
+    "description": "The MST is complete once V-1 edges are accepted."
+   },
+   {
+    "name": "Disconnected detection",
+    "description": "If fewer than V-1 edges are accepted, the graph is disconnected and has no MST."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Kruskal with DSU",
+    "description": "Sort edges, then union accept edges between distinct sets.",
+    "code": "def kruskal(n, edges):\n    parent = list(range(n))\n    size = [1] * n\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n    total = 0\n    for u, v, w in sorted(edges, key=lambda e: e[2]):\n        ru, rv = find(u), find(v)\n        if ru != rv:\n            if size[ru] < size[rv]:\n                ru, rv = rv, ru\n            parent[rv] = ru\n            size[ru] += size[rv]\n            total += w\n    return total"
+   },
+   {
+    "name": "Kruskal returning MST edges",
+    "description": "Collect the accepted edges instead of only summing weights.",
+    "code": "def kruskal_edges(n, edges):\n    parent = list(range(n))\n    def find(x):\n        while parent[x] != x:\n            parent[x] = parent[parent[x]]\n            x = parent[x]\n        return x\n    mst = []\n    for u, v, w in sorted(edges, key=lambda e: e[2]):\n        pu, pv = find(u), find(v)\n        if pu != pv:\n            parent[pu] = pv\n            mst.append((u, v, w))\n            if len(mst) == n - 1:\n                break\n    return mst"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Kruskal on a weighted graph",
+    "problem": "MST weight for edges (0,1,1),(0,2,4),(1,2,2),(1,3,5),(2,3,3).",
+    "input": "n = 4, edges as listed",
+    "output": "Total weight 6",
+    "explanation": "Sorted order picks weights 1, 2, 3, connecting all four vertices for 6, the minimum possible.",
+    "steps": [
+     "Sort edges: (0,1,1), (1,2,2), (2,3,3), (0,2,4), (1,3,5).",
+     "Accept (0,1,1); union 0,1.",
+     "Accept (1,2,2); union {0,1},2.",
+     "Accept (2,3,3); union all four.",
+     "Skip (0,2,4) and (1,3,5); total 6."
+    ],
+    "complexity": {
+     "time": "O(E log E)",
+     "space": "O(V + E)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Accepting an edge whose endpoints are already in the same set, creating a cycle.",
+    "fix": "Call find() on both endpoints and only union when the roots differ."
+   },
+   {
+    "mistake": "Sorting edges incorrectly or forgetting the key on tuples.",
+    "fix": "Sort with key=lambda e: e[2] by weight."
+   },
+   {
+    "mistake": "Not checking that V-1 edges were selected on disconnected graphs.",
+    "fix": "After the loop, verify the accepted edge count equals V-1."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Min Cost to Connect All Points (Kruskal)",
+    "slug": "min-cost-connect-points-kruskal",
+    "difficulty": "medium",
+    "description": "Return the minimum cost to connect all points with Manhattan distance edges.",
+    "constraints": "1 <= points.length <= 1000.",
+    "hints": [
+     "Build all edges with Manhattan weights and sort.",
+     "Use DSU to detect cycles."
+    ],
+    "approach": "Kruskal over the complete graph of Manhattan distances.",
+    "pattern": "Kruskal's",
+    "time": "O(V^2 log V)",
+    "space": "O(V^2)",
+    "solution": "Generate every edge (i, j) with weight |xi - xj| + |yi - yj|. Sort by weight and process with DSU, accepting edges whose endpoints are in different sets and adding their weights. Stop after accepting V-1 edges and return the accumulated cost.",
+    "tags": [
+     "mst",
+     "kruskal",
+     "union-find"
+    ]
+   },
+   {
+    "name": "Minimum Spanning Tree (Classic)",
+    "slug": "minimum-spanning-tree-classic",
+    "difficulty": "medium",
+    "description": "Compute the total weight of the MST of a given weighted undirected graph.",
+    "constraints": "n <= 10000; edges <= 10^5.",
+    "hints": [
+     "Kruskal is the cleanest for edge-list inputs.",
+     "Watch for disconnected components."
+    ],
+    "approach": "Sort edges and run DSU-based Kruskal.",
+    "pattern": "Kruskal's",
+    "time": "O(E log E)",
+    "space": "O(V + E)",
+    "solution": "Sort all edges by weight. Initialize DSU with n nodes and an accepted counter. For each edge in sorted order, if its endpoints are in different sets, union them and add the weight; increment the counter and stop once it reaches n-1. If it never reaches n-1, no MST exists.",
+    "tags": [
+     "mst",
+     "kruskal",
+     "graph"
+    ]
+   },
+   {
+    "name": "Maximize Sum of Tree Edge Costs",
+    "slug": "maximize-sum-tree-edge-costs",
+    "difficulty": "hard",
+    "description": "Given a connected graph, find a spanning tree that maximizes total edge weight.",
+    "constraints": "Graphs of a few hundred nodes.",
+    "hints": [
+     "Sort edges descending and apply the same union logic.",
+     "Maximum spanning tree uses the identical greedy argument."
+    ],
+    "approach": "Kruskal with edges sorted in descending order for a maximum spanning tree.",
+    "pattern": "Kruskal's",
+    "time": "O(E log E)",
+    "space": "O(V + E)",
+    "solution": "Sort the edges by weight in descending order and apply Kruskal's union logic: accept each edge whose endpoints are in different sets and add its weight. Because the cut property holds symmetrically, the greedy descending process yields a maximum spanning tree.",
+    "tags": [
+     "mst",
+     "kruskal",
+     "greedy"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "disjoint-set-union-dsu",
+  "name": "Disjoint Set Union (DSU)",
+  "difficulty": "medium",
+  "overview": "Disjoint Set Union (also called union-find) tracks which elements belong to which set using find and union operations. Path compression and union by rank make both near-constant time.",
+  "why": "DSU is the standard tool for connectivity queries, cycle detection in undirected graphs, and problems that merge groups dynamically.",
+  "when": "Use DSU when you repeatedly ask 'are these two nodes connected?' or merge groups, especially for components, redundant edges, and online connectivity.",
+  "complexity": {
+   "time": "O(alpha(V)) amortized per operation",
+   "space": "O(V)"
+  },
+  "concepts": [
+   {
+    "name": "Parent array",
+    "description": "parent[i] points to the representative of i's set; the root points to itself."
+   },
+   {
+    "name": "find",
+    "description": "Returns the root representative of an element's set."
+   },
+   {
+    "name": "union",
+    "description": "Merges two sets by attaching one root to the other."
+   },
+   {
+    "name": "Path compression",
+    "description": "Rewiring nodes to the root during find to flatten the tree."
+   },
+   {
+    "name": "Union by rank/size",
+    "description": "Attaching the smaller tree under the larger one keeps trees shallow."
+   },
+   {
+    "name": "Amortized complexity",
+    "description": "With both optimizations, operations run in inverse-Ackermann time, effectively constant."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "DSU with path compression and union by size",
+    "description": "Near-constant time find and union.",
+    "code": "class DSU:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.size = [1] * n\n    def find(self, x):\n        while self.parent[x] != x:\n            self.parent[x] = self.parent[self.parent[x]]\n            x = self.parent[x]\n        return x\n    def union(self, a, b):\n        ra, rb = self.find(a), self.find(b)\n        if ra == rb:\n            return False\n        if self.size[ra] < self.size[rb]:\n            ra, rb = rb, ra\n        self.parent[rb] = ra\n        self.size[ra] += self.size[rb]\n        return True"
+   },
+   {
+    "name": "Recursive find",
+    "description": "One-line recursive find with path compression.",
+    "code": "def find(parent, x):\n    if parent[x] != x:\n        parent[x] = find(parent, parent[x])\n    return parent[x]\n\ndef union(parent, rank, a, b):\n    ra, rb = find(parent, a), find(parent, b)\n    if ra == rb:\n        return\n    if rank[ra] < rank[rb]:\n        ra, rb = rb, ra\n    parent[rb] = ra\n    if rank[ra] == rank[rb]:\n        rank[ra] += 1"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Merging three elements",
+    "problem": "Union 0 with 1, then 1 with 2, then ask whether 0 and 2 are connected.",
+    "input": "DSU over {0,1,2}",
+    "output": "After unions, find(0) == find(2) is True",
+    "explanation": "All three elements merge into one set, so any pair shares a common root.",
+    "steps": [
+     "Initially each element is its own root.",
+     "union(0,1): attach 1 under 0; root is 0.",
+     "union(1,2): find(1) returns 0, attach 2 under 0.",
+     "find(0) and find(2) both return 0.",
+     "They are in the same set, so connected."
+    ],
+    "complexity": {
+     "time": "O(alpha(n)) per op",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Skipping path compression, which degrades find to O(V) in the worst case.",
+    "fix": "Compress paths during every find call."
+   },
+   {
+    "mistake": "Unioning without checking if roots differ, corrupting the structure.",
+    "fix": "Return early when the two elements are already in the same set."
+   },
+   {
+    "mistake": "Recursive find overflowing the stack on deep trees.",
+    "fix": "Use the iterative find with path halving."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Redundant Connection",
+    "slug": "redundant-connection-dsu",
+    "difficulty": "medium",
+    "description": "Given edges of a tree plus one extra edge, return the edge that closes the cycle.",
+    "constraints": "n in [3, 1000]; exactly one extra edge.",
+    "hints": [
+     "Process edges in order with DSU.",
+     "The first edge whose endpoints are already connected is the answer."
+    ],
+    "approach": "Union endpoints; the first edge linking two already-connected nodes is redundant.",
+    "pattern": "Disjoint Set Union (DSU)",
+    "time": "O(E * alpha(V))",
+    "space": "O(V)",
+    "solution": "Initialize DSU over n nodes. Iterate the edges in order; for each, check whether its endpoints share a root. If they do, this edge completes a cycle and is the redundant edge to return. Otherwise, union the two sets. Since the graph is a tree plus exactly one extra edge, exactly one such edge exists.",
+    "tags": [
+     "union-find",
+     "graph",
+     "cycle"
+    ]
+   },
+   {
+    "name": "Number of Connected Components in an Undirected Graph",
+    "slug": "number-of-connected-components",
+    "difficulty": "medium",
+    "description": "Given n nodes and edges, return the number of connected components.",
+    "constraints": "0 <= n <= 2000; edges up to 2000.",
+    "hints": [
+     "Union every edge.",
+     "Count the number of distinct roots at the end."
+    ],
+    "approach": "DSU: union all edges, then count unique roots.",
+    "pattern": "Disjoint Set Union (DSU)",
+    "time": "O(E * alpha(V))",
+    "space": "O(V)",
+    "solution": "Create a DSU over the n nodes. Union the endpoints of every edge. After processing all edges, count how many nodes are their own root (or use a set of find results); that count is the number of connected components.",
+    "tags": [
+     "union-find",
+     "graph",
+     "components"
+    ]
+   },
+   {
+    "name": "Smallest String With Swaps",
+    "slug": "smallest-string-with-swaps",
+    "difficulty": "medium",
+    "description": "Given a string and swap pairs (indices that may be swapped any number of times), return the lexicographically smallest string reachable.",
+    "constraints": "1 <= s.length <= 10^5; pairs up to 10^5.",
+    "hints": [
+     "Indices connected through swap pairs form one freely reorderable group.",
+     "Sort the characters inside each group."
+    ],
+    "approach": "DSU to group swappable indices, then sort each group's characters.",
+    "pattern": "Disjoint Set Union (DSU)",
+    "time": "O((V + E) * alpha(V))",
+    "space": "O(V)",
+    "solution": "Union every pair of indices with DSU. Then for each component, collect its indices and their characters, sort the characters ascending, and place them back into the sorted index positions. Since swaps inside a component allow arbitrary permutation, this yields the smallest possible string.",
+    "tags": [
+     "union-find",
+     "string",
+     "greedy"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "strongly-connected-components",
+  "name": "Strongly Connected Components",
+  "difficulty": "hard",
+  "overview": "A strongly connected component (SCC) of a directed graph is a maximal set of vertices where every vertex can reach every other vertex via directed paths. Tarjan's and Kosaraju's algorithms find all SCCs in linear time.",
+  "why": "SCC decomposition turns cycles into single nodes, giving a DAG of components that underlies many dependency and 'who influences whom' problems.",
+  "when": "Use SCC when you need to analyze reachability inside a directed graph, condense cycles, or solve problems about mutual reachability or influence.",
+  "complexity": {
+   "time": "O(V + E)",
+   "space": "O(V)"
+  },
+  "concepts": [
+   {
+    "name": "Mutual reachability",
+    "description": "u and v are strongly connected if each can reach the other."
+   },
+   {
+    "name": "Condensation graph",
+    "description": "The DAG formed by contracting each SCC into a single vertex."
+   },
+   {
+    "name": "Tarjan's algorithm",
+    "description": "Single DFS pass using low-link values and a stack to identify SCCs."
+   },
+   {
+    "name": "Kosaraju's algorithm",
+    "description": "Two passes: DFS for finishing order, then DFS on the reversed graph."
+   },
+   {
+    "name": "SCC DAG property",
+    "description": "Collapsing SCCs never leaves a directed cycle between components."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Tarjan's SCC",
+    "description": "Single-pass DFS with low-link and a stack.",
+    "code": "def tarjan_scc(g):\n    n = len(g)\n    idx = [-1] * n\n    low = [0] * n\n    onstack = [False] * n\n    stack = []\n    sccs = []\n    counter = 0\n    def dfs(u):\n        nonlocal counter\n        idx[u] = low[u] = counter\n        counter += 1\n        stack.append(u)\n        onstack[u] = True\n        for v in g[u]:\n            if idx[v] == -1:\n                dfs(v)\n                low[u] = min(low[u], low[v])\n            elif onstack[v]:\n                low[u] = min(low[u], idx[v])\n        if low[u] == idx[u]:\n            comp = []\n            while True:\n                w = stack.pop()\n                onstack[w] = False\n                comp.append(w)\n                if w == u:\n                    break\n            sccs.append(comp)\n    for u in range(n):\n        if idx[u] == -1:\n            dfs(u)\n    return sccs"
+   },
+   {
+    "name": "Kosaraju's SCC",
+    "description": "Two passes over the graph and its transpose using finishing times.",
+    "code": "def kosaraju(g):\n    n = len(g)\n    visited = [False] * n\n    order = []\n    def dfs1(u):\n        visited[u] = True\n        for v in g[u]:\n            if not visited[v]:\n                dfs1(v)\n        order.append(u)\n    for u in range(n):\n        if not visited[u]:\n            dfs1(u)\n    rg = [[] for _ in range(n)]\n    for u in range(n):\n        for v in g[u]:\n            rg[v].append(u)\n    comp = [-1] * n\n    def dfs2(u, c):\n        comp[u] = c\n        for v in rg[u]:\n            if comp[v] == -1:\n                dfs2(v, c)\n    c = 0\n    for u in reversed(order):\n        if comp[u] == -1:\n            dfs2(u, c)\n            c += 1\n    return comp, c"
+   }
+  ],
+  "examples": [
+   {
+    "title": "SCCs in a graph with two cycles",
+    "problem": "Find SCCs of the graph 0<->1<->2 and 3 isolated.",
+    "input": "g = [[1],[0,2],[1],[3]]",
+    "output": "Two SCCs: {0,1,2} and {3}",
+    "explanation": "Vertices 0,1,2 are mutually reachable, while 3 is isolated and forms a singleton SCC.",
+    "steps": [
+     "Run Tarjan from 0, assigning indices and low-links.",
+     "Detect that low[0] == idx[0], popping the whole cycle {2,1,0}.",
+     "Start the next DFS from 3.",
+     "3 has no outgoing edges, so it pops immediately as a singleton.",
+     "Result: [{0,1,2}, {3}]."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using plain visited booleans and missing SCCs reachable from an earlier DFS root.",
+    "fix": "Use Tarjan's low-link or Kosaraju's reverse-graph pass."
+   },
+   {
+    "mistake": "Forgetting to reset the on-stack flag when popping an SCC.",
+    "fix": "Clear onstack for every vertex popped from the stack."
+   },
+   {
+    "mistake": "Confusing SCCs with weakly connected components in directed graphs.",
+    "fix": "SCCs require mutual directed reachability, not just an undirected path."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Course Schedule (SCC view)",
+    "slug": "course-schedule-scc",
+    "difficulty": "medium",
+    "description": "Determine whether a set of courses with prerequisites can all be completed.",
+    "constraints": "1 <= numCourses <= 2000.",
+    "hints": [
+     "A cycle prevents completion.",
+     "SCCs of size > 1 or self-loops indicate cycles."
+    ],
+    "approach": "Compute SCCs with Tarjan; if any component has more than one vertex or a self-loop, a cycle exists.",
+    "pattern": "Strongly Connected Components",
+    "time": "O(V + E)",
+    "space": "O(V + E)",
+    "solution": "Run Tarjan's algorithm to decompose the prerequisite graph into SCCs. A course graph can be fully ordered only if it is acyclic, which is exactly when every SCC is a single vertex with no self-loop. If any larger SCC exists, return false; otherwise return true.",
+    "tags": [
+     "graph",
+     "scc",
+     "topological-sort"
+    ]
+   },
+   {
+    "name": "Number of Provinces (Directed)",
+    "slug": "number-of-provinces-directed",
+    "difficulty": "medium",
+    "description": "In a directed connectivity matrix, count the strongly connected components.",
+    "constraints": "1 <= n <= 200.",
+    "hints": [
+     "Run Kosaraju on the matrix as an adjacency structure.",
+     "Count components from the second DFS pass."
+    ],
+    "approach": "Kosaraju's algorithm: order by finish time, then DFS on the transposed graph.",
+    "pattern": "Strongly Connected Components",
+    "time": "O(V^2)",
+    "space": "O(V)",
+    "solution": "First pass: DFS the original matrix recording a finish-time order. Second pass: process nodes in reverse finish order on the transposed matrix; each DFS run discovers exactly one SCC. The number of second-pass DFS runs is the SCC count.",
+    "tags": [
+     "graph",
+     "scc",
+     "kosaraju"
+    ]
+   },
+   {
+    "name": "Find All People With Secret",
+    "slug": "find-all-people-with-secret",
+    "difficulty": "hard",
+    "description": "Given meetings at times where knowledge is shared within each meeting group, return all people who learn a secret by the end.",
+    "constraints": "n up to 10^5; meetings up to 10^5.",
+    "hints": [
+     "Within a time step, meeting groups form SCCs that share the secret instantly.",
+     "Propagate from known carriers to their SCCs."
+    ],
+    "approach": "Process meetings grouped by time; union people in meetings sharing a known secret, then propagate.",
+    "pattern": "Strongly Connected Components",
+    "time": "O((V + E) log E)",
+    "space": "O(V + E)",
+    "solution": "Group meetings by time. For each time step, build a DSU over the participants; union everyone in each meeting. Then for each component containing at least one secret holder, mark all its members as holders and repeat unioning with other meetings sharing those members. Carry the secret set forward to later time steps.",
+    "tags": [
+     "graph",
+     "union-find",
+     "simulation"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "bridges-articulation-points",
+  "name": "Bridges & articulation points",
+  "difficulty": "hard",
+  "overview": "A bridge is an edge whose removal disconnects the graph; an articulation point is a vertex whose removal increases the number of connected components. Both are found with a single DFS using discovery and low-link times.",
+  "why": "Bridge and articulation point problems model network fragility, single points of failure, and critical infrastructure, and appear in system-design-oriented graph questions.",
+  "when": "Use low-link DFS when a problem asks for critical edges, nodes whose removal splits the network, or the most vulnerable parts of a graph.",
+  "complexity": {
+   "time": "O(V + E)",
+   "space": "O(V)"
+  },
+  "concepts": [
+   {
+    "name": "Bridge",
+    "description": "An edge that, when removed, increases the number of connected components."
+   },
+   {
+    "name": "Articulation point",
+    "description": "A vertex whose removal increases the number of connected components."
+   },
+   {
+    "name": "Discovery time",
+    "description": "The step at which DFS first visits a vertex."
+   },
+   {
+    "name": "Low-link value",
+    "description": "The smallest discovery time reachable from a subtree without going through its parent edge."
+   },
+   {
+    "name": "DFS tree edge condition",
+    "description": "An edge u->v is a bridge iff low[v] > disc[u]; u is an articulation point iff low[v] >= disc[u] (with the root handled separately)."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Finding bridges with low-link",
+    "description": "Track discovery and low-link, and flag edges where low[v] exceeds disc[u].",
+    "code": "def find_bridges(g):\n    n = len(g)\n    disc = [-1] * n\n    low = [0] * n\n    bridges = []\n    t = 0\n    def dfs(u, parent):\n        nonlocal t\n        disc[u] = low[u] = t\n        t += 1\n        for v in g[u]:\n            if v == parent:\n                continue\n            if disc[v] == -1:\n                dfs(v, u)\n                low[u] = min(low[u], low[v])\n                if low[v] > disc[u]:\n                    bridges.append((u, v))\n            else:\n                low[u] = min(low[u], disc[v])\n    for u in range(n):\n        if disc[u] == -1:\n            dfs(u, -1)\n    return bridges"
+   },
+   {
+    "name": "Finding articulation points",
+    "description": "Low-link rule with special handling for the DFS root.",
+    "code": "def articulation_points(g):\n    n = len(g)\n    disc = [-1] * n\n    low = [0] * n\n    ap = [False] * n\n    t = 0\n    def dfs(u, parent):\n        nonlocal t\n        disc[u] = low[u] = t\n        t += 1\n        children = 0\n        for v in g[u]:\n            if v == parent:\n                continue\n            if disc[v] == -1:\n                children += 1\n                dfs(v, u)\n                low[u] = min(low[u], low[v])\n                if parent == -1 and children > 1:\n                    ap[u] = True\n                elif parent != -1 and low[v] >= disc[u]:\n                    ap[u] = True\n            else:\n                low[u] = min(low[u], disc[v])\n    for u in range(n):\n        if disc[u] == -1:\n            dfs(u, -1)\n    return [i for i in range(n) if ap[i]]"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Finding the single bridge",
+    "problem": "Graph with edges (0,1),(1,2),(1,3),(3,2): find the edge whose removal disconnects the graph.",
+    "input": "g = [[1],[0,2,3],[1,3],[1,2]]",
+    "output": "Bridge: (0,1)",
+    "explanation": "Removing 0-1 splits the graph into {0} and {1,2,3}; every other edge lies inside the triangle and is not a bridge.",
+    "steps": [
+     "DFS from 0: disc[0]=0, then 1 at 1, 2 at 2, 3 at 3.",
+     "From 3, back edge to 2 updates low[3]=min(3,2)=2.",
+     "Backtrack: low[2]=2, low[1]=min(1,2)=1.",
+     "Check edge 1->0: low[1]=1 > disc[0]=0, so (0,1) is a bridge.",
+     "Edges inside the triangle have low[v] <= disc[u] and are not bridges."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Counting the parent edge as a back edge when comparing low values.",
+    "fix": "Skip the parent explicitly (or handle parallel edges) when updating low."
+   },
+   {
+    "mistake": "Forgetting that the DFS root is an articulation point only if it has more than one child in the DFS tree.",
+    "fix": "Handle the root case separately by counting its DFS children."
+   },
+   {
+    "mistake": "Using low[v] >= disc[u] for bridge detection; bridges need the strict inequality.",
+    "fix": "Bridges require low[v] > disc[u]; articulation points use >=."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Critical Connections in a Network",
+    "slug": "critical-connections-in-a-network",
+    "difficulty": "hard",
+    "description": "Given a connected network of servers, return all connections whose removal would split the network into two parts.",
+    "constraints": "2 <= n <= 10^5; edges up to 10^5.",
+    "hints": [
+     "A critical connection is exactly a bridge.",
+     "Run the low-link DFS."
+    ],
+    "approach": "Tarjan-style DFS to find every bridge in the graph.",
+    "pattern": "Bridges & articulation points",
+    "time": "O(V + E)",
+    "space": "O(V + E)",
+    "solution": "Perform a single DFS computing discovery and low-link times. An edge u->v is a bridge exactly when low[v] > disc[u] after v's subtree completes. Collect all such edges and return them. Because the network is connected, every returned edge truly disconnects it.",
+    "tags": [
+     "graph",
+     "dfs",
+     "bridges"
+    ]
+   },
+   {
+    "name": "Articulation Points in a Network",
+    "slug": "articulation-points-network",
+    "difficulty": "hard",
+    "description": "Return all vertices whose removal disconnects the graph.",
+    "constraints": "n up to 10^5.",
+    "hints": [
+     "Use the low[v] >= disc[u] rule for non-root vertices.",
+     "The DFS root is an articulation point if it has at least two children."
+    ],
+    "approach": "Tarjan DFS tracking articulation point conditions.",
+    "pattern": "Bridges & articulation points",
+    "time": "O(V + E)",
+    "space": "O(V)",
+    "solution": "Run the DFS computing disc and low for each vertex. For every tree edge u->v where v is a child, if low[v] >= disc[u] and u is not the root, mark u as an articulation point. For the root, count its DFS-tree children; if it has more than one, it is an articulation point. Return all marked vertices.",
+    "tags": [
+     "graph",
+     "dfs",
+     "articulation-point"
+    ]
+   },
+   {
+    "name": "Make Graph Acyclic by Removing Bridges",
+    "slug": "make-graph-acyclic-removing-bridges",
+    "difficulty": "hard",
+    "description": "Find the smallest set of edges to remove so every remaining component is 2-edge-connected.",
+    "constraints": "Moderate sized graphs.",
+    "hints": [
+     "Every bridge must be removed or bypassed.",
+     "Removing all bridges leaves 2-edge-connected blocks."
+    ],
+    "approach": "Identify bridges with low-link DFS; removing them yields the 2-edge-connected block structure.",
+    "pattern": "Bridges & articulation points",
+    "time": "O(V + E)",
+    "space": "O(V)",
+    "solution": "Compute all bridges using the low-link DFS. Removing every bridge splits the graph into 2-edge-connected components, where no single remaining edge disconnects any component. Any spanning tree inside such blocks is safe; the bridges themselves are the minimal edges that must be removed to guarantee this property.",
+    "tags": [
+     "graph",
+     "dfs",
+     "bridges"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "graph-algorithms",
+  "name": "Graph algorithms",
+  "difficulty": "medium",
+  "overview": "This category surveys the core graph algorithms: traversal (BFS/DFS), connectivity, cycle detection, topological sorting, shortest paths, and minimum spanning trees.",
+  "why": "Graph problems are a pillar of coding interviews, and knowing which algorithm fits a given graph and goal is a skill interviewers actively probe.",
+  "when": "Choose an algorithm by graph properties: unweighted edges, weighted edges, negative weights, directedness, and whether you need distances, order, or connectivity.",
+  "complexity": {
+   "time": "Varies; most are O(V + E) or O((V + E) log V)",
+   "space": "O(V) typically"
+  },
+  "concepts": [
+   {
+    "name": "Traversal",
+    "description": "Visiting all reachable nodes via BFS (level order) or DFS (depth order)."
+   },
+   {
+    "name": "Shortest paths",
+    "description": "BFS for unweighted, Dijkstra for non-negative weighted, Bellman-Ford for negative weights."
+   },
+   {
+    "name": "Ordering",
+    "description": "Topological sort produces dependency-valid orderings of DAGs."
+   },
+   {
+    "name": "Connectivity",
+    "description": "Components, SCCs, bridges, and articulation points describe how the graph hangs together."
+   },
+   {
+    "name": "Optimization",
+    "description": "MST algorithms build minimal-cost spanning trees."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Algorithm selection by graph type",
+    "description": "Decide among BFS, Dijkstra, Bellman-Ford based on weights.",
+    "code": "def choose_shortest_path(n, edges, has_negative=False):\n    if has_negative:\n        return \"bellman-ford\"\n    return \"dijkstra or BFS if unweighted\""
+   },
+   {
+    "name": "Traversal choice by goal",
+    "description": "Pick BFS for distance levels and DFS for full exploration.",
+    "code": "def traversal(kind, g, start):\n    seen = {start}\n    if kind == 'bfs':\n        from collections import deque\n        q = deque([start])\n        while q:\n            u = q.popleft()\n            for v in g[u]:\n                if v not in seen:\n                    seen.add(v)\n                    q.append(v)\n    else:\n        stack = [start]\n        while stack:\n            u = stack.pop()\n            for v in g[u]:\n                if v not in seen:\n                    seen.add(v)\n                    stack.append(v)\n    return seen"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Choosing the right traversal",
+    "problem": "Which algorithm returns shortest hop counts in an unweighted graph?",
+    "input": "Unweighted, undirected graph",
+    "output": "BFS",
+    "explanation": "BFS explores by increasing distance from the source, so the first discovery of each node is its shortest hop count.",
+    "steps": [
+     "Check whether the graph is weighted.",
+     "Since it is unweighted, select BFS.",
+     "Run BFS from the source with a visited set.",
+     "Record the distance on first discovery of each node.",
+     "Return the distances array."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Applying one shortest-path algorithm to every graph regardless of weights.",
+    "fix": "Match the algorithm to edge weights: BFS, Dijkstra, or Bellman-Ford."
+   },
+   {
+    "mistake": "Trying topological sort on graphs with cycles.",
+    "fix": "Detect cycles first; topological order requires a DAG."
+   },
+   {
+    "mistake": "Using DFS where BFS is required, such as for shortest paths.",
+    "fix": "Reserve DFS for exploration and structure; use BFS for distances."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Evaluate Division",
+    "slug": "evaluate-division",
+    "difficulty": "medium",
+    "description": "Given equations like a/b = k, answer queries for the value of x/y or -1 if it cannot be determined.",
+    "constraints": "Variables up to 40; equations and queries limited.",
+    "hints": [
+     "Model variables as nodes and ratios as edge weights.",
+     "A query is a path product in this graph."
+    ],
+    "approach": "BFS or Floyd-Warshall over the variable graph, multiplying edge weights along paths.",
+    "pattern": "Graph algorithms",
+    "time": "O(V * (V + E))",
+    "space": "O(V + E)",
+    "solution": "Build an undirected graph where an edge a->b carries weight k and b->a carries 1/k. For each query (x, y), run BFS from x multiplying ratios along edges; the answer is the product when y is reached, or -1.0 if no path exists or if either variable is unknown.",
+    "tags": [
+     "graph",
+     "bfs",
+     "floyd-warshall"
+    ]
+   },
+   {
+    "name": "Reorder Routes to Make All Paths Lead to the City Zero",
+    "slug": "reorder-routes-to-city-zero",
+    "difficulty": "medium",
+    "description": "Given roads where traffic flows one way, return the minimum number of roads to reverse so every city can reach city 0.",
+    "constraints": "2 <= n <= 5 * 10^4; edges up to 5 * 10^4.",
+    "hints": [
+     "Build a graph with direction labels.",
+     "Count edges pointing away from 0 in its tree."
+    ],
+    "approach": "BFS/DFS from 0 over both directions, counting edges that currently point away.",
+    "pattern": "Graph algorithms",
+    "time": "O(V + E)",
+    "space": "O(V + E)",
+    "solution": "Build an adjacency list where each edge records whether it points toward or away from 0 along the undirected connection. BFS from 0, and for each neighbor edge pointing away from 0, increment the reversal counter. Every counted edge must be flipped so all cities can reach 0.",
+    "tags": [
+     "graph",
+     "bfs",
+     "tree"
+    ]
+   },
+   {
+    "name": "Most Stones Removed with Same Row or Column",
+    "slug": "most-stones-removed",
+    "difficulty": "medium",
+    "description": "Given stones on a grid where a stone can be removed if it shares a row or column with another, return the maximum number of stones removable.",
+    "constraints": "1 <= stones.length <= 1000.",
+    "hints": [
+     "Stones in the same row or column form connected groups.",
+     "You can leave exactly one stone per connected component."
+    ],
+    "approach": "DSU or DFS grouping stones by shared rows/columns; answer is total stones minus components.",
+    "pattern": "Graph algorithms",
+    "time": "O(N * alpha(N))",
+    "space": "O(N)",
+    "solution": "Union every pair of stones that share a row or column (or union stones with row/column keys in DSU). Count the number of connected components among stones. Since one stone must remain in each component, the maximum removable is stones.length - components.",
+    "tags": [
+     "graph",
+     "union-find",
+     "dfs"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "topological-sort",
+  "name": "Topological Sort",
+  "difficulty": "medium",
+  "overview": "Topological Sort linearly orders the vertices of a directed acyclic graph so every edge points forward in the order. It is realized either with Kahn's in-degree method or via DFS finish times.",
+  "why": "It is the standard tool for dependency resolution, build ordering, and scheduling questions, and it appears in many interview favorites like course scheduling and task ordering.",
+  "when": "Reach for topological sort whenever a problem says 'do A before B' and asks for a valid sequence, or when you need to process a DAG in dependency order.",
+  "complexity": {
+   "time": "O(V + E)",
+   "space": "O(V)"
+  },
+  "concepts": [
+   {
+    "name": "Linear extension",
+    "description": "The output ordering where every edge u -> v has u before v."
+   },
+   {
+    "name": "Kahn's method",
+    "description": "Repeatedly emit in-degree-zero vertices, decrementing successors' in-degrees."
+   },
+   {
+    "name": "DFS finish method",
+    "description": "Reverse the order in which vertices finish their DFS exploration."
+   },
+   {
+    "name": "Acyclic requirement",
+    "description": "A cycle makes a linear extension impossible."
+   },
+   {
+    "name": "Non-uniqueness",
+    "description": "Most DAGs admit several valid topological orders."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Topological order via in-degree",
+    "description": "Emit zero in-degree nodes with a queue, exactly as in Kahn's algorithm.",
+    "code": "from collections import deque\n\ndef topo_order(g):\n    n = len(g)\n    indeg = [0] * n\n    for u in range(n):\n        for v in g[u]:\n            indeg[v] += 1\n    q = deque(u for u in range(n) if indeg[u] == 0)\n    order = []\n    while q:\n        u = q.popleft()\n        order.append(u)\n        for v in g[u]:\n            indeg[v] -= 1\n            if indeg[v] == 0:\n                q.append(v)\n    return order"
+   },
+   {
+    "name": "Topological sort via DFS finish times",
+    "description": "Record finish order in DFS and reverse it.",
+    "code": "def topo_dfs(g):\n    visited = [False] * len(g)\n    order = []\n    def dfs(u):\n        visited[u] = True\n        for v in g[u]:\n            if not visited[v]:\n                dfs(v)\n        order.append(u)\n    for u in range(len(g)):\n        if not visited[u]:\n            dfs(u)\n    return order[::-1]"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Scheduling with dependencies",
+    "problem": "Tasks 0,1,2,3 with dependencies 0->1, 0->2, 1->3, 2->3.",
+    "input": "Edges as listed",
+    "output": "[0, 1, 2, 3] (or [0, 2, 1, 3])",
+    "explanation": "Task 0 has no dependencies and must come first; tasks 1 and 2 depend on 0; task 3 depends on both.",
+    "steps": [
+     "Compute in-degrees: 0=0, 1=1, 2=1, 3=2.",
+     "Start with task 0.",
+     "Removing 0 frees 1 and 2.",
+     "Removing 1 and 2 frees 3.",
+     "Order [0,1,2,3] satisfies every edge."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Running topological sort on a graph with a cycle and returning a partial answer.",
+    "fix": "Verify the output includes every vertex; otherwise a cycle exists."
+   },
+   {
+    "mistake": "Using DFS finish order without reversing it.",
+    "fix": "Reverse the finish list before returning."
+   },
+   {
+    "mistake": "Mutating the graph while computing in-degrees.",
+    "fix": "Store in-degrees separately and only decrement counts."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Course Schedule",
+    "slug": "course-schedule-topo",
+    "difficulty": "medium",
+    "description": "Determine if all courses can be finished given prerequisites.",
+    "constraints": "1 <= numCourses <= 2000.",
+    "hints": [
+     "A topological order exists iff there is no cycle.",
+     "Kahn's algorithm both orders and detects."
+    ],
+    "approach": "Run Kahn's algorithm and check that all courses are emitted.",
+    "pattern": "Topological Sort",
+    "time": "O(V + E)",
+    "space": "O(V + E)",
+    "solution": "Build the prerequisite graph and in-degree array. Run Kahn's algorithm, counting emitted courses. If the count equals numCourses, all courses can be completed; otherwise a cycle blocks the remaining courses and we return false.",
+    "tags": [
+     "graph",
+     "topological-sort",
+     "bfs"
+    ]
+   },
+   {
+    "name": "Course Schedule II",
+    "slug": "course-schedule-2-topo",
+    "difficulty": "medium",
+    "description": "Return any valid order to take all courses, or an empty array if impossible.",
+    "constraints": "1 <= numCourses <= 2000.",
+    "hints": [
+     "The emitted order from Kahn's is the answer.",
+     "An incomplete order signals a cycle."
+    ],
+    "approach": "Kahn's algorithm producing the course order directly.",
+    "pattern": "Topological Sort",
+    "time": "O(V + E)",
+    "space": "O(V + E)",
+    "solution": "Compute in-degrees from the prerequisite edges and process zero in-degree courses with a queue, appending each to the answer. After the loop, if the answer length is numCourses return it; otherwise a cycle exists and we return an empty array.",
+    "tags": [
+     "graph",
+     "topological-sort",
+     "kahn"
+    ]
+   },
+   {
+    "name": "Sequence Reconstruction",
+    "slug": "sequence-reconstruction",
+    "difficulty": "medium",
+    "description": "Given a target sequence org and a list of sequences, check whether org is the unique shortest supersequence consistent with the sequences.",
+    "constraints": "1 <= n <= 10^4; sequences up to 10^4.",
+    "hints": [
+     "Build edges from consecutive elements in each sequence.",
+     "A unique topological order must match org exactly."
+    ],
+    "approach": "Construct the graph, run Kahn's algorithm, and require exactly one source at every step.",
+    "pattern": "Topological Sort",
+    "time": "O(V + E)",
+    "space": "O(V + E)",
+    "solution": "For each sequence, add an edge from each element to the next. Run Kahn's algorithm; at each step there must be exactly one source, and it must match the next element of org. If any step has multiple sources, or the emitted order differs from org, return false; otherwise return true.",
+    "tags": [
+     "graph",
+     "topological-sort",
+     "bfs"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "dsu-union-find",
+  "name": "DSU / Union Find",
+  "difficulty": "medium",
+  "overview": "Union Find, or Disjoint Set Union (DSU), maintains a partition of elements into disjoint sets with two operations: find (locate the set representative) and union (merge two sets).",
+  "why": "It is the backbone of connectivity problems, Kruskal's MST, and online component merging, and its near-constant complexity makes it a favorite in interviews.",
+  "when": "Use DSU when the problem involves dynamic merging of groups or repeated connectivity queries, such as counting components or detecting redundant edges.",
+  "complexity": {
+   "time": "O(alpha(N)) amortized per operation",
+   "space": "O(N)"
+  },
+  "concepts": [
+   {
+    "name": "Representative / root",
+    "description": "The unique element that identifies a set after path compression."
+   },
+   {
+    "name": "find(x)",
+    "description": "Traverses parents to the root, compressing the path on the way."
+   },
+   {
+    "name": "union(a, b)",
+    "description": "Merges the sets containing a and b by linking roots."
+   },
+   {
+    "name": "Path compression",
+    "description": "Flattening trees so future finds are nearly O(1)."
+   },
+   {
+    "name": "Union by rank",
+    "description": "Keeping trees shallow by hanging the smaller tree under the larger."
+   },
+   {
+    "name": "Offline vs online",
+    "description": "DSU handles edges as they arrive, without needing the full graph upfront."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Iterative DSU find",
+    "description": "Path-halving version of find that avoids recursion limits.",
+    "code": "def find(parent, x):\n    while parent[x] != x:\n        parent[x] = parent[parent[x]]\n        x = parent[x]\n    return x\n\ndef union(parent, rank, a, b):\n    ra, rb = find(parent, a), find(parent, b)\n    if ra == rb:\n        return False\n    if rank[ra] < rank[rb]:\n        ra, rb = rb, ra\n    parent[rb] = ra\n    if rank[ra] == rank[rb]:\n        rank[ra] += 1\n    return True"
+   },
+   {
+    "name": "Class-based DSU with component size",
+    "description": "Object-oriented wrapper that also exposes set sizes.",
+    "code": "class DSU:\n    def __init__(self, n):\n        self.parent = list(range(n))\n        self.size = [1] * n\n    def find(self, x):\n        while self.parent[x] != x:\n            self.parent[x] = self.parent[self.parent[x]]\n            x = self.parent[x]\n        return x\n    def union(self, a, b):\n        ra, rb = self.find(a), self.find(b)\n        if ra == rb:\n            return False\n        if self.size[ra] < self.size[rb]:\n            ra, rb = rb, ra\n        self.parent[rb] = ra\n        self.size[ra] += self.size[rb]\n        return True"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Friends groups",
+    "problem": "There are 4 people; friendships (0,1) and (1,2). How many friend groups?",
+    "input": "n = 4, edges = [(0,1),(1,2)]",
+    "output": "2 groups",
+    "explanation": "People 0,1,2 form one group; person 3 is alone.",
+    "steps": [
+     "Initialize 4 singleton sets.",
+     "Union 0 and 1; group {0,1}.",
+     "Union 1 and 2; group {0,1,2}.",
+     "Person 3 remains its own group.",
+     "Distinct roots = 2 groups."
+    ],
+    "complexity": {
+     "time": "O(N * alpha(N))",
+     "space": "O(N)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Forgetting to compress paths, causing find to degrade to O(N).",
+    "fix": "Apply path compression inside find on every call."
+   },
+   {
+    "mistake": "Unioning when the elements already share a root, needlessly corrupting rank data.",
+    "fix": "Short-circuit union when find(a) == find(b)."
+   },
+   {
+    "mistake": "Using 1-indexed input with a 0-indexed parent array.",
+    "fix": "Size the arrays to n + 1 or normalize indices to 0."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Number of Connected Components in an Undirected Graph",
+    "slug": "connected-components-dsu",
+    "difficulty": "medium",
+    "description": "Count the connected components of an undirected graph.",
+    "constraints": "0 <= n <= 2000; edges up to 2000.",
+    "hints": [
+     "Union every edge.",
+     "Count distinct roots at the end."
+    ],
+    "approach": "DSU over all nodes, then count unique roots.",
+    "pattern": "DSU / Union Find",
+    "time": "O(E * alpha(V))",
+    "space": "O(V)",
+    "solution": "Create a DSU with n nodes and union the endpoints of every edge. After all unions, the number of components equals the number of distinct root values among the n nodes.",
+    "tags": [
+     "union-find",
+     "graph",
+     "components"
+    ]
+   },
+   {
+    "name": "Redundant Connection II",
+    "slug": "redundant-connection-2",
+    "difficulty": "hard",
+    "description": "Given a directed graph that is a tree plus one extra edge, return the edge that, when removed, makes it a valid rooted tree.",
+    "constraints": "n in [3, 1000].",
+    "hints": [
+     "Two failure modes: a node with two parents, or a cycle.",
+     "Check both conditions with DSU."
+    ],
+    "approach": "Detect the conflicting edge with two parents; otherwise find the edge that closes a cycle using DSU.",
+    "pattern": "DSU / Union Find",
+    "time": "O(E * alpha(V))",
+    "space": "O(V)",
+    "solution": "Scan edges tracking parent counts. If a node has two parents, keep both candidate edges. Otherwise, run DSU over the edges: the first edge whose endpoints already share a root is the cycle edge. If both a two-parent conflict and a cycle exist, remove the two-parent candidate inside the cycle; otherwise remove the appropriate candidate.",
+    "tags": [
+     "union-find",
+     "graph",
+     "cycle"
+    ]
+   },
+   {
+    "name": "Number of Operations to Make Network Connected",
+    "slug": "make-network-connected",
+    "difficulty": "medium",
+    "description": "Given n computers and cable connections, return the minimum number of cables to move to connect all computers, or -1 if impossible.",
+    "constraints": "1 <= n <= 10^5; connections up to 10^5.",
+    "hints": [
+     "Connecting c components needs c - 1 extra cables.",
+     "Count components with DSU."
+    ],
+    "approach": "DSU to count components and extra edges; answer is components - 1 if enough spare cables exist.",
+    "pattern": "DSU / Union Find",
+    "time": "O(E * alpha(V))",
+    "space": "O(V)",
+    "solution": "Union every connection; count redundant edges (those whose endpoints are already connected) and the number of components. If redundant edges are fewer than components - 1, return -1. Otherwise return components - 1, which is exactly the number of cables that must be moved.",
+    "tags": [
+     "union-find",
+     "graph",
+     "greedy"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "advanced-graph-algorithms",
+  "name": "Advanced graph algorithms",
+  "difficulty": "hard",
+  "overview": "Advanced graph algorithms extend the basics with specialized machinery: strongly connected components, bridges and articulation points, Eulerian paths, maximum flow, and graph coloring.",
+  "why": "These algorithms unlock hard and premium interview problems and demonstrate mastery of graph theory when a plain traversal is not enough.",
+  "when": "Use them for structural decompositions (SCC, bridges), path existence constraints (Eulerian), resource allocation (flow, matching), and constraint satisfaction (coloring).",
+  "complexity": {
+   "time": "Varies: O(V + E) for Tarjan, O(V * E^2) for Dinic flow",
+   "space": "O(V + E) typically"
+  },
+  "concepts": [
+   {
+    "name": "Eulerian path",
+    "description": "A path that uses every edge exactly once; exists based on vertex degree parity."
+   },
+   {
+    "name": "Hamiltonian path",
+    "description": "A path that visits every vertex exactly once; NP-hard in general."
+   },
+   {
+    "name": "Maximum flow",
+    "description": "The largest amount of flow that can be sent from source to sink in a capacitated network."
+   },
+   {
+    "name": "Graph coloring",
+    "description": "Assigning colors to vertices so adjacent vertices differ; bipartiteness is 2-coloring."
+   },
+   {
+    "name": "Dinic's algorithm",
+    "description": "Blocking-flow algorithm computing max flow in O(V^2 * E) or better with unit capacities."
+   },
+   {
+    "name": "Low-link decomposition",
+    "description": "Discovering bridges, articulation points, and SCCs via discovery/low-link times."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Dinic max flow",
+    "description": "BFS for level graph plus DFS blocking flows, repeated until no augmenting path.",
+    "code": "def dinic(n, edges, s, t):\n    # edges: list of (u, v, cap) to build residual network\n    graph = [[] for _ in range(n)]\n    def add(u, v, cap):\n        graph[u].append([v, cap, len(graph[v])])\n        graph[v].append([u, 0, len(graph[u]) - 1])\n    for u, v, c in edges:\n        add(u, v, c)\n    flow = 0\n    while True:\n        level = [-1] * n\n        level[s] = 0\n        q = [s]\n        for u in q:\n            for e in graph[u]:\n                if e[1] and level[e[0]] == -1:\n                    level[e[0]] = level[u] + 1\n                    q.append(e[0])\n        if level[t] == -1:\n            break\n        it = [0] * n\n        def dfs(u, f):\n            if u == t:\n                return f\n            for i in range(it[u], len(graph[u])):\n                it[u] = i\n                e = graph[u][i]\n                if e[1] and level[e[0]] == level[u] + 1:\n                    d = dfs(e[0], min(f, e[1]))\n                    if d:\n                        e[1] -= d\n                        graph[e[0]][e[2]][1] += d\n                        return d\n            return 0\n        while True:\n            f = dfs(s, float('inf'))\n            if not f:\n                break\n            flow += f\n    return flow"
+   },
+   {
+    "name": "Hierholzer Eulerian path",
+    "description": "Follow unused edges and splice cycles to build an Eulerian trail.",
+    "code": "def eulerian_path(g, start):\n    stack = [start]\n    path = []\n    while stack:\n        u = stack[-1]\n        if g[u]:\n            v = g[u].pop()\n            stack.append(v)\n        else:\n            path.append(stack.pop())\n    return path[::-1]"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Eulerian path in a graph",
+    "problem": "Does the graph with edges (0,1),(1,2),(2,0),(2,3) have an Eulerian path?",
+    "input": "Edges as listed",
+    "output": "No Eulerian path",
+    "explanation": "Degrees are 0:2, 1:2, 2:3, 3:1. An Eulerian path needs zero or exactly two odd-degree vertices, but this graph has two odd vertices, so a path exists. (A trail using all edges exists with endpoints 3 and 2.)",
+    "steps": [
+     "Compute degrees: 0=2, 1=2, 2=3, 3=1.",
+     "Count odd-degree vertices: vertices 2 and 3 (two of them).",
+     "Two odd vertices means an Eulerian trail exists.",
+     "Start at one odd vertex and trace edges until all are used.",
+     "A closed Eulerian circuit requires all even degrees."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(E)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Attempting Hamiltonian path search on large graphs and hitting exponential blowups.",
+    "fix": "Recognize Hamiltonian problems as NP-hard and use heuristics or small-n DP (Held-Karp)."
+   },
+   {
+    "mistake": "Using BFS/DFS where a max-flow reduction is required.",
+    "fix": "Model resource allocation and cut problems as flow networks and run Dinic or Edmonds-Karp."
+   },
+   {
+    "mistake": "Treating every directed graph cycle problem as an SCC problem and vice versa.",
+    "fix": "Use cycle detection for yes/no cycle queries and SCC for decomposing the graph."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Course Schedule with Multiple Requirements",
+    "slug": "course-schedule-multi",
+    "difficulty": "hard",
+    "description": "Given courses with capacity and student preferences, determine if every student can be assigned while respecting course limits.",
+    "constraints": "Moderate sizes; represents a bipartite matching with capacities.",
+    "hints": [
+     "Model as a flow network: source to students, students to courses, courses to sink.",
+     "Max flow equals number of students iff assignment is possible."
+    ],
+    "approach": "Reduce to maximum flow and check whether the flow saturates all students.",
+    "pattern": "Advanced graph algorithms",
+    "time": "O(V^2 * E)",
+    "space": "O(V + E)",
+    "solution": "Build a flow network: connect a source to every student with capacity 1, each student to their preferred courses with capacity 1, and each course to the sink with its capacity. Run max flow. If the total flow equals the number of students, every student is assigned; otherwise the assignment is impossible.",
+    "tags": [
+     "graph",
+     "flow",
+     "matching"
+    ]
+   },
+   {
+    "name": "Reconstruct Itinerary",
+    "slug": "reconstruct-itinerary",
+    "difficulty": "hard",
+    "description": "Given a list of airline tickets, find the itinerary that uses every ticket exactly once starting from JFK, with the smallest lexical order.",
+    "constraints": "1 <= tickets.length <= 300; airports are three-letter codes.",
+    "hints": [
+     "This is an Eulerian path problem.",
+     "Use Hierholzer's algorithm with a heap to keep order."
+    ],
+    "approach": "Hierholzer's algorithm: DFS over edges, appending nodes on backtrack, then reverse.",
+    "pattern": "Advanced graph algorithms",
+    "time": "O(E log E)",
+    "space": "O(E)",
+    "solution": "Build an adjacency list where each airport's destinations are kept in a min-heap for lexical order. Run Hierholzer: from JFK, repeatedly take the smallest unused edge. When a node has no edges left, append it to the result; after the DFS, reverse the result to get the itinerary that uses every ticket exactly once.",
+    "tags": [
+     "graph",
+     "eulerian-path",
+     "dfs"
+    ]
+   },
+   {
+    "name": "Minimum Number of Colors for a Graph",
+    "slug": "minimum-number-colors",
+    "difficulty": "hard",
+    "description": "Color the vertices of a graph so no two adjacent vertices share a color, using as few colors as possible.",
+    "constraints": "Small graphs; general coloring is NP-hard.",
+    "hints": [
+     "If the graph is bipartite, 2 colors suffice.",
+     "Otherwise greedy coloring gives an upper bound; try to minimize."
+    ],
+    "approach": "Try 2 colors first via bipartite check, then greedy coloring for more colors.",
+    "pattern": "Advanced graph algorithms",
+    "time": "O(V + E) for bipartite, greedy O(V^2) worst case",
+    "space": "O(V + E)",
+    "solution": "First test bipartiteness with BFS/DFS; if two colors work, return 2. Otherwise apply a greedy algorithm: order vertices, assign each the smallest color not used by its colored neighbors. While greedy may not be optimal in general, for small structured inputs it often matches the chromatic number.",
+    "tags": [
+     "graph",
+     "coloring",
+     "greedy"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "advanced-graph-theory",
+  "name": "Advanced graph theory",
+  "difficulty": "hard",
+  "overview": "Advanced graph theory covers the deeper structural ideas that power hard problems: graph cuts, connectivity metrics, planar and tree properties, and how reductions transform problems into known graph tasks.",
+  "why": "Recognizing these underlying structures lets you solve problems that look unrelated, and interviewers value the insight that 'this is a graph problem'.",
+  "when": "Use graph-theoretic reasoning when a problem involves network robustness, minimum cuts, hierarchical grouping, or constraint modeling that is not a plain traversal.",
+  "complexity": {
+   "time": "Varies by problem; reductions often change the complexity class",
+   "space": "O(V + E) typically"
+  },
+  "concepts": [
+   {
+    "name": "Graph cut",
+    "description": "A partition of vertices into two sets; the cut edges cross the boundary."
+   },
+   {
+    "name": "Min-cut / max-flow duality",
+    "description": "The minimum cut capacity equals the maximum flow by the max-flow min-cut theorem."
+   },
+   {
+    "name": "k-connected graph",
+    "description": "A graph that stays connected after removing any k-1 vertices."
+   },
+   {
+    "name": "Graph coloring bounds",
+    "description": "Every planar graph is 4-colorable; chromatic number links to clique size."
+   },
+   {
+    "name": "Treewidth",
+    "description": "A measure of how tree-like a graph is; low treewidth enables efficient DP."
+   },
+   {
+    "name": "Problem reduction",
+    "description": "Translating a novel problem into a known graph problem like matching or flow."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Reachability via BFS as a yes/no model",
+    "description": "Many problems reduce to checking reachability on a transformed state graph.",
+    "code": "def reachable(n, edges, s, t):\n    g = [[] for _ in range(n)]\n    for u, v in edges:\n        g[u].append(v)\n        g[v].append(u)\n    seen = {s}\n    stack = [s]\n    while stack:\n        u = stack.pop()\n        for v in g[u]:\n            if v not in seen:\n                seen.add(v)\n                stack.append(v)\n    return t in seen"
+   },
+   {
+    "name": "Vertex splitting for node capacities",
+    "description": "Convert node capacities into edge capacities for flow problems.",
+    "code": "def split_graph(n, adj, cap):\n    N = 2 * n\n    g = [[] for _ in range(N)]\n    for u in range(n):\n        g[2 * u].append((2 * u + 1, cap[u]))\n    for u, v, w in adj:\n        g[2 * u + 1].append((2 * v, w))\n    return g"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Min-cut in a small network",
+    "problem": "Network with source 0, sink 3, and edges 0->1(3), 0->2(2), 1->3(2), 2->3(3), 1->2(1). What is the min cut?",
+    "input": "Capacities as listed",
+    "output": "Min cut capacity 5",
+    "explanation": "The max flow equals the min cut. Sending 2 via 0->2->3 and 2 via 0->1->3 plus 1 via 0->1->2->3 gives a total flow of 5; the cut ({0}, {1,2,3}) has capacity 3 + 2 = 5.",
+    "steps": [
+     "Run max flow from 0 to 3.",
+     "The flow saturates the edges leaving the source side.",
+     "The saturated cut {0} vs the rest has capacity 5.",
+     "By the max-flow min-cut theorem this equals the min cut.",
+     "No smaller cut exists, so the answer is 5."
+    ],
+    "complexity": {
+     "time": "O(V^2 * E) for Dinic",
+     "space": "O(V + E)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Assuming min cut requires enumerating all 2^V partitions.",
+    "fix": "Use max-flow algorithms to find the min cut in polynomial time."
+   },
+   {
+    "mistake": "Believing every graph problem maps to a simple known algorithm.",
+    "fix": "Learn when reductions apply and when problems are NP-hard."
+   },
+   {
+    "mistake": "Ignoring edge cases like empty graphs, single vertices, and disconnected inputs in theory-based problems.",
+    "fix": "Check connectivity and small inputs before reasoning about global structure."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Maximum Network Reliability",
+    "slug": "maximum-network-reliability",
+    "difficulty": "hard",
+    "description": "Given a network and a target pair of servers, find the minimum number of connections whose removal would disconnect them.",
+    "constraints": "Moderate sized networks; edges have unit capacity.",
+    "hints": [
+     "The answer is the size of the minimum cut.",
+     "Unit-capacity min cut equals max flow with unit edges."
+    ],
+    "approach": "Model connections as unit-capacity edges and compute max flow between the pair.",
+    "pattern": "Advanced graph theory",
+    "time": "O(V * E) with unit capacities",
+    "space": "O(V + E)",
+    "solution": "Build a flow network where every connection is an undirected edge with capacity 1. Compute max flow between the two servers. By the max-flow min-cut theorem, the value equals the minimum number of edges that must be removed to disconnect them.",
+    "tags": [
+     "graph",
+     "flow",
+     "cut"
+    ]
+   },
+   {
+    "name": "City Planning Connectivity",
+    "slug": "city-planning-connectivity",
+    "difficulty": "hard",
+    "description": "Given a grid of blocks, determine whether two blocks are connected through a walk that uses at most k turns.",
+    "constraints": "Grid up to a few hundred cells.",
+    "hints": [
+     "Expand each cell into states by direction and turn count.",
+     "Run BFS on the expanded state graph."
+    ],
+    "approach": "Build a state graph (cell, direction, turns) and BFS to the target state within the turn budget.",
+    "pattern": "Advanced graph theory",
+    "time": "O(C * D * K)",
+    "space": "O(C * D * K)",
+    "solution": "Create a node for each (cell, direction, turnsUsed) combination. Moving straight keeps the direction and turns; turning increments the turn count. BFS from the start cell in all four directions, tracking the minimal turns to each state. If the target cell is reached with at most k turns, return true; otherwise false.",
+    "tags": [
+     "graph",
+     "bfs",
+     "state-space"
+    ]
+   },
+   {
+    "name": "Minimum Cut to Isolate a Region",
+    "slug": "minimum-cut-isolate-region",
+    "difficulty": "hard",
+    "description": "Given a grid of weighted cells, find the minimum total weight of cells to remove so the region is separated into two parts.",
+    "constraints": "Small grids with weights on cells.",
+    "hints": [
+     "Split each cell into in/out nodes with its weight as the edge.",
+     "Run min-cut with the split nodes."
+    ],
+    "approach": "Vertex-splitting transformation plus max-flow to find the minimum weighted vertex cut.",
+    "pattern": "Advanced graph theory",
+    "time": "O(V^2 * E)",
+    "space": "O(V + E)",
+    "solution": "Replace each cell with two nodes (in, out) joined by an edge of capacity equal to the cell's weight; connect adjacent cells by infinite-capacity edges from out to in. Add a super source and sink connected to the boundary cells. The max flow equals the minimum weight of cells that must be removed to disconnect the region.",
+    "tags": [
+     "graph",
+     "flow",
+     "vertex-cut"
+    ]
+   }
+  ]
+ }
+]

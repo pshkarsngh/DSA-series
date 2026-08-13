@@ -107,3 +107,70 @@ Don't try to memorize all categories independently. Follow this progression:
 52. Bridges / Articulation Points
 53. Computational Geometry
 54. Mo's Algorithm
+
+---
+
+## 🎯 Placement Priority (Tiers)
+
+Not every topic deserves equal time. These tiers rank topics by ROI for coding interviews / placements.
+
+### 🟢 Tier 1 — MUST DO (strongest topics)
+
+| Topic | What to master |
+| ----- | -------------- |
+| Arrays | Prefix sum, two pointers, sliding window, Kadane, hashing, sorting |
+| Strings | Hashing, frequency, sliding window, two pointers |
+| Hashing | HashMap, HashSet, frequency, prefix sum + map |
+| Binary Search | All variants + binary search on answer |
+| Linked List | Reverse, cycle, middle, intersection, merge |
+| Stack | Monotonic stack, next greater/smaller, histogram |
+| Trees | DFS, BFS, traversals, height, diameter, LCA |
+| Graphs | BFS, DFS, shortest path, topological sort |
+| Dynamic Programming | 1D, 2D, knapsack, LCS, LIS |
+| Greedy | Sorting + greedy, intervals, scheduling |
+
+### 🟡 Tier 2 — VERY IMPORTANT (do after Tier 1)
+
+| Topic | Must know |
+| ----- | --------- |
+| Heap / Priority Queue | Top K, Kth element, two heaps |
+| Recursion | Basic recursion, recursion trees |
+| Backtracking | Subsets, permutations, combinations |
+| Queue / Deque | BFS, monotonic deque |
+| Sorting | Merge, quick, heap + applications |
+| Bit Manipulation | XOR, masks, set/clear bits |
+| BST | Search, validation, LCA, kth smallest |
+| DSU | Union-find, connectivity, Kruskal |
+| Trie | Prefix search, word search |
+
+### 🟠 Tier 3 — IMPORTANT FOR GOOD/ADVANCED PLACEMENTS (do after Tier 2)
+
+| Topic | What to learn |
+| ----- | ------------- |
+| Segment Tree | Range query + update |
+| Fenwick Tree | Prefix/range sums |
+| Topological Sort | Kahn + DFS |
+| Matrix/Grid | BFS, DFS, DP |
+| Interval Problems | Merge, greedy, sweep line |
+| Number Theory | GCD, sieve, modular arithmetic |
+| String Matching | KMP, Z algorithm |
+| Divide & Conquer | Merge sort, quickselect |
+| Monotonic Structures | Stack + deque |
+| Prefix/Suffix techniques | Prefix sum, suffix sum, difference array |
+
+### 🧠 Recommended learning order
+
+Arrays → Strings → Hashing → Two Pointers → Sliding Window → Binary Search → Linked List → Stack → Queue → Trees → Heap → Graphs → Greedy → Recursion → Backtracking → DP → Trie → DSU → Bit Manipulation → Segment Tree/BIT → Advanced topics
+
+### ✅ What "complete Tier 3" means
+
+For each topic be able to:
+
+- Understand the concept
+- Recognize when to use it
+- Implement it without looking
+- Solve easy + medium problems
+- Explain time and space complexity
+- Identify the pattern in a new problem
+
+Completing Tier 1 + 2 + 3 is a solid stopping point before placement mocks / interview prep. Skip Tier 4 initially (HLD, Mo's, Persistent Segment Tree, Advanced DP optimization, Computational Geometry, Randomized) — low ROI for normal placements.

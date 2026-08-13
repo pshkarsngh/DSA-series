@@ -1,0 +1,2487 @@
+[
+ {
+  "slug": "binary-tree",
+  "name": "Binary tree",
+  "difficulty": "easy",
+  "overview": "A binary tree is a hierarchical data structure in which each node has at most two children, conventionally called left and right. It is a foundational structure for representing hierarchical relationships, expression parsing, and many recursive algorithms.",
+  "why": "Binary trees appear constantly in coding interviews, usually as the vehicle for testing recursion, traversal techniques, and divide-and-conquer thinking. Tree problems are a favorite because they are easy to describe but reward a solid grasp of base cases and structural reasoning.",
+  "when": "Reach for a binary tree whenever the data is inherently hierarchical, such as file systems, expression trees, decision trees, or tournament brackets. They are also used as the backbone for heaps, binary search trees, and balanced structures.",
+  "complexity": {
+   "time": "O(n) for most traversals",
+   "space": "O(h) for recursion stack, O(n) worst case"
+  },
+  "concepts": [
+   {
+    "name": "Node",
+    "description": "The basic unit holding a value and pointers to a left and right child; a leaf has both children null."
+   },
+   {
+    "name": "Root",
+    "description": "The topmost node with no parent; the entry point for all tree operations."
+   },
+   {
+    "name": "Leaf",
+    "description": "A node with no children, often the base case in recursive solutions."
+   },
+   {
+    "name": "Subtree",
+    "description": "Any node together with all its descendants; recursion naturally operates on subtrees."
+   },
+   {
+    "name": "Height",
+    "description": "The number of edges on the longest path from the root to a leaf."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Recursive decomposition",
+    "description": "Solve a tree problem by solving it for the left and right subtrees and combining the results.",
+    "code": "def solve(root):\n    if not root:\n        return 0\n    return root.val + solve(root.left) + solve(root.right)"
+   },
+   {
+    "name": "Pass state downward",
+    "description": "Carry accumulated information such as depth or path values down through recursive calls.",
+    "code": "def dfs(node, depth):\n    if not node:\n        return\n    print(node.val, depth)\n    dfs(node.left, depth + 1)\n    dfs(node.right, depth + 1)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Count nodes",
+    "problem": "Return the total number of nodes in a binary tree.",
+    "input": "root = 1 -> (2, 3) with 2 -> (4, 5)",
+    "output": "5",
+    "explanation": "Count the root, then recursively count nodes in the left and right subtrees.",
+    "steps": [
+     "Define base case: a null node contributes 0.",
+     "Count the current node as 1.",
+     "Add the counts of the left and right subtrees.",
+     "Return the total to the caller."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(h)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Forgetting the null base case, causing a null pointer dereference.",
+    "fix": "Always check `if not node` at the top of the recursive function."
+   },
+   {
+    "mistake": "Confusing height (edges) with depth (levels) when counting.",
+    "fix": "Decide early whether a single node has height 0 or 1 and stay consistent."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Maximum Depth of Binary Tree",
+    "slug": "maximum-depth-of-binary-tree",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, return its maximum depth: the number of nodes along the longest path from the root down to the farthest leaf.",
+    "constraints": "The number of nodes is in the range [0, 10^4].",
+    "hints": [
+     "What is the base case for a null node?",
+     "How does the depth of a node relate to the depths of its children?"
+    ],
+    "approach": "Recursively compute the depth as 1 plus the max of the left and right depths; return 0 for a null node.",
+    "pattern": "Recursive decomposition",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "For each node the answer is 1 + max(depth(left), depth(right)). A null node contributes 0, which naturally handles empty trees.",
+    "tags": [
+     "binary-tree",
+     "recursion",
+     "dfs"
+    ]
+   },
+   {
+    "name": "Same Tree",
+    "slug": "same-tree",
+    "difficulty": "easy",
+    "description": "Given the roots of two binary trees p and q, return true if they are structurally identical and have the same values.",
+    "constraints": "The number of nodes in both trees is in the range [0, 100].",
+    "hints": [
+     "When are two null nodes equal?",
+     "When can you short-circuit and return false early?"
+    ],
+    "approach": "Compare both roots; return false if values differ, then recurse on left and right children.",
+    "pattern": "Recursive decomposition",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Two trees are the same when both nodes are null, or both are non-null with equal values and identical left and right subtrees.",
+    "tags": [
+     "binary-tree",
+     "recursion"
+    ]
+   },
+   {
+    "name": "Invert Binary Tree",
+    "slug": "invert-binary-tree",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, invert the tree and return its root, swapping the left and right children of every node.",
+    "constraints": "The number of nodes is in the range [0, 100].",
+    "hints": [
+     "What happens at a single node in isolation?",
+     "Can you invert the children and then recurse?"
+    ],
+    "approach": "Swap the left and right children at every node, then recursively invert each subtree.",
+    "pattern": "Recursive decomposition",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "For each node swap root.left and root.right, then recursively invert both children. A null node returns immediately.",
+    "tags": [
+     "binary-tree",
+     "recursion"
+    ]
+   },
+   {
+    "name": "Maximum Depth of N-ary Tree",
+    "slug": "maximum-depth-of-n-ary-tree",
+    "difficulty": "easy",
+    "description": "Given an N-ary tree, return the maximum depth of the tree, generalizing the binary tree version to many children.",
+    "constraints": "The total number of nodes is in the range [0, 10^4].",
+    "hints": [
+     "How does the max operation generalize from two children to many?",
+     "What is the base case for a node with no children?"
+    ],
+    "approach": "Compute 1 plus the maximum depth over all children, using 0 as the depth of an empty list of children.",
+    "pattern": "Recursive decomposition",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "For a node with children, the depth is 1 + max(depth(child) for each child); a leaf has depth 1.",
+    "tags": [
+     "binary-tree",
+     "recursion",
+     "tree"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "dfs",
+  "name": "DFS",
+  "difficulty": "easy",
+  "overview": "Depth-first search is a traversal strategy that explores a branch of the tree as deeply as possible before backtracking to explore siblings. In binary trees it is naturally expressed with recursion, and the order of visiting root versus children determines preorder, inorder, or postorder. Depth-First Search (DFS) explores a graph by going as deep as possible along one branch before backtracking. It is naturally implemented with recursion or an explicit stack.",
+  "why": "DFS is the default engine behind most tree algorithms, including height, diameter, LCA, and path problems. Interviewers expect you to write clean recursive DFS quickly and to know when an iterative stack version is needed. DFS is the workhorse behind many advanced algorithms including connected components, cycle detection, topological sort, and bridges, and is constantly tested in interviews.",
+  "when": "Use DFS whenever the answer depends on a full branch being explored, such as root-to-leaf paths, subtree properties, or when recursion depth is small enough to avoid stack overflow. Reach for DFS when you need to explore all paths, detect cycles, solve puzzles with backtracking, or compute structural properties like bridges and articulation points.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(h) for recursion stack, O(n) worst case"
+  },
+  "concepts": [
+   {
+    "name": "Traversal order",
+    "description": "The relative order of visiting root, left, and right defines preorder, inorder, and postorder variants."
+   },
+   {
+    "name": "Recursion stack",
+    "description": "The call stack holds the path from root to the current node, giving O(h) implicit space."
+   },
+   {
+    "name": "Backtracking",
+    "description": "After exploring a subtree, control returns to the parent, which naturally undoes local state."
+   },
+   {
+    "name": "Base case",
+    "description": "The null node condition that stops recursion and returns a neutral value."
+   },
+   {
+    "name": "Recursion / call stack",
+    "description": "DFS naturally maps to recursive calls; the call stack plays the role of the stack data structure."
+   },
+   {
+    "name": "Backtracking",
+    "description": "After exploring a branch fully, control returns to the previous node to try the next branch."
+   },
+   {
+    "name": "Visited marking",
+    "description": "Nodes are marked visited when first entered so they are not explored twice."
+   },
+   {
+    "name": "Tree edge vs back edge",
+    "description": "Tree edges are part of the DFS forest; back edges point to ancestors and signal cycles in undirected graphs."
+   },
+   {
+    "name": "Discovery / finish times",
+    "description": "Entry and exit timestamps of each node, which power topological sort and SCC algorithms."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Recursive DFS",
+    "description": "Recurse on children and combine results; the natural and most readable form for trees.",
+    "code": "def dfs(node):\n    if not node:\n        return\n    dfs(node.left)\n    dfs(node.right)"
+   },
+   {
+    "name": "Iterative DFS with stack",
+    "description": "Use an explicit stack to avoid recursion depth limits; push children so they are popped in the right order.",
+    "code": "stack = [root]\nwhile stack:\n    node = stack.pop()\n    if node:\n        if node.right:\n            stack.append(node.right)\n        if node.left:\n            stack.append(node.left)"
+   },
+   {
+    "name": "Recursive DFS",
+    "description": "Simple recursive traversal that visits a node and all its neighbors.",
+    "code": "def dfs(g, u, visited):\n    visited[u] = True\n    for v in g[u]:\n        if not visited[v]:\n            dfs(g, v, visited)\n\ndef run(g):\n    visited = [False] * len(g)\n    for u in range(len(g)):\n        if not visited[u]:\n            dfs(g, u, visited)"
+   },
+   {
+    "name": "Iterative DFS with a stack",
+    "description": "Avoids recursion depth limits by using an explicit stack.",
+    "code": "def dfs_iter(g, start):\n    seen = {start}\n    stack = [start]\n    while stack:\n        u = stack.pop()\n        for v in g[u]:\n            if v not in seen:\n                seen.add(v)\n                stack.append(v)\n    return seen"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Sum all node values",
+    "problem": "Return the sum of all values in a binary tree using DFS.",
+    "input": "root = 1 -> (2, 3)",
+    "output": "6",
+    "explanation": "DFS visits every node exactly once, accumulating values along the way.",
+    "steps": [
+     "Start at the root and add its value to an accumulator.",
+     "Recursively DFS the left subtree.",
+     "Recursively DFS the right subtree.",
+     "Return the total once all nodes are visited."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(h)"
+    }
+   },
+   {
+    "title": "DFS traversal order",
+    "problem": "Traverse the graph 0-1, 0-2, 1-3, 2-3 starting from 0.",
+    "input": "g = [[1,2],[0,3],[0,3],[1,2]]",
+    "output": "Visit order: 0, 1, 3, 2 (neighbors ordered as stored)",
+    "explanation": "DFS dives into 1 then 3, and only after that branch finishes does it visit 2 from 0.",
+    "steps": [
+     "Visit 0 and mark it seen.",
+     "Visit neighbor 1, then recurse into 1.",
+     "Visit neighbor 3 from 1 and mark it seen.",
+     "Backtrack to 0 and visit the remaining neighbor 2.",
+     "All nodes are now visited."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Assuming DFS always uses recursion and blowing the stack on deep trees.",
+    "fix": "Switch to an explicit stack for very skewed trees or large inputs."
+   },
+   {
+    "mistake": "Pushing children onto the stack in the wrong order, reversing the intended visit order.",
+    "fix": "Push right before left for a stack so that left is processed first."
+   },
+   {
+    "mistake": "Marking a node visited after processing its neighbors instead of before, causing revisits.",
+    "fix": "Mark visited as soon as the node is entered, before iterating neighbors."
+   },
+   {
+    "mistake": "Hitting recursion depth limits on large graphs or grids.",
+    "fix": "Use an explicit stack or set sys.setrecursionlimit when recursion is preferred."
+   },
+   {
+    "mistake": "Confusing DFS with BFS and expecting shortest-path distances.",
+    "fix": "DFS does not find shortest paths in unweighted graphs; use BFS for that."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Binary Tree Paths",
+    "slug": "binary-tree-paths",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, return all root-to-leaf paths as strings with arrows between node values.",
+    "constraints": "The number of nodes is in the range [1, 100].",
+    "hints": [
+     "How do you know you have reached a leaf?",
+     "What path state must be carried down through recursion?"
+    ],
+    "approach": "DFS carrying the path so far; when a leaf is reached, record the path.",
+    "pattern": "Pass state downward",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Recursively descend, appending values to the current path string; on reaching a leaf, add the joined path to the result list.",
+    "tags": [
+     "dfs",
+     "binary-tree",
+     "paths"
+    ]
+   },
+   {
+    "name": "Sum of Left Leaves",
+    "slug": "sum-of-left-leaves",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, return the sum of all left leaves, where a left leaf is a leaf that is a left child of its parent.",
+    "constraints": "The number of nodes is in the range [1, 1000].",
+    "hints": [
+     "How do you detect a left child?",
+     "How do you detect that this child is also a leaf?"
+    ],
+    "approach": "DFS and add the value of a node when it is a left child and has no children.",
+    "pattern": "Recursive DFS",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "At each node, check whether the left child exists and is a leaf; if so add it, otherwise recurse into both children.",
+    "tags": [
+     "dfs",
+     "binary-tree"
+    ]
+   },
+   {
+    "name": "Path Sum",
+    "slug": "path-sum",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree and an integer targetSum, return true if there is a root-to-leaf path whose node values sum to targetSum.",
+    "constraints": "The number of nodes is in the range [0, 5000] and node values are in [-1000, 1000].",
+    "hints": [
+     "What happens to targetSum as you descend?",
+     "When is a path valid?",
+     "Why must you only stop at leaves?"
+    ],
+    "approach": "Recursively subtract the node value from targetSum; return true when reaching a leaf with remaining sum 0.",
+    "pattern": "Pass state downward",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "DFS while reducing the target by the current value; a leaf is a valid end only when the remaining target is exactly 0.",
+    "tags": [
+     "dfs",
+     "binary-tree",
+     "path-sum"
+    ]
+   },
+   {
+    "name": "Number of Islands",
+    "slug": "number-of-islands",
+    "difficulty": "medium",
+    "description": "Given an m x n grid of '1' (land) and '0' (water), count the number of islands, where land cells connect horizontally or vertically.",
+    "constraints": "1 <= m, n <= 300.",
+    "hints": [
+     "Each land cell is a vertex; edges connect orthogonal neighbors.",
+     "Sink each island as you visit it."
+    ],
+    "approach": "Iterate the grid; whenever a '1' is found, run DFS to flood-fill the whole island and increment the counter.",
+    "pattern": "DFS",
+    "time": "O(m * n)",
+    "space": "O(m * n)",
+    "solution": "For each cell, if it is '1', increment the island count and recursively flood-fill: mark the current cell visited (flip it to '0') and recurse on the four orthogonal neighbors that are in bounds and still '1'. Each island triggers exactly one flood fill.",
+    "tags": [
+     "dfs",
+     "matrix",
+     "flood-fill"
+    ]
+   },
+   {
+    "name": "Max Area of Island",
+    "slug": "max-area-of-island",
+    "difficulty": "medium",
+    "description": "Given a grid of 0s and 1s, return the maximum area of an island (connected group of 1s).",
+    "constraints": "1 <= m, n <= 50.",
+    "hints": [
+     "DFS returns the size of the island it visits.",
+     "Track the running maximum."
+    ],
+    "approach": "DFS each unvisited land cell and have the recursion return the island size.",
+    "pattern": "DFS",
+    "time": "O(m * n)",
+    "space": "O(m * n)",
+    "solution": "Define a recursive function that, for a land cell, returns 1 plus the areas of its four in-bounds unvisited land neighbors after marking the cell visited. Loop over all cells, sum islands, and keep the maximum returned value.",
+    "tags": [
+     "dfs",
+     "matrix",
+     "recursion"
+    ]
+   },
+   {
+    "name": "Flood Fill",
+    "slug": "flood-fill",
+    "difficulty": "easy",
+    "description": "Starting at (sr, sc), change its color and all connected cells of the same original color to a new color.",
+    "constraints": "1 <= m, n <= 50; 0 <= color <= 65535.",
+    "hints": [
+     "DFS/BFS the connected region of the start's original color.",
+     "Early return if the original color equals the new color."
+    ],
+    "approach": "Run DFS from the start cell, recoloring every reachable cell that matches the original color.",
+    "pattern": "DFS",
+    "time": "O(m * n)",
+    "space": "O(m * n)",
+    "solution": "Record the original color. If it equals the new color, return immediately. Otherwise recursively walk the grid: set the current cell to the new color, then recurse on the four orthogonal neighbors that are in bounds and still have the original color. This paints exactly the connected region.",
+    "tags": [
+     "dfs",
+     "matrix",
+     "flood-fill"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "bfs-level-order",
+  "name": "BFS / level order",
+  "difficulty": "easy",
+  "overview": "Breadth-first search visits a binary tree level by level, processing all nodes at depth d before moving to depth d+1. It is typically implemented with a queue, and level-order traversal produces nodes grouped by their depth.",
+  "why": "Level-order traversal is the go-to for problems that care about depth or levels, such as right-side views, zigzag traversal, and minimum depth. It also guarantees the first time you reach a node it is via the shortest path, which matters in graph and grid problems.",
+  "when": "Reach for BFS whenever you need nodes grouped by level, when you need the shortest path in unweighted structures, or when the tree is so deep that recursion would overflow.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(w) where w is the maximum width of the tree"
+  },
+  "concepts": [
+   {
+    "name": "Queue",
+    "description": "A FIFO structure that keeps nodes in discovery order so siblings are processed before their children."
+   },
+   {
+    "name": "Level",
+    "description": "The set of nodes sharing the same depth from the root."
+   },
+   {
+    "name": "Level width",
+    "description": "The number of nodes at a given level; the widest level bounds the queue size."
+   },
+   {
+    "name": "Shortest path guarantee",
+    "description": "BFS discovers nodes in order of distance from the source, so the first hit is the nearest."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Queue-based level order",
+    "description": "Process the queue one level at a time by looping over the current queue size.",
+    "code": "from collections import deque\nq = deque([root])\nwhile q:\n    level = []\n    for _ in range(len(q)):\n        node = q.popleft()\n        if node:\n            level.append(node.val)\n            q.append(node.left)\n            q.append(node.right)\n    if level:\n        print(level)"
+   },
+   {
+    "name": "BFS with depth tracking",
+    "description": "Track distance from the root to stop early or collect nodes at a specific depth.",
+    "code": "q = deque([(root, 0)])\nwhile q:\n    node, depth = q.popleft()\n    if node:\n        print(node.val, depth)\n        q.append((node.left, depth + 1))\n        q.append((node.right, depth + 1))"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Level order traversal",
+    "problem": "Return the values of a binary tree grouped by level, left to right.",
+    "input": "root = 3 -> (9, 20) with 20 -> (15, 7)",
+    "output": "[[3], [9, 20], [15, 7]]",
+    "explanation": "Each inner list corresponds to one level of the tree.",
+    "steps": [
+     "Initialize a queue with the root.",
+     "Loop while the queue is not empty.",
+     "Capture the current queue size and pop that many nodes into a level list.",
+     "Push the children of each popped node onto the queue.",
+     "Append the completed level list to the result."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(w)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using len(q) inside a loop that mutates q, so the level boundary is wrong.",
+    "fix": "Capture size = len(q) once before the inner for loop."
+   },
+   {
+    "mistake": "Forgetting to check for null nodes, causing crashes or extra levels.",
+    "fix": "Skip null children, or guard with `if node` before enqueuing children."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Binary Tree Level Order Traversal",
+    "slug": "binary-tree-level-order-traversal",
+    "difficulty": "medium",
+    "description": "Given the root of a binary tree, return the level order traversal of its nodes' values, grouping nodes by depth from left to right.",
+    "constraints": "The number of nodes is in the range [0, 2000].",
+    "hints": [
+     "What data structure keeps nodes in FIFO order?",
+     "How do you know where one level ends and the next begins?"
+    ],
+    "approach": "Use a queue and loop over the current level size to build one list per level.",
+    "pattern": "Queue-based level order",
+    "time": "O(n)",
+    "space": "O(w)",
+    "solution": "Pop all nodes currently in the queue to form a level, enqueue their children, and repeat until the queue is empty.",
+    "tags": [
+     "bfs",
+     "level-order",
+     "binary-tree"
+    ]
+   },
+   {
+    "name": "Average of Levels in Binary Tree",
+    "slug": "average-of-levels-in-binary-tree",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, return the average value of the nodes on each level as an array.",
+    "constraints": "The number of nodes is in the range [1, 10^4].",
+    "hints": [
+     "How do you compute a level average?",
+     "What does BFS give you for free here?"
+    ],
+    "approach": "During level-order BFS, sum the values of each level and divide by the number of nodes in it.",
+    "pattern": "Queue-based level order",
+    "time": "O(n)",
+    "space": "O(w)",
+    "solution": "Process one level at a time, accumulate the sum and count, then record sum divided by count.",
+    "tags": [
+     "bfs",
+     "level-order"
+    ]
+   },
+   {
+    "name": "Binary Tree Right Side View",
+    "slug": "binary-tree-right-side-view",
+    "difficulty": "medium",
+    "description": "Given the root of a binary tree, imagine standing on the right side and return the values of the nodes you can see, ordered top to bottom.",
+    "constraints": "The number of nodes is in the range [0, 100].",
+    "hints": [
+     "Which node in each level is visible from the right?",
+     "Can you track that while doing level order?"
+    ],
+    "approach": "Run BFS level by level and record the last node of each level.",
+    "pattern": "Queue-based level order",
+    "time": "O(n)",
+    "space": "O(w)",
+    "solution": "For each level, the rightmost visible node is simply the last node processed in that level, so append it to the result.",
+    "tags": [
+     "bfs",
+     "level-order",
+     "tree-views"
+    ]
+   },
+   {
+    "name": "Minimum Depth of Binary Tree",
+    "slug": "minimum-depth-of-binary-tree",
+    "difficulty": "easy",
+    "description": "Given a binary tree, return the minimum depth, defined as the number of nodes along the shortest path from the root to the nearest leaf.",
+    "constraints": "The number of nodes is in the range [0, 10^5].",
+    "hints": [
+     "When can you stop early during BFS?",
+     "Why is DFS potentially wasteful here?"
+    ],
+    "approach": "BFS level by level and return the depth as soon as the first leaf is found.",
+    "pattern": "BFS with depth tracking",
+    "time": "O(n)",
+    "space": "O(w)",
+    "solution": "The first leaf discovered during level-order BFS is on the shortest root-to-leaf path, so return its depth immediately.",
+    "tags": [
+     "bfs",
+     "depth",
+     "binary-tree"
+    ]
+   },
+   {
+    "name": "Binary Tree Zigzag Level Order Traversal",
+    "slug": "binary-tree-zigzag-level-order-traversal",
+    "difficulty": "medium",
+    "description": "Given the root of a binary tree, return the zigzag level order traversal where even levels go left to right and odd levels go right to left.",
+    "constraints": "The number of nodes is in the range [0, 2000].",
+    "hints": [
+     "How does standard level order change per level?",
+     "What is an easy way to reverse a level?"
+    ],
+    "approach": "Do level order BFS, then reverse every other level list before appending it.",
+    "pattern": "Queue-based level order",
+    "time": "O(n)",
+    "space": "O(w)",
+    "solution": "Collect levels normally, then reverse the lists at odd depths so the direction alternates each level.",
+    "tags": [
+     "bfs",
+     "level-order",
+     "binary-tree"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "preorder",
+  "name": "Preorder",
+  "difficulty": "easy",
+  "overview": "Preorder traversal visits a node before its children: root, then left subtree, then right subtree. It produces a copy-friendly ordering where a parent always appears before its descendants.",
+  "why": "Preorder is used to serialize trees, clone structures, and evaluate expressions in prefix notation. Problems that require processing a node before its subtrees, like building trees from arrays or printing ancestors before descendants, naturally use preorder.",
+  "when": "Use preorder when the root must be visited or processed first, such as serialization, tree copy, or prefix expression evaluation.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(h)"
+  },
+  "concepts": [
+   {
+    "name": "Visit-before-children",
+    "description": "The node value is handled before recursing into either subtree."
+   },
+   {
+    "name": "Prefix ordering",
+    "description": "Preorder corresponds to prefix notation, where the operator precedes its operands."
+   },
+   {
+    "name": "Parent before child",
+    "description": "Every node appears before all of its descendants in a preorder sequence."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Recursive preorder",
+    "description": "Visit the node, recurse left, then recurse right.",
+    "code": "def preorder(node):\n    if not node:\n        return\n    visit(node)\n    preorder(node.left)\n    preorder(node.right)"
+   },
+   {
+    "name": "Iterative preorder",
+    "description": "Use a stack, pushing right then left so the left subtree is popped first.",
+    "code": "stack = [root]\nwhile stack:\n    node = stack.pop()\n    if node:\n        visit(node)\n        stack.append(node.right)\n        stack.append(node.left)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Preorder sequence",
+    "problem": "Print the preorder traversal of a tree.",
+    "input": "root = 1 -> (2, 3) with 2 -> (4, 5)",
+    "output": "[1, 2, 4, 5, 3]",
+    "explanation": "The root is visited first, then the entire left subtree, then the right subtree.",
+    "steps": [
+     "Visit the root (1).",
+     "Recurse into the left subtree rooted at 2.",
+     "Within that subtree visit 2, then its left child 4, then its right child 5.",
+     "Backtrack and visit the right subtree rooted at 3."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(h)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Pushing children in the wrong order during iterative preorder, so the right child is visited first.",
+    "fix": "Push the right child first so the left child pops off the stack first."
+   },
+   {
+    "mistake": "Confusing preorder with inorder, especially in serialization problems.",
+    "fix": "Remember preorder = root, left, right; the root always comes first."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Binary Tree Preorder Traversal",
+    "slug": "binary-tree-preorder-traversal",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, return the preorder traversal of its nodes' values.",
+    "constraints": "The number of nodes is in the range [0, 100].",
+    "hints": [
+     "What is the recursive pattern for preorder?",
+     "How do you reproduce it iteratively with a stack?"
+    ],
+    "approach": "Visit root, then recurse left, then right; or use a stack that pops right before left.",
+    "pattern": "Recursive preorder",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Append the node value first, then recurse on left and right. Iteratively, push right then left onto a stack.",
+    "tags": [
+     "preorder",
+     "traversal",
+     "dfs"
+    ]
+   },
+   {
+    "name": "Construct String from Binary Tree",
+    "slug": "construct-string-from-binary-tree",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, construct a string consisting of parentheses and integers from the tree using preorder traversal.",
+    "constraints": "The number of nodes is in the range [1, 10^4].",
+    "hints": [
+     "When are the parentheses omitted?",
+     "Which traversal naturally reflects this problem?"
+    ],
+    "approach": "Preorder traversal that adds parentheses around children, omitting them for empty right children when the left exists.",
+    "pattern": "Recursive preorder",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Visit the root, append '(' left ')' when a left child exists, and append '(' right ')' only when a right child exists, skipping parentheses for null left children when the right is also null.",
+    "tags": [
+     "preorder",
+     "serialization",
+     "dfs"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "inorder",
+  "name": "Inorder",
+  "difficulty": "easy",
+  "overview": "Inorder traversal visits the left subtree, then the node, then the right subtree. On a binary search tree, inorder produces nodes in sorted ascending order, making it the most useful traversal for BST problems.",
+  "why": "The sorted-output property of inorder over a BST powers problems like validating a BST, finding the kth smallest element, and converting trees to sorted sequences. It is also the standard way to read an expression tree in infix notation.",
+  "when": "Reach for inorder whenever the problem involves BST ordering, sorted output, or needs nodes processed in ascending key order.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(h)"
+  },
+  "concepts": [
+   {
+    "name": "Sorted output on BST",
+    "description": "Inorder over a BST visits values in non-decreasing order, which is both a feature and a validation tool."
+   },
+   {
+    "name": "Left then root then right",
+    "description": "The strict ordering rule that defines the traversal."
+   },
+   {
+    "name": "Kth ordered element",
+    "description": "Counting nodes during inorder identifies the kth smallest element efficiently."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Recursive inorder",
+    "description": "Recurse left, visit, recurse right.",
+    "code": "def inorder(node):\n    if not node:\n        return\n    inorder(node.left)\n    visit(node)\n    inorder(node.right)"
+   },
+   {
+    "name": "Iterative inorder with stack",
+    "description": "Push all left nodes, then pop, visit, and move right.",
+    "code": "stack = []\ncur = root\nwhile stack or cur:\n    while cur:\n        stack.append(cur)\n        cur = cur.left\n    cur = stack.pop()\n    visit(cur)\n    cur = cur.right"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Inorder of a BST",
+    "problem": "Print the inorder traversal of a binary search tree.",
+    "input": "BST: 5 -> (3, 8) with 3 -> (1, 4) and 8 -> (7, 9)",
+    "output": "[1, 3, 4, 5, 7, 8, 9]",
+    "explanation": "Inorder visits the left subtree first, so values come out in ascending order.",
+    "steps": [
+     "Recurse into the leftmost node 1 and visit it.",
+     "Visit the parent 3, then its right child 4.",
+     "Visit the root 5.",
+     "Visit the right subtree: 7, then 8, then 9."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(h)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Assuming inorder gives sorted order for any tree rather than only for BSTs.",
+    "fix": "Remember the sorted property holds only when the tree is a valid binary search tree."
+   },
+   {
+    "mistake": "In iterative inorder, failing to move `cur` to the right after popping, causing an infinite loop.",
+    "fix": "After visiting a popped node, always set cur = cur.right."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Binary Tree Inorder Traversal",
+    "slug": "binary-tree-inorder-traversal",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, return the inorder traversal of its nodes' values.",
+    "constraints": "The number of nodes is in the range [0, 100].",
+    "hints": [
+     "What is the recursive pattern?",
+     "How does the iterative version manage the stack?"
+    ],
+    "approach": "Recurse left, visit, recurse right; iteratively use a stack to descend left before visiting.",
+    "pattern": "Recursive inorder",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "The recursive version is the most direct; the iterative version pushes the left spine, visits on pop, then moves right.",
+    "tags": [
+     "inorder",
+     "traversal",
+     "dfs"
+    ]
+   },
+   {
+    "name": "Validate Binary Search Tree",
+    "slug": "validate-binary-search-tree",
+    "difficulty": "medium",
+    "description": "Given the root of a binary tree, determine if it is a valid binary search tree, with all left keys smaller and all right keys larger.",
+    "constraints": "The number of nodes is in the range [1, 10^4].",
+    "hints": [
+     "What property does inorder traversal of a valid BST have?",
+     "What happens when an adjacent pair breaks sorted order?"
+    ],
+    "approach": "Do an inorder traversal and check that values are strictly increasing, or recurse with a valid min/max range.",
+    "pattern": "Recursive inorder",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "During inorder traversal, every visited value must be greater than the previous one; any violation means the tree is not a valid BST.",
+    "tags": [
+     "inorder",
+     "bst",
+     "validation"
+    ]
+   },
+   {
+    "name": "Kth Smallest Element in a BST",
+    "slug": "kth-smallest-element-in-a-bst",
+    "difficulty": "medium",
+    "description": "Given the root of a binary search tree and an integer k, return the kth smallest value in the tree.",
+    "constraints": "The number of nodes is n, and 1 <= k <= n <= 10^4.",
+    "hints": [
+     "What does inorder traversal produce for a BST?",
+     "Can you stop early once k nodes are visited?"
+    ],
+    "approach": "Inorder traverse while counting; stop when the count reaches k.",
+    "pattern": "Recursive inorder",
+    "time": "O(h + k)",
+    "space": "O(h)",
+    "solution": "Inorder visits nodes in sorted order, so the kth visited node is the kth smallest; early termination keeps it efficient.",
+    "tags": [
+     "inorder",
+     "bst",
+     "kth"
+    ]
+   },
+   {
+    "name": "Minimum Absolute Difference in BST",
+    "slug": "minimum-absolute-difference-in-bst",
+    "difficulty": "easy",
+    "description": "Given the root of a BST, return the minimum absolute difference between the values of any two different nodes.",
+    "constraints": "The number of nodes is in the range [2, 10^4].",
+    "hints": [
+     "Which pairs of nodes produce the smallest differences in a BST?",
+     "What traversal gives you values in order?"
+    ],
+    "approach": "Inorder traverse and compare each value with the previous one, tracking the minimum gap.",
+    "pattern": "Recursive inorder",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "The closest values in a BST are adjacent in inorder order, so only consecutive visited values need to be compared.",
+    "tags": [
+     "inorder",
+     "bst",
+     "traversal"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "postorder",
+  "name": "Postorder",
+  "difficulty": "easy",
+  "overview": "Postorder traversal visits both children before the parent: left subtree, right subtree, then the root. Because a node is processed only after its entire subtree is done, it is ideal for bottom-up computations.",
+  "why": "Postorder is the engine for problems that need subtree results before combining them, such as height, diameter, balanced-tree checks, and deleting trees. It guarantees child information is complete before the parent is evaluated.",
+  "when": "Use postorder whenever the answer for a node depends on the answers of its children, which covers most bottom-up tree DP problems.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(h)"
+  },
+  "concepts": [
+   {
+    "name": "Children before parent",
+    "description": "Postorder processes the subtrees fully before combining their results at the node."
+   },
+   {
+    "name": "Bottom-up computation",
+    "description": "Leaves are computed first, and results flow upward toward the root."
+   },
+   {
+    "name": "Tree destruction",
+    "description": "Postorder is the natural order for deleting or freeing every node in a tree."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Recursive postorder with return values",
+    "description": "Get results from children and combine them into the node's result.",
+    "code": "def post(node):\n    if not node:\n        return 0\n    left = post(node.left)\n    right = post(node.right)\n    return 1 + max(left, right)"
+   },
+   {
+    "name": "Iterative postorder",
+    "description": "Use a stack with a visited flag, or reverse a modified preorder.",
+    "code": "stack = [(root, False)]\nwhile stack:\n    node, visited = stack.pop()\n    if node:\n        if visited:\n            visit(node)\n        else:\n            stack.append((node, True))\n            stack.append((node.right, False))\n            stack.append((node.left, False))"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Height via postorder",
+    "problem": "Compute the height of a tree where the height of a node is 1 plus the max child height.",
+    "input": "root = 1 -> (2, 3) with 2 -> (4, 5)",
+    "output": "3",
+    "explanation": "Leaf heights are computed first and flow upward to the root.",
+    "steps": [
+     "Leaves 4, 5, 3 return height 1.",
+     "Node 2 returns 1 + max(1, 1) = 2.",
+     "Node 1 returns 1 + max(2, 1) = 3."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(h)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Processing the node before recursing, turning postorder into preorder by accident.",
+    "fix": "Always call visit only after both recursive calls have returned."
+   },
+   {
+    "mistake": "Forgetting to return values from recursive calls, losing the bottom-up combination.",
+    "fix": "Combine the left and right return values into a single return for the node."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Binary Tree Postorder Traversal",
+    "slug": "binary-tree-postorder-traversal",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, return the postorder traversal of its nodes' values.",
+    "constraints": "The number of nodes is in the range [0, 100].",
+    "hints": [
+     "What is the recursive pattern?",
+     "How do you track whether a node has been visited in the iterative version?"
+    ],
+    "approach": "Recurse left, recurse right, then visit; iteratively use a two-state stack or reversed preorder.",
+    "pattern": "Recursive postorder with return values",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Recursively visit children first, then the node. Iteratively, push (node, visited) tuples so the node is visited only after both children are done.",
+    "tags": [
+     "postorder",
+     "traversal",
+     "dfs"
+    ]
+   },
+   {
+    "name": "Binary Tree Tilt",
+    "slug": "binary-tree-tilt",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, return the sum of every tree node's tilt, where tilt is the absolute difference between the sums of the left and right subtrees.",
+    "constraints": "The number of nodes is in the range [0, 10^4].",
+    "hints": [
+     "What information does each node need from its children?",
+     "Which traversal fits a bottom-up computation?"
+    ],
+    "approach": "Postorder compute subtree sums while accumulating tilt at each node.",
+    "pattern": "Recursive postorder with return values",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Each node returns the sum of its subtree and adds the absolute difference of the two child sums to a global tilt accumulator.",
+    "tags": [
+     "postorder",
+     "bottom-up"
+    ]
+   },
+   {
+    "name": "Delete Nodes And Return Forest",
+    "slug": "delete-nodes-and-return-forest",
+    "difficulty": "medium",
+    "description": "Given the root of a binary tree and a list of values to delete, return the roots of the remaining forest after deleting those nodes.",
+    "constraints": "The number of nodes is in the range [1, 1000].",
+    "hints": [
+     "Which traversal lets children be processed before deciding to cut a link?",
+     "When does a child become a new forest root?"
+    ],
+    "approach": "Postorder decide whether to delete the node, and add orphaned children to the result set.",
+    "pattern": "Recursive postorder with return values",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Process children first; if a child survives but the parent is deleted, the child becomes a root in the forest; deleted nodes return None upward.",
+    "tags": [
+     "postorder",
+     "deletion",
+     "forest"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "height-depth",
+  "name": "Height/depth",
+  "difficulty": "easy",
+  "overview": "The height of a node is the number of edges on the longest path from that node down to a leaf, while its depth is the number of edges from the root to that node. Height flows bottom-up, and depth flows top-down.",
+  "why": "Height and depth appear in many tree problems, from balanced-tree checks and diameters to level-based outputs. Being precise about edge-versus-node counting and about the height/depth direction is essential to avoid off-by-one errors.",
+  "when": "Compute height when the answer depends on the longest downward path, and depth when it depends on distance from the root, such as in level-order or path problems.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(h)"
+  },
+  "concepts": [
+   {
+    "name": "Height",
+    "description": "Longest downward path length from a node to a leaf, usually counted in edges."
+   },
+   {
+    "name": "Depth",
+    "description": "Distance from the root to a node, counted in edges."
+   },
+   {
+    "name": "Edges versus nodes",
+    "description": "Height in edges is one less than height in nodes; always state your convention."
+   },
+   {
+    "name": "Direction",
+    "description": "Height is computed bottom-up via postorder; depth is accumulated top-down via preorder or BFS."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Bottom-up height",
+    "description": "Height is 1 plus the maximum of the children's heights, with nulls contributing 0.",
+    "code": "def height(node):\n    if not node:\n        return 0\n    return 1 + max(height(node.left), height(node.right))"
+   },
+   {
+    "name": "Top-down depth tracking",
+    "description": "Pass the current depth as a parameter and stop when needed.",
+    "code": "def dfs(node, depth):\n    if not node:\n        return depth\n    return max(dfs(node.left, depth + 1),\n               dfs(node.right, depth + 1))"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Height of a node",
+    "problem": "Find the height of the tree where a single node has height 1.",
+    "input": "root = 1 -> (2, 3) with 2 -> (4, 5)",
+    "output": "3",
+    "explanation": "The longest path from the root to a leaf contains 3 nodes, so the height is 3.",
+    "steps": [
+     "Leaves 4, 5, 3 have height 1.",
+     "Node 2 has height 1 + max(1, 1) = 2.",
+     "Root 1 has height 1 + max(2, 1) = 3."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(h)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Mixing edge and node counting, producing answers off by one.",
+    "fix": "Pick one convention, state it, and check it against a single-node tree."
+   },
+   {
+    "mistake": "Computing height with preorder when it must be postorder, returning wrong values.",
+    "fix": "Compute children heights before combining into the parent's height."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Maximum Depth of Binary Tree",
+    "slug": "max-depth-height",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, return its maximum depth, the number of nodes along the longest path from root to the farthest leaf.",
+    "constraints": "The number of nodes is in the range [0, 10^4].",
+    "hints": [
+     "How does a null node contribute?",
+     "What is the recurrence for depth?"
+    ],
+    "approach": "Return 0 for null and 1 + max of child depths otherwise.",
+    "pattern": "Bottom-up height",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Recurrence depth(node) = 1 + max(depth(left), depth(right)) with null contributing 0 gives the maximum depth directly.",
+    "tags": [
+     "height",
+     "depth",
+     "recursion"
+    ]
+   },
+   {
+    "name": "Balanced Binary Tree",
+    "slug": "balanced-binary-tree-height",
+    "difficulty": "easy",
+    "description": "Given a binary tree, determine if it is height-balanced, where the heights of the two child subtrees of every node differ by at most 1.",
+    "constraints": "The number of nodes is in the range [0, 5000].",
+    "hints": [
+     "What height information must flow up from children?",
+     "How do you signal an imbalance once detected?"
+    ],
+    "approach": "Postorder compute heights and return -1 to signal imbalance when any subtree differs by more than 1.",
+    "pattern": "Bottom-up height",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "For each node compute both child heights; if the difference exceeds 1, propagate -1 upward as a failure signal.",
+    "tags": [
+     "height",
+     "balanced",
+     "bottom-up"
+    ]
+   },
+   {
+    "name": "Maximum Depth of N-ary Tree",
+    "slug": "max-depth-nary",
+    "difficulty": "easy",
+    "description": "Given an N-ary tree, return its maximum depth, generalizing depth to nodes with any number of children.",
+    "constraints": "The total number of nodes is in the range [0, 10^4].",
+    "hints": [
+     "How does the recurrence change with a children list?",
+     "What is the base case?"
+    ],
+    "approach": "Depth is 1 plus the maximum depth over all children, or 1 for a leaf.",
+    "pattern": "Bottom-up height",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Recurrence depth(node) = 1 + max(depth(child)) over children, with an empty children list yielding depth 1.",
+    "tags": [
+     "height",
+     "depth",
+     "n-ary"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "diameter",
+  "name": "Diameter",
+  "difficulty": "easy",
+  "overview": "The diameter of a binary tree is the length of the longest path between any two nodes, measured by the number of edges. This path may or may not pass through the root, so it must be tracked globally while computing subtree heights.",
+  "why": "Diameter is a classic postorder problem that tests your ability to combine subtree information into a global answer. Variants appear in real interviews and are a great benchmark for bottom-up tree thinking.",
+  "when": "Reach for a diameter-style approach whenever the longest path in a tree may bend through an internal node rather than running straight from root to leaf.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(h)"
+  },
+  "concepts": [
+   {
+    "name": "Longest path through a node",
+    "description": "For any node, the longest path that passes through it equals the sum of its left and right heights."
+   },
+   {
+    "name": "Global best",
+    "description": "The diameter is the maximum such sum over all nodes, tracked in a mutable variable."
+   },
+   {
+    "name": "Height as a byproduct",
+    "description": "The same postorder pass computes node heights and the diameter simultaneously."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Postorder with global max",
+    "description": "Compute child heights, update the global diameter, and return the node's height.",
+    "code": "def dfs(node):\n    if not node:\n        return 0\n    left = dfs(node.left)\n    right = dfs(node.right)\n    best = max(best, left + right)\n    return 1 + max(left, right)"
+   },
+   {
+    "name": "Return pair of values",
+    "description": "Return both the height and the best diameter of a subtree to avoid globals.",
+    "code": "def dfs(node):\n    if not node:\n        return 0, 0\n    lh, ld = dfs(node.left)\n    rh, rd = dfs(node.right)\n    h = 1 + max(lh, rh)\n    d = max(ld, rd, lh + rh)\n    return h, d"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Diameter through the root",
+    "problem": "Find the diameter of a tree where the longest path goes through the root.",
+    "input": "root = 1 -> (2, 3) with 2 -> (4, 5) and 3 -> (6, 7)",
+    "output": "4",
+    "explanation": "The longest path runs from node 4 to node 6 passing through the root, using 4 edges.",
+    "steps": [
+     "Compute heights of all children via postorder.",
+     "At the root, the longest through-path is left height + right height = 2 + 2.",
+     "Update the global maximum.",
+     "Return the root height of 3 upward."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(h)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Only checking the path through the root, missing a larger diameter inside a subtree.",
+    "fix": "Track a global best across all nodes, not just at the root."
+   },
+   {
+    "mistake": "Returning the diameter from the recursion instead of the height, corrupting the height computation.",
+    "fix": "Return the node's height while updating the diameter separately."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Diameter of Binary Tree",
+    "slug": "diameter-of-binary-tree",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, return the length of the diameter, the number of edges on the longest path between any two nodes.",
+    "constraints": "The number of nodes is in the range [1, 10^4].",
+    "hints": [
+     "How does the longest path through a node relate to its child heights?",
+     "Why must the answer be tracked globally?"
+    ],
+    "approach": "Postorder compute heights and update a global maximum using left height plus right height.",
+    "pattern": "Postorder with global max",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "At every node the longest path through it is the sum of its two child heights; the diameter is the maximum such sum over all nodes.",
+    "tags": [
+     "diameter",
+     "postorder",
+     "bottom-up"
+    ]
+   },
+   {
+    "name": "Diameter of N-Ary Tree",
+    "slug": "diameter-of-n-ary-tree",
+    "difficulty": "medium",
+    "description": "Given the root of an N-ary tree, return the diameter, the longest path between any two nodes, counting edges.",
+    "constraints": "The total number of nodes is in the range [0, 10^4].",
+    "hints": [
+     "How do you find the two largest child heights?",
+     "How is that different from the binary case?"
+    ],
+    "approach": "For each node, combine the two largest heights among its children to update the global diameter.",
+    "pattern": "Postorder with global max",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "At each node the best through-path uses the top two child heights; update the global maximum and return 1 plus the largest child height.",
+    "tags": [
+     "diameter",
+     "postorder",
+     "n-ary"
+    ]
+   },
+   {
+    "name": "Binary Tree Maximum Path Sum",
+    "slug": "binary-tree-maximum-path-sum",
+    "difficulty": "hard",
+    "description": "Given a binary tree with integer values, return the maximum path sum, where a path is any sequence of nodes connected by parent-child edges.",
+    "constraints": "The number of nodes is in the range [1, 3 * 10^4] and node values are in [-1000, 1000].",
+    "hints": [
+     "What is the best downward contribution of a node?",
+     "When can a path bend at a node?",
+     "How do negative values affect choices?"
+    ],
+    "approach": "Postorder compute the best downward path starting at each node and update the global max using left plus right plus the node value.",
+    "pattern": "Postorder with global max",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Each node's contribution to a path that bends is node.val + max(0, leftGain) + max(0, rightGain); the upward gain is node.val + max(0, leftGain, rightGain).",
+    "tags": [
+     "diameter",
+     "path-sum",
+     "postorder"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "balanced-trees",
+  "name": "Balanced trees",
+  "difficulty": "easy",
+  "overview": "A binary tree is height-balanced when, for every node, the heights of the two child subtrees differ by at most 1. Balanced trees keep operations close to O(log n) by preventing worst-case skew.",
+  "why": "Balanced-tree checks are common interview problems and the concept explains why BSTs stay efficient. Understanding balance also matters for self-balancing structures like AVL and red-black trees used in production systems.",
+  "when": "Check balance whenever the problem says a tree must be height-balanced, and keep the O(n) postorder solution in mind instead of recomputing heights repeatedly.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(h)"
+  },
+  "concepts": [
+   {
+    "name": "Balance condition",
+    "description": "Every node must have child subtree heights differing by at most 1."
+   },
+   {
+    "name": "Global property",
+    "description": "Balance is a property of every node, not just the root, so an imbalance can hide in a subtree."
+   },
+   {
+    "name": "Self-balancing trees",
+    "description": "AVL and red-black trees maintain the balance condition on insertion and deletion to keep operations logarithmic."
+   },
+   {
+    "name": "Early termination",
+    "description": "A single unbalanced subtree invalidates the whole tree, so the recursion can stop early."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Postorder with failure signal",
+    "description": "Return -1 from any subtree that is unbalanced, pruning further work.",
+    "code": "def check(node):\n    if not node:\n        return 0\n    left = check(node.left)\n    if left == -1:\n        return -1\n    right = check(node.right)\n    if right == -1:\n        return -1\n    if abs(left - right) > 1:\n        return -1\n    return 1 + max(left, right)"
+   },
+   {
+    "name": "Height recomputation",
+    "description": "The naive approach computes height at every node, costing O(n log n) on balanced trees.",
+    "code": "def is_balanced(root):\n    if not root:\n        return True\n    if abs(height(root.left) - height(root.right)) > 1:\n        return False\n    return is_balanced(root.left) and is_balanced(root.right)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Balanced versus unbalanced",
+    "problem": "Check whether a tree is height-balanced.",
+    "input": "root = 1 -> (2, null) with 2 -> (3, null)",
+    "output": "false",
+    "explanation": "Node 2 has left height 1 and right height 0, but node 1 has left height 2 and right height 0, differing by 2.",
+    "steps": [
+     "Compute the height of the left subtree of the root: 2.",
+     "Compute the height of the right subtree of the root: 0.",
+     "The difference is 2, which exceeds 1.",
+     "Return false."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(h)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Only comparing the root's child heights and ignoring imbalanced subtrees.",
+    "fix": "Check balance recursively at every node, not just the root."
+   },
+   {
+    "mistake": "Recomputing heights at every node, making the solution O(n log n) or worse.",
+    "fix": "Compute heights in the same postorder pass and fail fast with a sentinel value."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Balanced Binary Tree",
+    "slug": "balanced-binary-tree",
+    "difficulty": "easy",
+    "description": "Given a binary tree, determine if it is height-balanced: for every node, the two child subtree heights differ by at most 1.",
+    "constraints": "The number of nodes is in the range [0, 5000].",
+    "hints": [
+     "What should the recursive function return?",
+     "How do you signal an imbalance to the caller?"
+    ],
+    "approach": "Postorder compute heights and propagate -1 when any node is unbalanced.",
+    "pattern": "Postorder with failure signal",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Each node returns its height or -1 if unbalanced; the root is balanced only if the call does not return -1.",
+    "tags": [
+     "balanced",
+     "postorder",
+     "height"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "lowest-common-ancestor",
+  "name": "Lowest Common Ancestor",
+  "difficulty": "medium",
+  "overview": "The lowest common ancestor (LCA) of two nodes is the deepest node that is an ancestor of both. In a binary tree it may be found by DFS looking for where the search paths for the two nodes split.",
+  "why": "LCA is a classic and frequently asked interview problem that combines tree traversal with clever recursion. It also generalizes to BSTs (with value comparisons) and N-ary trees, so mastering the pattern pays off across variants.",
+  "when": "Use LCA whenever a problem asks for the common parent or the meeting point of two nodes in a tree, or for distance-between-nodes problems that decompose into two LCA computations.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(h)"
+  },
+  "concepts": [
+   {
+    "name": "Ancestor",
+    "description": "A node is an ancestor of another if it lies on the path from the root to that node, including the node itself."
+   },
+   {
+    "name": "Split point",
+    "description": "The LCA is the first node where the two downward paths to the targets diverge."
+   },
+   {
+    "name": "Self-ancestry",
+    "description": "If one target is an ancestor of the other, that target is the LCA."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Recursive LCA",
+    "description": "Search both subtrees; a node with one target on each side is the LCA.",
+    "code": "def lca(root, p, q):\n    if not root or root == p or root == q:\n        return root\n    left = lca(root.left, p, q)\n    right = lca(root.right, p, q)\n    if left and right:\n        return root\n    return left or right"
+   },
+   {
+    "name": "BST LCA by value",
+    "description": "Compare target values to route the search down the correct branch.",
+    "code": "def lca_bst(root, p, q):\n    if not root:\n        return None\n    if p.val < root.val and q.val < root.val:\n        return lca_bst(root.left, p, q)\n    if p.val > root.val and q.val > root.val:\n        return lca_bst(root.right, p, q)\n    return root"
+   }
+  ],
+  "examples": [
+   {
+    "title": "LCA when targets are in different subtrees",
+    "problem": "Find the LCA of nodes 4 and 5.",
+    "input": "root = 1 -> (2, 3) with 2 -> (4, 5)",
+    "output": "2",
+    "explanation": "Both 4 and 5 are descendants of 2, and 2 is the deepest node containing both.",
+    "steps": [
+     "Search the left subtree for 4 and 5.",
+     "Node 4 is found in the left subtree of 2; node 5 in the right subtree.",
+     "Since one target is on each side, 2 is the LCA.",
+     "Return node 2."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(h)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Returning a parent node before confirming both targets exist in its subtrees.",
+    "fix": "Only treat a node as the LCA when both recursive calls return a non-null node."
+   },
+   {
+    "mistake": "Using the value-comparison BST shortcut on a plain binary tree.",
+    "fix": "Check whether the tree is a BST before applying the BST-specific LCA logic."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Lowest Common Ancestor of a Binary Tree",
+    "slug": "lowest-common-ancestor-of-a-binary-tree",
+    "difficulty": "medium",
+    "description": "Given a binary tree and two nodes p and q, return their lowest common ancestor, where both nodes exist in the tree.",
+    "constraints": "The number of nodes is in the range [2, 10^5].",
+    "hints": [
+     "What does a node do when it finds one target in each subtree?",
+     "How do you handle the case where one target is an ancestor of the other?"
+    ],
+    "approach": "Recursive DFS that returns the found target or the LCA upward.",
+    "pattern": "Recursive LCA",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "If a node matches a target return it; combine left and right results, returning the node when both sides are non-null, otherwise the non-null side.",
+    "tags": [
+     "lca",
+     "binary-tree",
+     "dfs"
+    ]
+   },
+   {
+    "name": "Lowest Common Ancestor of a Binary Search Tree",
+    "slug": "lowest-common-ancestor-of-a-binary-search-tree",
+    "difficulty": "medium",
+    "description": "Given a BST and two nodes p and q, return their lowest common ancestor.",
+    "constraints": "The number of nodes is in the range [2, 10^5].",
+    "hints": [
+     "How do the values of p and q compare to the current node?",
+     "When do you stop descending?"
+    ],
+    "approach": "If both targets are smaller, go left; if both larger, go right; otherwise the current node is the LCA.",
+    "pattern": "BST LCA by value",
+    "time": "O(h)",
+    "space": "O(1)",
+    "solution": "The LCA is the first node whose value lies between the two targets' values, so descend accordingly until the split point is reached.",
+    "tags": [
+     "lca",
+     "bst",
+     "search"
+    ]
+   },
+   {
+    "name": "Lowest Common Ancestor of Deepest Leaves",
+    "slug": "lowest-common-ancestor-of-deepest-leaves",
+    "difficulty": "medium",
+    "description": "Given the root of a binary tree, return the lowest common ancestor of its deepest leaves.",
+    "constraints": "The number of nodes is in the range [1, 1000].",
+    "hints": [
+     "What is the max depth of the tree?",
+     "Which leaves are deepest?",
+     "What happens if there is only one deepest leaf?"
+    ],
+    "approach": "Find the maximum depth, then recursively find the LCA of all leaves at that depth.",
+    "pattern": "Recursive LCA",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Compute the max depth, then traverse: a node is the answer when both subtrees reach the max depth, or when it is the single deepest node.",
+    "tags": [
+     "lca",
+     "depth",
+     "dfs"
+    ]
+   },
+   {
+    "name": "Lowest Common Ancestor of a Binary Tree IV",
+    "slug": "lowest-common-ancestor-of-a-binary-tree-iv",
+    "difficulty": "medium",
+    "description": "Given a binary tree and an array of nodes, return their lowest common ancestor, the deepest node that is an ancestor of all listed nodes.",
+    "constraints": "The number of nodes is in the range [1, 10^4].",
+    "hints": [
+     "How does counting targets per subtree help?",
+     "When is a node the LCA for many targets?"
+    ],
+    "approach": "Recursive DFS that counts how many of the target nodes are found under each subtree.",
+    "pattern": "Recursive LCA",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Return a node whenever all remaining targets are located in its subtrees; track the count of matched targets and pick the first node where the total equals the target count.",
+    "tags": [
+     "lca",
+     "binary-tree",
+     "multi-target"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "binary-search-tree",
+  "name": "Binary Search Tree",
+  "difficulty": "easy",
+  "overview": "A binary search tree (BST) is a binary tree with an ordering invariant: for every node, all values in the left subtree are smaller and all values in the right subtree are larger. This invariant turns search, insert, and delete into logarithmic-time operations on balanced trees.",
+  "why": "BSTs are the standard ordered map/set structure and appear in countless interview problems that exploit sorted order. Knowing the invariant and its consequences lets you validate BSTs, find kth elements, and build trees from sorted data.",
+  "when": "Reach for a BST whenever data must stay sorted with efficient search and insert, or when a problem mentions sorted order, ordering invariants, or in-order sequences.",
+  "complexity": {
+   "time": "O(log n) average, O(n) worst case",
+   "space": "O(log n) recursion depth average"
+  },
+  "concepts": [
+   {
+    "name": "Ordering invariant",
+    "description": "Left subtree values are strictly less than the node, right subtree values strictly greater."
+   },
+   {
+    "name": "Sorted inorder",
+    "description": "An inorder traversal of a BST visits all values in non-decreasing order."
+   },
+   {
+    "name": "Search rule",
+    "description": "Compare the target to the node and descend left or right, halving the search space each step."
+   },
+   {
+    "name": "Degeneracy",
+    "description": "Inserting sorted data creates a skewed tree that behaves like a linked list, degrading to O(n)."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "BST search",
+    "description": "Descend left or right based on the value comparison until found or null.",
+    "code": "def search(root, target):\n    cur = root\n    while cur and cur.val != target:\n        cur = cur.left if target < cur.val else cur.right\n    return cur"
+   },
+   {
+    "name": "Inorder check of invariant",
+    "description": "Validate a BST by confirming the inorder sequence is strictly increasing.",
+    "code": "def valid(root):\n    prev = [None]\n    def dfs(node):\n        if not node:\n            return True\n        if not dfs(node.left):\n            return False\n        if prev[0] is not None and node.val <= prev[0]:\n            return False\n        prev[0] = node.val\n        return dfs(node.right)\n    return dfs(root)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Search in a BST",
+    "problem": "Find the node with a given value.",
+    "input": "BST: 5 -> (3, 8) with 3 -> (1, 4), target = 4",
+    "output": "node with value 4",
+    "explanation": "Start at 5, go left because 4 < 5, then right because 4 > 3, reaching 4.",
+    "steps": [
+     "Compare 4 with the root 5 and go left.",
+     "Compare 4 with 3 and go right.",
+     "Compare 4 with 4 and match.",
+     "Return the node."
+    ],
+    "complexity": {
+     "time": "O(h)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Checking only parent-child comparisons instead of the full BST invariant, accepting invalid trees.",
+    "fix": "Validate against a running min/max range or by checking the inorder sequence is strictly increasing."
+   },
+   {
+    "mistake": "Allowing duplicates in a BST that requires strict inequality on one side.",
+    "fix": "Define whether equal values go left or right and enforce it consistently."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Search in a Binary Search Tree",
+    "slug": "search-in-a-binary-search-tree",
+    "difficulty": "easy",
+    "description": "Given the root of a BST and a value, return the subtree rooted at the node with that value, or null if it does not exist.",
+    "constraints": "The number of nodes is in the range [1, 5000].",
+    "hints": [
+     "Which direction do you go when the target is smaller?",
+     "What is the loop condition?"
+    ],
+    "approach": "Iteratively compare the target with the current node and descend accordingly.",
+    "pattern": "BST search",
+    "time": "O(h)",
+    "space": "O(1)",
+    "solution": "Descend left when the target is smaller and right when larger, stopping when the value matches or the node is null.",
+    "tags": [
+     "bst",
+     "search",
+     "binary-tree"
+    ]
+   },
+   {
+    "name": "Validate Binary Search Tree",
+    "slug": "validate-bst",
+    "difficulty": "medium",
+    "description": "Given the root of a binary tree, determine if it is a valid BST using strict comparisons.",
+    "constraints": "The number of nodes is in the range [1, 10^4].",
+    "hints": [
+     "What does the inorder sequence look like for a valid BST?",
+     "Why is checking parent-child pairs insufficient?"
+    ],
+    "approach": "Run an inorder traversal and verify the sequence is strictly increasing.",
+    "pattern": "Inorder check of invariant",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "A valid BST produces a strictly increasing inorder sequence, so any out-of-order adjacent pair means the tree is invalid.",
+    "tags": [
+     "bst",
+     "inorder",
+     "validation"
+    ]
+   },
+   {
+    "name": "Convert Sorted Array to Binary Search Tree",
+    "slug": "convert-sorted-array-to-binary-search-tree",
+    "difficulty": "easy",
+    "description": "Given an integer array sorted in ascending order, convert it to a height-balanced BST.",
+    "constraints": "The array length is in the range [1, 10^4].",
+    "hints": [
+     "Which element should be the root?",
+     "How do you split the remaining array?"
+    ],
+    "approach": "Pick the middle element as the root and recursively build the left and right halves.",
+    "pattern": "BST search",
+    "time": "O(n)",
+    "space": "O(log n)",
+    "solution": "The middle element of each sorted slice becomes the root, making every subtree balanced by construction.",
+    "tags": [
+     "bst",
+     "construction",
+     "balanced"
+    ]
+   },
+   {
+    "name": "Minimum Distance Between BST Nodes",
+    "slug": "minimum-distance-between-bst-nodes",
+    "difficulty": "easy",
+    "description": "Given the root of a BST, return the minimum difference between the values of any two different nodes.",
+    "constraints": "The number of nodes is in the range [2, 100].",
+    "hints": [
+     "Which adjacent values in sorted order are closest?",
+     "What traversal yields sorted values?"
+    ],
+    "approach": "Inorder traverse the BST and compare consecutive values to find the minimum gap.",
+    "pattern": "Inorder check of invariant",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "The two closest values in a BST are adjacent in its inorder sequence, so scan consecutive visited values.",
+    "tags": [
+     "bst",
+     "inorder",
+     "min-difference"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "bst-operations",
+  "name": "BST operations",
+  "difficulty": "medium",
+  "overview": "BST operations cover insertion, deletion, and modification of nodes while preserving the ordering invariant. Insertion is straightforward, while deletion requires handling the case of a node with two children.",
+  "why": "Implementing BST insert and delete correctly tests precision with pointer rewiring and the ordering invariant. These operations also explain why self-balancing trees exist and show up in problems about sorted data structures.",
+  "when": "Use these operations when building or modifying BSTs, such as inserting into a sorted structure or removing a node while keeping the tree a valid BST.",
+  "complexity": {
+   "time": "O(log n) average, O(n) worst case",
+   "space": "O(log n) average recursion depth"
+  },
+  "concepts": [
+   {
+    "name": "Insertion",
+    "description": "Descend by value comparison until an empty slot is found, then attach the new node there."
+   },
+   {
+    "name": "Deletion by successor",
+    "description": "Replace a node with two children by its in-order successor and splice that successor out."
+   },
+   {
+    "name": "Rotation-based rebalancing",
+    "description": "AVL and red-black trees use rotations after inserts and deletes to keep height logarithmic."
+   },
+   {
+    "name": "In-order successor",
+    "description": "The smallest value greater than a node, found as the leftmost node of the right subtree."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Recursive BST insert",
+    "description": "Return the updated subtree root so the parent can reattach correctly.",
+    "code": "def insert(root, val):\n    if not root:\n        return TreeNode(val)\n    if val < root.val:\n        root.left = insert(root.left, val)\n    else:\n        root.right = insert(root.right, val)\n    return root"
+   },
+   {
+    "name": "Recursive BST delete",
+    "description": "Handle zero/one children directly and two children by replacing with the successor.",
+    "code": "def delete(root, key):\n    if not root:\n        return None\n    if key < root.val:\n        root.left = delete(root.left, key)\n    elif key > root.val:\n        root.right = delete(root.right, key)\n    else:\n        if not root.left:\n            return root.right\n        if not root.right:\n            return root.left\n        succ = root.right\n        while succ.left:\n            succ = succ.left\n        root.val = succ.val\n        root.right = delete(root.right, succ.val)\n    return root"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Delete a node with two children",
+    "problem": "Delete the node 3 from a BST.",
+    "input": "BST: 5 -> (3, 8) with 3 -> (2, 4)",
+    "output": "BST: 5 -> (4, 8) with 4 -> (2, null)",
+    "explanation": "Node 3 has two children, so it is replaced by its in-order successor 4.",
+    "steps": [
+     "Find the in-order successor 4 in the right subtree.",
+     "Copy the successor's value into node 3.",
+     "Recursively delete the successor from the right subtree.",
+     "Return the updated subtree."
+    ],
+    "complexity": {
+     "time": "O(h)",
+     "space": "O(h)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Failing to return the updated subtree root, so the parent never reattaches the new child.",
+    "fix": "Always assign the result of the recursive call back to the child pointer and return root."
+   },
+   {
+    "mistake": "Handling the two-child case by naive pointer rewiring and losing part of the tree.",
+    "fix": "Replace with the successor's value, then delete the successor recursively."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Insert into a Binary Search Tree",
+    "slug": "insert-into-a-binary-search-tree",
+    "difficulty": "medium",
+    "description": "Insert a value into a BST while preserving the invariant, and return the root of the updated tree.",
+    "constraints": "The number of nodes is in the range [0, 10^4] and all values are unique.",
+    "hints": [
+     "Where does the new node belong after comparisons?",
+     "What should the recursive call return?"
+    ],
+    "approach": "Recursively descend by value and attach the new node at the first null slot.",
+    "pattern": "Recursive BST insert",
+    "time": "O(h)",
+    "space": "O(h)",
+    "solution": "Compare the value and recurse into the matching child; when a null slot is found, create and return the new node so the parent attaches it.",
+    "tags": [
+     "bst",
+     "insert",
+     "operations"
+    ]
+   },
+   {
+    "name": "Delete Node in a BST",
+    "slug": "delete-node-in-a-bst",
+    "difficulty": "medium",
+    "description": "Given a BST and a key, delete the node with that key and return the root, preserving the BST invariant.",
+    "constraints": "The number of nodes is in the range [0, 10^4].",
+    "hints": [
+     "How do you handle a node with zero or one child?",
+     "What is the in-order successor and how is it used for two children?"
+    ],
+    "approach": "Recursively locate the node, then handle deletion by the number of children it has.",
+    "pattern": "Recursive BST delete",
+    "time": "O(h)",
+    "space": "O(h)",
+    "solution": "Zero children: return None. One child: return the child. Two children: copy the successor's value and delete the successor recursively.",
+    "tags": [
+     "bst",
+     "delete",
+     "operations"
+    ]
+   },
+   {
+    "name": "Trim a Binary Search Tree",
+    "slug": "trim-a-binary-search-tree",
+    "difficulty": "medium",
+    "description": "Given the root of a BST and a range [low, high], trim the tree so all nodes lie in the range and return the new root.",
+    "constraints": "The number of nodes is in the range [1, 10^4].",
+    "hints": [
+     "What can you do when a node is below the range?",
+     "What when it is above the range?"
+    ],
+    "approach": "Recursively prune subtrees that fall entirely outside the range.",
+    "pattern": "Recursive BST insert",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "If a node is below low, the whole left subtree is out of range, so return the trimmed right subtree; mirror for above high.",
+    "tags": [
+     "bst",
+     "trim",
+     "operations"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "tree-views",
+  "name": "Tree views",
+  "difficulty": "medium",
+  "overview": "Tree view problems ask what the tree looks like from a particular direction: top, bottom, left, or right. They combine level-order BFS with horizontal coordinate tracking, where each node is assigned a column offset from the root.",
+  "why": "View problems test your ability to augment a traversal with positional metadata and to handle ordering by column and depth. They are popular interview questions that reward understanding both BFS and ordering logic.",
+  "when": "Reach for tree views whenever a problem asks to see the tree from the top, bottom, left, or right, or mentions vertical or column order.",
+  "complexity": {
+   "time": "O(n log n) with sorting, O(n) without",
+   "space": "O(n)"
+  },
+  "concepts": [
+   {
+    "name": "Column index",
+    "description": "A horizontal coordinate where the root is 0, left children are -1, and right children are +1."
+   },
+   {
+    "name": "Left and right views",
+    "description": "For BFS, the first node of a level is the left view and the last node is the right view."
+   },
+   {
+    "name": "Top and bottom views",
+    "description": "For each column, the top view keeps the first node and the bottom view keeps the last node seen."
+   },
+   {
+    "name": "Vertical order",
+    "description": "Nodes grouped by column, ordered top to bottom within a column."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "BFS with column tracking",
+    "description": "Store (node, column) pairs in the queue and record per-column information.",
+    "code": "from collections import deque\nq = deque([(root, 0)])\ncols = {}\nwhile q:\n    node, col = q.popleft()\n    if node:\n        cols.setdefault(col, []).append(node.val)\n        q.append((node.left, col - 1))\n        q.append((node.right, col + 1))"
+   },
+   {
+    "name": "Level first/last extraction",
+    "description": "Grab the first or last node of each BFS level for the side views.",
+    "code": "q = deque([root])\nright_view = []\nwhile q:\n    size = len(q)\n    for i in range(size):\n        node = q.popleft()\n        if i == size - 1:\n            right_view.append(node.val)\n        if node.left:\n            q.append(node.left)\n        if node.right:\n            q.append(node.right)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Bottom view",
+    "problem": "Return the bottom view of a binary tree.",
+    "input": "root = 1 -> (2, 3) with 2 -> (4, 5) and 3 -> (6, 7)",
+    "output": "[4, 2, 6, 3, 7]",
+    "explanation": "For each column, the bottom-most visible node is reported.",
+    "steps": [
+     "Run BFS while tracking the column of each node.",
+     "Overwrite each column's entry with every new node seen.",
+     "After the BFS, each column holds its deepest node.",
+     "Sort columns by index and output the values."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Mixing left/right view logic with column-based views and applying both at once.",
+    "fix": "Side views need only BFS levels; top/bottom/vertical views need column tracking."
+   },
+   {
+    "mistake": "Forgetting to sort columns for vertical and bottom views, producing a wrong order.",
+    "fix": "Collect columns into a sorted structure or sort the final keys before output."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Binary Tree Right Side View",
+    "slug": "binary-tree-right-side-view-views",
+    "difficulty": "medium",
+    "description": "Given the root of a binary tree, return the values of the nodes visible from the right side, top to bottom.",
+    "constraints": "The number of nodes is in the range [0, 100].",
+    "hints": [
+     "Which node of each level is visible from the right?",
+     "What traversal visits nodes level by level?"
+    ],
+    "approach": "BFS level by level and record the last node of each level.",
+    "pattern": "Level first/last extraction",
+    "time": "O(n)",
+    "space": "O(w)",
+    "solution": "In a level-order pass, the rightmost node of each level is the last node popped in that level, so append it to the result.",
+    "tags": [
+     "tree-views",
+     "bfs",
+     "binary-tree"
+    ]
+   },
+   {
+    "name": "Bottom Left Tree Value",
+    "slug": "bottom-left-tree-value",
+    "difficulty": "medium",
+    "description": "Given the root of a binary tree, return the leftmost value in the last row of the tree.",
+    "constraints": "The number of nodes is in the range [1, 10^4].",
+    "hints": [
+     "What traversal naturally visits the last level?",
+     "Which node in the last level is the leftmost?"
+    ],
+    "approach": "BFS and track the first node of the most recently processed level.",
+    "pattern": "Level first/last extraction",
+    "time": "O(n)",
+    "space": "O(w)",
+    "solution": "Run BFS and remember the first node of each level; the last level's first node is the bottom-left value.",
+    "tags": [
+     "tree-views",
+     "bfs"
+    ]
+   },
+   {
+    "name": "Vertical Order Traversal of a Binary Tree",
+    "slug": "vertical-order-traversal-of-a-binary-tree",
+    "difficulty": "hard",
+    "description": "Given the root of a binary tree, return the vertical order traversal, grouping nodes by column with a specific within-column ordering rule.",
+    "constraints": "The number of nodes is in the range [1, 1000].",
+    "hints": [
+     "How do you assign columns to nodes?",
+     "What secondary ordering is required within a column?",
+     "Why might BFS order matter?"
+    ],
+    "approach": "BFS with (node, column, row) metadata, then group, sort by column and row, and order values.",
+    "pattern": "BFS with column tracking",
+    "time": "O(n log n)",
+    "space": "O(n)",
+    "solution": "Assign each node a (column, row) coordinate, group nodes by column, sort each column by row then value, and output in column order.",
+    "tags": [
+     "tree-views",
+     "vertical-order",
+     "bfs"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "tree-construction",
+  "name": "Tree construction",
+  "difficulty": "medium",
+  "overview": "Tree construction problems build a binary tree from traversals, arrays, or serialized input. The most common form is building a tree from inorder combined with either preorder or postorder, using the position of the root to split the sequences.",
+  "why": "Building trees from traversals tests deep understanding of how traversal orders relate to structure. These problems frequently appear in interviews and reinforce the recursive decomposition skills central to all tree work.",
+  "when": "Use these techniques when given multiple traversal sequences or array representations and asked to reconstruct a tree, and when dealing with serialized formats that encode structure.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(n)"
+  },
+  "concepts": [
+   {
+    "name": "Root identification",
+    "description": "In preorder the root comes first; in postorder it comes last; in inorder it splits the left and right subtree ranges."
+   },
+   {
+    "name": "Sequence splitting",
+    "description": "The inorder position of the root determines how many nodes belong to each subtree."
+   },
+   {
+    "name": "Preorder plus inorder",
+    "description": "Preorder supplies roots in order while inorder supplies the left/right split."
+   },
+   {
+    "name": "Postorder plus inorder",
+    "description": "Postorder supplies roots from the end backward while inorder supplies the split."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Build from preorder and inorder",
+    "description": "Pop the preorder root, find its inorder index, and recurse on the two halves.",
+    "code": "def build(preorder, inorder):\n    if not inorder:\n        return None\n    root = TreeNode(preorder.pop(0))\n    i = inorder.index(root.val)\n    root.left = build(preorder, inorder[:i])\n    root.right = build(preorder, inorder[i + 1:])\n    return root"
+   },
+   {
+    "name": "Build from postorder and inorder",
+    "description": "Take the root from the end of postorder and recurse on the split halves.",
+    "code": "def build(postorder, inorder):\n    if not inorder:\n        return None\n    root = TreeNode(postorder.pop())\n    i = inorder.index(root.val)\n    root.right = build(postorder, inorder[i + 1:])\n    root.left = build(postorder, inorder[:i])\n    return root"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Build from preorder and inorder",
+    "problem": "Reconstruct a binary tree from its preorder and inorder traversals.",
+    "input": "preorder = [3, 9, 20, 15, 7], inorder = [9, 3, 15, 20, 7]",
+    "output": "root 3 with left 9 and right 20 -> (15, 7)",
+    "explanation": "3 is the root; inorder splits into left [9] and right [15, 20, 7].",
+    "steps": [
+     "Take the first preorder element 3 as the root.",
+     "Find 3 in inorder to split the arrays.",
+     "Build the left subtree from the left slice with the next preorder elements.",
+     "Build the right subtree from the right slice."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Slicing arrays repeatedly, causing O(n^2) behavior.",
+    "fix": "Use index pointers into the original arrays with a hash map of inorder positions."
+   },
+   {
+    "mistake": "Using the wrong traversal to identify the root, such as reading preorder roots from the end.",
+    "fix": "Preorder roots come from the front; postorder roots come from the back."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Construct Binary Tree from Preorder and Inorder Traversal",
+    "slug": "construct-binary-tree-from-preorder-and-inorder-traversal",
+    "difficulty": "medium",
+    "description": "Given the preorder and inorder traversals of a binary tree, reconstruct and return the tree.",
+    "constraints": "All node values are unique, and the number of nodes is in the range [1, 3000].",
+    "hints": [
+     "Which element is the root?",
+     "How does inorder tell you the subtree sizes?"
+    ],
+    "approach": "Use the first preorder element as root, find its inorder index, and recurse on both halves with index pointers.",
+    "pattern": "Build from preorder and inorder",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "The preorder sequence supplies roots left to right; the inorder index of each root gives the sizes of the left and right subtrees.",
+    "tags": [
+     "tree-construction",
+     "preorder",
+     "inorder"
+    ]
+   },
+   {
+    "name": "Construct Binary Tree from Postorder and Inorder Traversal",
+    "slug": "construct-binary-tree-from-postorder-and-inorder-traversal",
+    "difficulty": "medium",
+    "description": "Given the postorder and inorder traversals of a binary tree, reconstruct and return the tree.",
+    "constraints": "All node values are unique, and the number of nodes is in the range [1, 3000].",
+    "hints": [
+     "Where is the root in postorder?",
+     "How do you split inorder?"
+    ],
+    "approach": "Pop roots from the end of postorder and recurse on the inorder split, right first.",
+    "pattern": "Build from postorder and inorder",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "The last postorder element is the root; the inorder index splits the subtree ranges, and the right subtree is built before the left.",
+    "tags": [
+     "tree-construction",
+     "postorder",
+     "inorder"
+    ]
+   },
+   {
+    "name": "Construct String from Binary Tree",
+    "slug": "construct-string-from-binary-tree-construction",
+    "difficulty": "medium",
+    "description": "Given the root of a binary tree, construct a string using preorder traversal with parentheses, omitting empty right children when possible.",
+    "constraints": "The number of nodes is in the range [1, 10^4].",
+    "hints": [
+     "When are parentheses needed for the left child?",
+     "When can the right child's parentheses be dropped?"
+    ],
+    "approach": "Preorder traversal building the string, adding parentheses around children with the omission rule.",
+    "pattern": "Build from preorder and inorder",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Append the node value, then a '(' left ')' pair when a left child exists, and a '(' right ')' pair only when a right child exists.",
+    "tags": [
+     "tree-construction",
+     "preorder",
+     "serialization"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "serialization-deserialization",
+  "name": "Serialization/deserialization",
+  "difficulty": "medium",
+  "overview": "Serialization converts a tree into a string or array that can be stored or transmitted, and deserialization reconstructs the original tree from that representation. Preorder with null markers is the most common robust approach.",
+  "why": "Tree serialization tests your ability to design unambiguous encodings and appears in real systems that persist trees. Interviewers use it to evaluate attention to base cases and the exact reverse of a traversal.",
+  "when": "Reach for serialization when a problem asks to encode a tree into a compact string and rebuild it, or when a traversal alone cannot uniquely identify the tree shape.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(n)"
+  },
+  "concepts": [
+   {
+    "name": "Null markers",
+    "description": "Sentinel tokens that mark missing children so the tree shape can be reconstructed uniquely."
+   },
+   {
+    "name": "Reversible traversal",
+    "description": "A single preorder sequence with nulls is fully reversible; a plain traversal without markers is not."
+   },
+   {
+    "name": "Cursor-based rebuild",
+    "description": "Deserialization consumes tokens left to right using an index that advances as nodes are created."
+   },
+   {
+    "name": "Level-order serialization",
+    "description": "BFS-based encoding that also carries the level structure for unambiguous reconstruction."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Preorder with null markers",
+    "description": "Write nodes and 'X' for null children; rebuild by consuming tokens in order.",
+    "code": "def serialize(root):\n    def go(node):\n        if not node:\n            return ['X']\n        return [str(node.val)] + go(node.left) + go(node.right)\n    return ','.join(go(root))\n\ndef deserialize(data):\n    vals = iter(data.split(','))\n    def go():\n        v = next(vals)\n        if v == 'X':\n            return None\n        node = TreeNode(int(v))\n        node.left = go()\n        node.right = go()\n        return node\n    return go()"
+   },
+   {
+    "name": "Level-order serialization",
+    "description": "Encode the tree level by level using a queue, including nulls.",
+    "code": "def serialize(root):\n    from collections import deque\n    q = deque([root])\n    out = []\n    while q:\n        node = q.popleft()\n        out.append(str(node.val) if node else 'X')\n        if node:\n            q.append(node.left)\n            q.append(node.right)\n    return ','.join(out)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Preorder serialization",
+    "problem": "Serialize a tree to a string and rebuild it.",
+    "input": "root = 1 -> (2, 3) with 3 -> (4, 5)",
+    "output": "serialized = '1,2,X,X,3,4,X,X,5,X,X'",
+    "explanation": "Preorder visits 1, then 2 with nulls for its children, then 3 with its children and their nulls.",
+    "steps": [
+     "Serialize the root 1.",
+     "Serialize the left subtree 2 followed by X for each null child.",
+     "Serialize the right subtree 3, then 4 with its nulls, then 5 with its nulls.",
+     "Deserialize by consuming tokens in the same order."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Omitting null markers, so the encoding is ambiguous and cannot be rebuilt uniquely.",
+    "fix": "Always encode null children explicitly with a sentinel token."
+   },
+   {
+    "mistake": "Mixing token types without a delimiter, breaking the parser.",
+    "fix": "Use a consistent delimiter and treat each token as either a value or a null marker."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Serialize and Deserialize Binary Tree",
+    "slug": "serialize-and-deserialize-binary-tree",
+    "difficulty": "hard",
+    "description": "Design an algorithm to serialize a binary tree to a string and deserialize the string back into the original tree structure.",
+    "constraints": "The number of nodes is in the range [0, 10^4].",
+    "hints": [
+     "What token marks a null child?",
+     "Which traversal is easiest to reverse?",
+     "How does an index-based rebuild work?"
+    ],
+    "approach": "Serialize with preorder plus a null marker, and deserialize by consuming tokens in the same preorder sequence.",
+    "pattern": "Preorder with null markers",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Write values and an 'X' token for nulls in preorder; rebuild recursively by reading the next token and creating nodes in the same order.",
+    "tags": [
+     "serialization",
+     "preorder",
+     "design"
+    ]
+   },
+   {
+    "name": "Verify Preorder Serialization of a Binary Tree",
+    "slug": "verify-preorder-serialization-of-a-binary-tree",
+    "difficulty": "medium",
+    "description": "Given a comma-separated preorder serialization with '#' as the null marker, determine if it is a valid serialization of a binary tree without rebuilding it.",
+    "constraints": "The string length is in the range [1, 10^4].",
+    "hints": [
+     "What does each non-null node require?",
+     "Can a stack simulate the tree building?",
+     "What must be true at the end?"
+    ],
+    "approach": "Simulate building the tree with a stack of slots: each node consumes one slot and adds two.",
+    "pattern": "Preorder with null markers",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Track open slots; every token consumes one, a real node adds two, and a null adds zero; the encoding is valid iff the count returns to exactly zero at the end without going negative.",
+    "tags": [
+     "serialization",
+     "preorder",
+     "validation"
+    ]
+   },
+   {
+    "name": "Serialize and Deserialize BST",
+    "slug": "serialize-and-deserialize-bst",
+    "difficulty": "medium",
+    "description": "Design an algorithm to serialize a BST to a string and deserialize it back, exploiting the BST property for a compact encoding.",
+    "constraints": "The number of nodes is in the range [0, 10^4].",
+    "hints": [
+     "Can you encode a BST with only preorder and no null markers?",
+     "How do value bounds help during rebuild?"
+    ],
+    "approach": "Serialize with preorder only, and rebuild using the value bounds implied by the BST invariant.",
+    "pattern": "Preorder with null markers",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Preorder alone is enough for a BST because the ordering invariant tells each node which branch subsequent values must follow, using running lower and upper bounds.",
+    "tags": [
+     "serialization",
+     "bst",
+     "preorder"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "trees",
+  "name": "Trees",
+  "difficulty": "easy",
+  "overview": "Trees are a fundamental hierarchical data structure where every node has at most one parent and nodes are connected without cycles. The binary tree, with at most two children per node, is the most common variant in interviews, and tree algorithms are overwhelmingly recursive.",
+  "why": "Tree problems are among the most frequently asked interview topics because they test recursion, traversal, and structural reasoning in a compact, easy-to-describe setting. Mastering trees prepares you for graphs, heaps, and tries, which reuse similar patterns.",
+  "when": "Use a tree whenever data is naturally hierarchical, such as file systems, expressions, decision processes, or any ancestor/descendant relationship, and whenever a binary search tree or heap structure is required.",
+  "complexity": {
+   "time": "O(n) for standard traversals",
+   "space": "O(h) for recursion, O(w) for BFS"
+  },
+  "concepts": [
+   {
+    "name": "Root, node, leaf",
+    "description": "The root is the topmost node, internal nodes have children, and leaves have none."
+   },
+   {
+    "name": "Parent and child",
+    "description": "A node with at most one incoming edge (parent) and outgoing edges to children."
+   },
+   {
+    "name": "Subtree",
+    "description": "A node together with all of its descendants, the unit of recursive decomposition."
+   },
+   {
+    "name": "Traversal orders",
+    "description": "Preorder, inorder, and postorder visit root, left, and right in different relative orders."
+   },
+   {
+    "name": "Balanced and degenerate",
+    "description": "Balanced trees keep height near O(log n); degenerate ones behave like linked lists."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Recursive decomposition",
+    "description": "Solve a tree problem by solving it for each subtree and combining the results.",
+    "code": "def solve(node):\n    if not node:\n        return 0\n    return 1 + solve(node.left) + solve(node.right)"
+   },
+   {
+    "name": "Traversal template",
+    "description": "The universal DFS skeleton that adapts to any traversal by moving the visit step.",
+    "code": "def visit(node):\n    if not node:\n        return\n    visit(node.left)\n    visit(node.right)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Count the leaves",
+    "problem": "Return the number of leaf nodes in a binary tree.",
+    "input": "root = 1 -> (2, 3) with 2 -> (4, 5)",
+    "output": "3",
+    "explanation": "Leaves 4, 5, and 3 have no children, and no other node qualifies.",
+    "steps": [
+     "Check if the node is null; if so return 0.",
+     "Check if the node is a leaf; if so return 1.",
+     "Recurse into both children and sum their leaf counts.",
+     "Return the total."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(h)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using recursion without a null base case and crashing on empty trees.",
+    "fix": "Always handle the null node first in any recursive tree function."
+   },
+   {
+    "mistake": "Assuming every tree problem fits a single traversal, when some need postorder or BFS.",
+    "fix": "Match the traversal to the problem: level-based needs BFS, bottom-up needs postorder."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Maximum Depth of Binary Tree",
+    "slug": "max-depth-trees",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, return its maximum depth, the number of nodes along the longest path from the root to the farthest leaf.",
+    "constraints": "The number of nodes is in the range [0, 10^4].",
+    "hints": [
+     "What is the recurrence for depth?",
+     "What is the base case?"
+    ],
+    "approach": "Recursively compute 1 plus the max of the children's depths.",
+    "pattern": "Recursive decomposition",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "depth(node) = 1 + max(depth(left), depth(right)), with a null node contributing 0.",
+    "tags": [
+     "trees",
+     "depth",
+     "recursion"
+    ]
+   },
+   {
+    "name": "Same Tree",
+    "slug": "same-tree-trees",
+    "difficulty": "easy",
+    "description": "Given the roots of two binary trees, return true if they are structurally identical with equal values at every position.",
+    "constraints": "The number of nodes in both trees is in the range [0, 100].",
+    "hints": [
+     "What if both nodes are null?",
+     "What must be true at every node?"
+    ],
+    "approach": "Compare nodes recursively: both null, or equal values with equal subtrees.",
+    "pattern": "Recursive decomposition",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "Two trees are the same if at every aligned position both are null, or both are non-null with equal values and recursively identical children.",
+    "tags": [
+     "trees",
+     "recursion"
+    ]
+   },
+   {
+    "name": "Symmetric Tree",
+    "slug": "symmetric-tree",
+    "difficulty": "easy",
+    "description": "Given the root of a binary tree, determine if it is a mirror of itself, i.e., symmetric around its center.",
+    "constraints": "The number of nodes is in the range [1, 1000].",
+    "hints": [
+     "What two subtrees must be compared?",
+     "How do you mirror-compare two nodes?"
+    ],
+    "approach": "Recursively check that the left subtree mirrors the right subtree.",
+    "pattern": "Recursive decomposition",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "A tree is symmetric if the left and right subtrees are mirror images: values equal and left.left mirrors right.right while left.right mirrors right.left.",
+    "tags": [
+     "trees",
+     "recursion",
+     "symmetry"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "bfs-dfs",
+  "name": "BFS / DFS",
+  "difficulty": "easy",
+  "overview": "BFS and DFS are the two fundamental ways to traverse a tree. DFS plunges down a branch before backtracking, while BFS explores level by level; the choice is driven by the information the problem needs.",
+  "why": "Choosing the right traversal is a core interview skill: BFS answers distance and level questions, while DFS handles branch-level and structural questions. Knowing the tradeoffs in time, space, and semantics separates strong tree solutions from clumsy ones.",
+  "when": "Use BFS for level-based output, shortest paths, and right/left views; use DFS for paths, subtree properties, depth, and structural comparison.",
+  "complexity": {
+   "time": "O(n) for both",
+   "space": "O(h) for DFS, O(w) for BFS"
+  },
+  "concepts": [
+   {
+    "name": "DFS semantics",
+    "description": "Depth-first visits a whole branch before siblings, using recursion or an explicit stack."
+   },
+   {
+    "name": "BFS semantics",
+    "description": "Breadth-first visits all nodes at a depth before deeper ones, using a queue."
+   },
+   {
+    "name": "Space tradeoff",
+    "description": "DFS uses stack space proportional to height; BFS uses queue space proportional to width."
+   },
+   {
+    "name": "Ordering variants",
+    "description": "DFS has preorder, inorder, and postorder; BFS is inherently level order."
+   },
+   {
+    "name": "Problem fit",
+    "description": "Questions about depth favor DFS; questions about levels or shortest distance favor BFS."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "DFS recursion",
+    "description": "The compact recursive form that reads naturally and covers all ordering variants.",
+    "code": "def dfs(node):\n    if not node:\n        return\n    dfs(node.left)\n    dfs(node.right)"
+   },
+   {
+    "name": "BFS with queue",
+    "description": "Process one level at a time by freezing the queue size.",
+    "code": "from collections import deque\nq = deque([root])\nwhile q:\n    for _ in range(len(q)):\n        node = q.popleft()\n        if node:\n            q.append(node.left)\n            q.append(node.right)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "DFS versus BFS output",
+    "problem": "Compare the visit order of DFS and BFS on the same tree.",
+    "input": "root = 1 -> (2, 3) with 2 -> (4, 5)",
+    "output": "DFS (preorder): [1, 2, 4, 5, 3] ; BFS: [1, 2, 3, 4, 5]",
+    "explanation": "DFS goes deep down branch 2 before touching 3; BFS touches 2 and 3 before any grandchildren.",
+    "steps": [
+     "DFS visits 1, then the whole left branch 2, 4, 5, then 3.",
+     "BFS visits 1, then level 2 as 2, 3, then level 3 as 4, 5.",
+     "The orders differ because of the traversal strategy."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(h) vs O(w)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using DFS where the problem needs the shortest path, since DFS does not guarantee nearest-first discovery.",
+    "fix": "Switch to BFS whenever distance from the root matters."
+   },
+   {
+    "mistake": "Letting recursion overflow on deep skewed trees in DFS.",
+    "fix": "Use an explicit stack for iterative DFS or switch to BFS when possible."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Binary Tree Level Order Traversal",
+    "slug": "binary-tree-level-order-traversal-bfs-dfs",
+    "difficulty": "medium",
+    "description": "Return the nodes of a binary tree grouped by depth, left to right within each level.",
+    "constraints": "The number of nodes is in the range [0, 2000].",
+    "hints": [
+     "Which traversal naturally groups by level?",
+     "How do you separate levels in a queue?"
+    ],
+    "approach": "BFS processing one level at a time with a queue.",
+    "pattern": "BFS with queue",
+    "time": "O(n)",
+    "space": "O(w)",
+    "solution": "Pop the current queue size, collect those nodes as a level, and enqueue their children for the next pass.",
+    "tags": [
+     "bfs-dfs",
+     "level-order",
+     "bfs"
+    ]
+   },
+   {
+    "name": "Maximum Depth of Binary Tree",
+    "slug": "max-depth-bfs-dfs",
+    "difficulty": "easy",
+    "description": "Return the maximum depth of a binary tree using either traversal.",
+    "constraints": "The number of nodes is in the range [0, 10^4].",
+    "hints": [
+     "How does DFS express depth recursively?",
+     "How does BFS count levels?"
+    ],
+    "approach": "DFS with a depth recurrence, or BFS counting the number of levels.",
+    "pattern": "DFS recursion",
+    "time": "O(n)",
+    "space": "O(h)",
+    "solution": "DFS returns 1 + max(child depths); BFS increments a counter for each level it processes.",
+    "tags": [
+     "bfs-dfs",
+     "depth"
+    ]
+   },
+   {
+    "name": "Binary Tree Right Side View",
+    "slug": "right-side-view-bfs-dfs",
+    "difficulty": "medium",
+    "description": "Return the nodes visible from the right side of a binary tree, top to bottom.",
+    "constraints": "The number of nodes is in the range [0, 100].",
+    "hints": [
+     "Which node of each level is the rightmost?",
+     "Can DFS track depth to pick it too?"
+    ],
+    "approach": "BFS taking the last node of each level, or DFS storing the first node seen at each depth when visiting right first.",
+    "pattern": "BFS with queue",
+    "time": "O(n)",
+    "space": "O(w)",
+    "solution": "With BFS the rightmost node of each level is the answer; with DFS visiting right before left, the first node recorded at each depth is the right-side view.",
+    "tags": [
+     "bfs-dfs",
+     "tree-views"
+    ]
+   }
+  ]
+ }
+]

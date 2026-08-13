@@ -1,0 +1,1745 @@
+﻿[
+  {
+    "slug": "bubble-sort",
+    "name": "Bubble sort",
+    "difficulty": "easy",
+    "overview": "Bubble sort repeatedly steps through a list, compares adjacent elements, and swaps them when they are out of order. After each full pass the largest remaining element settles ('bubbles up') at the end. It is the simplest comparison sort and mostly a teaching tool.",
+    "why": "It is a common warm-up question that tests whether you understand comparison sorts, stability, and why O(n^2) algorithms fail at scale. Recognizing when to avoid it is a signal that you grasp complexity tradeoffs.",
+    "when": "Use it when the array is tiny or nearly sorted, or when you want to demonstrate a quadratic baseline. In practice, pick a better sort for anything beyond small inputs.",
+    "complexity": { "time": "O(n^2)", "space": "O(1)" },
+    "concepts": [
+      { "name": "Adjacent swaps", "description": "Compare neighbor pairs and swap when out of order; each pass fixes the next largest element." },
+      { "name": "Passes", "description": "One full left-to-right sweep that moves one element into its final position." },
+      { "name": "Stability", "description": "Equal elements keep their relative order because only strictly-greater neighbors trigger a swap." },
+      { "name": "In-place", "description": "Sorts using only constant extra space, modifying the input array directly." },
+      { "name": "Early termination", "description": "If a pass makes no swaps the array is already sorted, allowing an early exit flag." }
+    ],
+    "patterns": [
+      { "name": "Early-exit bubble sort", "description": "Track whether a swap occurred; stop as soon as a pass is clean.", "code": "def bubble_sort(a):\n    n = len(a)\n    for i in range(n):\n        swapped = False\n        for j in range(n - i - 1):\n            if a[j] > a[j + 1]:\n                a[j], a[j + 1] = a[j + 1], a[j]\n                swapped = True\n        if not swapped:\n            break\n    return a" },
+      { "name": "Tracked-swap bubble sort", "description": "Remember the position of the last swap to shrink the active region faster.", "code": "def bubble_tracked(a):\n    n = len(a)\n    while n > 1:\n        last = 0\n        for i in range(n - 1):\n            if a[i] > a[i + 1]:\n                a[i], a[i + 1] = a[i + 1], a[i]\n                last = i + 1\n        n = last\n    return a" }
+    ],
+    "examples": [
+      {
+        "title": "Sort [5, 1, 4, 2, 8]",
+        "problem": "Sort an array of integers in ascending order using bubble sort.",
+        "input": "[5, 1, 4, 2, 8]",
+        "output": "[1, 2, 4, 5, 8]",
+        "explanation": "Pass 1 moves 8 to the end, pass 2 moves 5 into place, then remaining passes make no swaps and the early-exit flag stops the loop.",
+        "steps": [
+          "Compare (5,1), swap: [1,5,4,2,8]",
+          "Compare (5,4), swap: [1,4,5,2,8]",
+          "Compare (5,2), swap: [1,4,2,5,8]",
+          "Compare (5,8), no swap: [1,4,2,5,8]",
+          "Pass 2 moves 4 and 2: [1,2,4,5,8]",
+          "No swaps in the final pass, exit early"
+        ],
+        "complexity": { "time": "O(n^2)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Running all n passes even when the array is already sorted.", "fix": "Add a swapped flag and break early when a pass produces no swaps." },
+      { "mistake": "Looping the inner range to n instead of n - i - 1.", "fix": "Shrink the inner loop each pass because the tail is already sorted; this also avoids redundant comparisons." },
+      { "mistake": "Using >= instead of >, which makes the sort unstable and does extra swaps.", "fix": "Swap only when the left element is strictly greater than the right." }
+    ],
+    "problems": [
+      {
+        "name": "Height Checker",
+        "slug": "height-checker",
+        "difficulty": "easy",
+        "description": "Given a list of student heights, count how many positions differ from the expected sorted order.",
+        "constraints": "1 <= heights.length <= 100, 1 <= heights[i] <= 100",
+        "hints": ["Copy the array and sort it with any comparison sort.", "Count indices where the copy differs from the original."],
+        "approach": "Make a sorted copy of heights and count mismatches at each index. This isolates the comparison of order, letting you exercise a basic sort.",
+        "pattern": "Bubble sort",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort a copy of the input, then walk both arrays together and increment a counter whenever elements at the same index differ.",
+        "tags": ["sorting", "array"]
+      },
+      {
+        "name": "Pancake Sorting",
+        "slug": "pancake-sorting",
+        "difficulty": "medium",
+        "description": "Return a sequence of prefix flips that sorts an array using only reverse operations on prefixes.",
+        "constraints": "1 <= arr.length <= 100, all values distinct 1..arr.length",
+        "hints": ["Each flip k reverses the first k elements.", "Place the largest remaining element at its correct spot with two flips."],
+        "approach": "For each remaining suffix, locate the largest element, flip it to the front, then flip the whole suffix to drop it into place. This is the bubble-sort idea of fixing the tail iteratively using flips.",
+        "pattern": "Bubble sort",
+        "time": "O(n^2)",
+        "space": "O(n)",
+        "solution": "Repeat for i from n down to 1: find the index of i, flip the prefix ending there to bring i to the front, then flip the prefix of length i to move i to position i. Record both flips.",
+        "tags": ["sorting", "greedy"]
+      },
+      {
+        "name": "Sort Array By Parity",
+        "slug": "sort-array-by-parity",
+        "difficulty": "easy",
+        "description": "Reorder an array so all even numbers come before all odd numbers.",
+        "constraints": "1 <= nums.length <= 5000, 0 <= nums[i] <= 5000",
+        "hints": ["Bubble evens leftward one swap at a time.", "Or use two pointers scanning from both ends."],
+        "approach": "Run a bubble-style pass that swaps whenever a following element is even and the current is odd, or use a two-pointer approach for O(n).",
+        "pattern": "Bubble sort",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Use two pointers i and j at both ends; when nums[i] is odd and nums[j] is even, swap them and move inward. This groups evens to the left in one pass.",
+        "tags": ["sorting", "two-pointers"]
+      }
+    ]
+  },
+  {
+    "slug": "selection-sort",
+    "name": "Selection sort",
+    "difficulty": "easy",
+    "overview": "Selection sort scans the unsorted portion for the minimum element and swaps it into the next sorted position. It always does O(n^2) comparisons but makes at most n swaps, making it the most swap-efficient simple sort.",
+    "why": "It teaches the 'find the min and place it' loop and makes a good contrast with insertion sort: selection does minimal writes while insertion does minimal comparisons on sorted data. Interviewers use it to probe tradeoff awareness.",
+    "when": "Reach for it when the number of writes matters (e.g., writing to slow memory) or when the input is small. For general sorting, use faster algorithms.",
+    "complexity": { "time": "O(n^2)", "space": "O(1)" },
+    "concepts": [
+      { "name": "Minimum scan", "description": "Each pass scans the remaining elements to find the current minimum." },
+      { "name": "Swap into place", "description": "The found minimum is swapped with the first element of the unsorted region." },
+      { "name": "In-place", "description": "Only constant extra space is used beyond the input array." },
+      { "name": "Unstable", "description": "Long-distance swaps can reorder equal elements, so selection sort is not stable." },
+      { "name": "Comparison count", "description": "Always O(n^2) comparisons regardless of input order; adaptivity is absent." }
+    ],
+    "patterns": [
+      { "name": "Find-min swap", "description": "For each position, scan the rest, find the min, and swap it forward.", "code": "def selection_sort(a):\n    n = len(a)\n    for i in range(n):\n        m = i\n        for j in range(i + 1, n):\n            if a[j] < a[m]:\n                m = j\n        a[i], a[m] = a[m], a[i]\n    return a" },
+      { "name": "Stable selection", "description": "Insert the min by shifting rather than swapping to preserve relative order.", "code": "def selection_stable(a):\n    n = len(a)\n    for i in range(n):\n        m = min(range(i, n), key=a.__getitem__)\n        v = a.pop(m)\n        a.insert(i, v)\n    return a" }
+    ],
+    "examples": [
+      {
+        "title": "Sort [64, 25, 12, 22, 11]",
+        "problem": "Sort an array in ascending order using selection sort.",
+        "input": "[64, 25, 12, 22, 11]",
+        "output": "[11, 12, 22, 25, 64]",
+        "explanation": "Each pass finds the smallest remaining value and swaps it to the front. 11 is swapped into position 0, then 12 into position 1, and so on.",
+        "steps": [
+          "Scan for min (11), swap with 64: [11, 25, 12, 22, 64]",
+          "Min of rest is 12, swap with 25: [11, 12, 25, 22, 64]",
+          "Min of rest is 22, swap with 25: [11, 12, 22, 25, 64]",
+          "Min of rest is 25, already in place: [11, 12, 22, 25, 64]",
+          "Done after n-1 passes"
+        ],
+        "complexity": { "time": "O(n^2)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Assuming selection sort is stable; long swaps break equal-element order.", "fix": "If stability is required, shift elements instead of swapping, or use insertion/merge sort." },
+      { "mistake": "Swapping even when the min is already at the front.", "fix": "Guard the swap with an if m != i check, or rely on the swap being harmless." },
+      { "mistake": "Rescanning already-sorted prefix because the loop bound is too large.", "fix": "Start the inner scan at i + 1 and never touch indices before i." }
+    ],
+    "problems": [
+      {
+        "name": "Third Maximum Number",
+        "slug": "third-maximum-number",
+        "difficulty": "easy",
+        "description": "Return the third distinct maximum number in an array, or the maximum if fewer than three distinct values exist.",
+        "constraints": "1 <= nums.length <= 10^4, -2^31 <= nums[i] <= 2^31 - 1",
+        "hints": ["Track the top three distinct values with three variables.", "Update them like a selection process when a new value arrives."],
+        "approach": "Iterate once, maintaining the three largest distinct values seen. Update top1, top2, top3 in a cascading fashion, skipping duplicates.",
+        "pattern": "Selection sort",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Keep three variables initialized to a sentinel (None). For each value, skip if equal to an existing top; otherwise cascade it down through the three ranks. Return the third distinct max or the max if fewer exist.",
+        "tags": ["array", "selection"]
+      },
+      {
+        "name": "Missing Number",
+        "slug": "missing-number",
+        "difficulty": "easy",
+        "description": "Given an array containing n distinct numbers from 0 to n, find the one missing number.",
+        "constraints": "1 <= n <= 10^4, values are a permutation of 0..n minus one value",
+        "hints": ["Sort and check for the gap.", "Or use the formula sum(0..n) - sum(nums)."],
+        "approach": "Sort with a comparison sort, then scan for the first index where a[i] != i. Alternatively use the sum formula for O(n) time.",
+        "pattern": "Selection sort",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Compute n*(n+1)/2 and subtract the sum of the array. The difference is the missing value; sorting-based scanning also works.",
+        "tags": ["array", "math"]
+      },
+      {
+        "name": "Maximum Units on a Truck",
+        "slug": "maximum-units-on-truck",
+        "difficulty": "easy",
+        "description": "Given box types with count and units per box, and a truck capacity, maximize total units loaded.",
+        "constraints": "1 <= boxTypes.length <= 1000, 1 <= numberOfBoxes <= 1000, 1 <= truckSize <= 10^6",
+        "hints": ["Greedily load boxes with the most units per box first.", "Sort by units-per-box descending."],
+        "approach": "Sort boxes by units per box in descending order, then fill the truck greedily, taking full boxes until capacity runs out.",
+        "pattern": "Selection sort",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "Sort the box types descending by units per box. Walk them in order, taking the whole box type when it fits and only the remaining capacity otherwise, accumulating units.",
+        "tags": ["sorting", "greedy"]
+      }
+    ]
+  },
+  {
+    "slug": "insertion-sort",
+    "name": "Insertion sort",
+    "difficulty": "easy",
+    "overview": "Insertion sort builds a sorted prefix by taking the next element and sliding it left past all larger elements. It is adaptive, stable, and in-place, running in O(n) on already sorted data.",
+    "why": "It is the algorithm behind how most people sort cards by hand and a core building block of hybrid sorts like Timsort. Interviews ask it to test adaptivity, stability, and the shift-vs-swap implementation detail.",
+    "when": "Use it on small or nearly sorted inputs, for online insertion (data arrives one at a time), or as the base case inside divide-and-conquer sorts.",
+    "complexity": { "time": "O(n^2) worst, O(n) best", "space": "O(1)" },
+    "concepts": [
+      { "name": "Sorted prefix", "description": "The left part of the array is kept sorted as elements are inserted one by one." },
+      { "name": "Shifting", "description": "Larger elements move right one slot to open a gap for the current element." },
+      { "name": "Adaptive", "description": "Nearly sorted input requires few shifts, giving near-linear behavior." },
+      { "name": "Stable", "description": "Elements are never swapped past equals, preserving original order of ties." },
+      { "name": "Online", "description": "New elements can be inserted as they arrive, not only on a complete array." }
+    ],
+    "patterns": [
+      { "name": "Shift-and-insert", "description": "Slide larger elements right, then drop the current element into the gap.", "code": "def insertion_sort(a):\n    for i in range(1, len(a)):\n        key = a[i]\n        j = i - 1\n        while j >= 0 and a[j] > key:\n            a[j + 1] = a[j]\n            j -= 1\n        a[j + 1] = key\n    return a" },
+      { "name": "Binary insertion", "description": "Use binary search to find the insertion point, then shift once.", "code": "from bisect import bisect_right\ndef binary_insert(a):\n    for i in range(1, len(a)):\n        key = a[i]\n        pos = bisect_right(a, key, 0, i)\n        for j in range(i, pos, -1):\n            a[j] = a[j - 1]\n        a[pos] = key\n    return a" }
+    ],
+    "examples": [
+      {
+        "title": "Sort [3, 7, 4, 9, 5]",
+        "problem": "Sort an array using insertion sort, tracking the growing sorted prefix.",
+        "input": "[3, 7, 4, 9, 5]",
+        "output": "[3, 4, 5, 7, 9]",
+        "explanation": "7 stays after 3, then 4 shifts 7 right and lands between 3 and 7, then 9 stays, then 5 shifts 9 and 7 and lands before them.",
+        "steps": [
+          "Start: [3, 7, 4, 9, 5], key=7 stays in place",
+          "key=4, shift 7 right: [3, 7, 7, 9, 5] -> [3, 4, 7, 9, 5]",
+          "key=9 stays in place: [3, 4, 7, 9, 5]",
+          "key=5, shift 9 and 7 right: [3, 4, 5, 7, 9]",
+          "Sorted"
+        ],
+        "complexity": { "time": "O(n^2)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Saving the element too late, so a shifted value overwrites the key.", "fix": "Store a[i] in a key variable before the shifting loop starts." },
+      { "mistake": "Off-by-one writing the key back at a[j] instead of a[j+1].", "fix": "The gap is always one past the last shifted element, so write at j + 1." },
+      { "mistake": "Using swap in the inner loop, which is slower and can break stability if done carelessly.", "fix": "Shift values right with a[j+1] = a[j] and insert once at the end." }
+    ],
+    "problems": [
+      {
+        "name": "Insertion Sort List",
+        "slug": "insertion-sort-list",
+        "difficulty": "medium",
+        "description": "Sort a singly linked list using insertion sort.",
+        "constraints": "0 <= list length <= 5000, -5000 <= node values <= 5000",
+        "hints": ["Build a new sorted list by removing nodes and inserting them in order.", "Walk the sorted portion to find each insertion point."],
+        "approach": "Iterate the input, removing each node and inserting it into an already-sorted output list by scanning from the head until the next value is larger.",
+        "pattern": "Insertion sort",
+        "time": "O(n^2)",
+        "space": "O(1)",
+        "solution": "Keep a dummy head for the sorted result. For each node from the input, find the first position in the sorted list where the next value is >= current, splice it in, then advance.",
+        "tags": ["linked-list", "sorting"]
+      },
+      {
+        "name": "Merge Sorted Array",
+        "slug": "merge-sorted-array",
+        "difficulty": "easy",
+        "description": "Merge two sorted integer arrays into the first array which has extra space for the result.",
+        "constraints": "1 <= m + n <= 200, -10^9 <= values <= 10^9",
+        "hints": ["Fill from the back to avoid overwriting nums1's values.", "Compare the tails of both arrays."],
+        "approach": "Since nums1 has room at the end, merge from the back: compare the largest remaining elements of both arrays and place the winner at the end.",
+        "pattern": "Insertion sort",
+        "time": "O(m + n)",
+        "space": "O(1)",
+        "solution": "Use three pointers: end of nums1 valid region, end of nums2, and the write position at the end of the buffer. Repeatedly place the larger tail element into the write position, moving pointers accordingly.",
+        "tags": ["array", "two-pointers"]
+      },
+      {
+        "name": "Find Target Indices After Sorting Array",
+        "slug": "find-target-indices-after-sorting-array",
+        "difficulty": "easy",
+        "description": "Return the indices where the target value appears after sorting the array.",
+        "constraints": "1 <= nums.length <= 100, 1 <= nums[i], target <= 100",
+        "hints": ["Count how many elements are smaller than target and how many equal it.", "No full sort needed."],
+        "approach": "Rather than sorting, count values less than target (start index) and equal to target (length of the block), then emit that index range.",
+        "pattern": "Insertion sort",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Count c1 = number of elements < target and c2 = number == target. The target occupies indices c1 through c1 + c2 - 1 in the sorted array.",
+        "tags": ["array", "sorting"]
+      }
+    ]
+  },
+  {
+    "slug": "merge-sort",
+    "name": "Merge sort",
+    "difficulty": "medium",
+    "overview": "Merge sort is a divide-and-conquer sort that splits the array in half, recursively sorts each half, then merges the two sorted halves. It is stable and guarantees O(n log n) time in every case, at the cost of O(n) auxiliary space.",
+    "why": "It is the guaranteed worst-case sort and the standard choice when stability matters. The merge operation itself is reused in many interview problems, such as merging sorted lists and counting inversions.",
+    "when": "Use it when you need a guaranteed O(n log n) bound, a stable sort, sorting linked lists, or when you are merging multiple already-sorted streams.",
+    "complexity": { "time": "O(n log n)", "space": "O(n)" },
+    "concepts": [
+      { "name": "Divide and conquer", "description": "Split the problem into halves, solve each recursively, then combine results." },
+      { "name": "Merging", "description": "The combine step interleaves two sorted halves by always taking the smaller front element." },
+      { "name": "Stability", "description": "Ties are broken toward the left half, preserving the original relative order of equal keys." },
+      { "name": "Auxiliary array", "description": "A temporary buffer of size n is used to hold merged values." },
+      { "name": "Inversion counting", "description": "The merge step can count pairs that are out of order while sorting." }
+    ],
+    "patterns": [
+      { "name": "Recursive merge sort", "description": "Split at the midpoint, recurse on halves, then merge with a temp array.", "code": "def merge_sort(a):\n    if len(a) > 1:\n        m = len(a) // 2\n        left, right = a[:m], a[m:]\n        merge_sort(left)\n        merge_sort(right)\n        i = j = k = 0\n        while i < len(left) and j < len(right):\n            if left[i] <= right[j]:\n                a[k] = left[i]; i += 1\n            else:\n                a[k] = right[j]; j += 1\n            k += 1\n        while i < len(left):\n            a[k] = left[i]; i += 1; k += 1\n        while j < len(right):\n            a[k] = right[j]; j += 1; k += 1\n    return a" },
+      { "name": "Merge two sorted arrays", "description": "The core combine step usable on any two sorted collections.", "code": "def merge(x, y):\n    i = j = 0\n    out = []\n    while i < len(x) and j < len(y):\n        if x[i] <= y[j]:\n            out.append(x[i]); i += 1\n        else:\n            out.append(y[j]); j += 1\n    out.extend(x[i:])\n    out.extend(y[j:])\n    return out" },
+      { "name": "Bottom-up merge sort", "description": "Iteratively merge runs of doubling size, avoiding recursion.", "code": "def merge_sort_iter(a):\n    width = 1\n    n = len(a)\n    while width < n:\n        for left in range(0, n, 2 * width):\n            mid = min(left + width, n)\n            right = min(left + 2 * width, n)\n            a[left:right] = merge(a[left:mid], a[mid:right])\n        width *= 2\n    return a" }
+    ],
+    "examples": [
+      {
+        "title": "Sort [38, 27, 43, 3, 9, 82, 10]",
+        "problem": "Sort an array with merge sort, tracing the divide and merge phases.",
+        "input": "[38, 27, 43, 3, 9, 82, 10]",
+        "output": "[3, 9, 10, 27, 38, 43, 82]",
+        "explanation": "The array splits into singleton halves and is rebuilt by merging sorted pieces: [38] with [27] gives [27,38], then with [43,3] merged into [3,43] gives [3,27,38,43], and the right half merges to [9,10,82], then the two big halves merge.",
+        "steps": [
+          "Split: [38,27,43,3] and [9,82,10]",
+          "Split further until singletons",
+          "Merge [38] and [27] -> [27,38]",
+          "Merge [43] and [3] -> [3,43], then -> [3,27,38,43]",
+          "Merge right half -> [9,10,82]",
+          "Merge halves -> [3,9,10,27,38,43,82]"
+        ],
+        "complexity": { "time": "O(n log n)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Recursing past the base case and touching empty slices.", "fix": "Only recurse when len(a) > 1 so subarrays of size 1 return immediately." },
+      { "mistake": "Writing the merge back to the wrong offset, corrupting neighbors.", "fix": "Use a separate index for the write position starting at the current low index." },
+      { "mistake": "Allocating fresh arrays on every recursion level, inflating space to O(n log n).", "fix": "Reuse a single temp buffer passed through recursion, or accept slice copies only at one level." }
+    ],
+    "problems": [
+      {
+        "name": "Sort List",
+        "slug": "sort-list",
+        "difficulty": "medium",
+        "description": "Sort a linked list in O(n log n) time and O(1) space using only constant extra memory.",
+        "constraints": "0 <= list length <= 5 * 10^4",
+        "hints": ["Merge sort is natural for linked lists because merging needs no indexing.", "Find the middle with slow and fast pointers."],
+        "approach": "Apply bottom-up or recursive merge sort on the list: split at the middle via slow/fast pointers, sort halves, then merge by splicing nodes.",
+        "pattern": "Merge sort",
+        "time": "O(n log n)",
+        "space": "O(log n) recursion stack",
+        "solution": "Recursively split the list at its midpoint found with a slow/fast pointer pair, sort each half, then merge the two sorted lists by comparing heads and relinking nodes.",
+        "tags": ["linked-list", "sorting"]
+      },
+      {
+        "name": "Count of Smaller Numbers After Self",
+        "slug": "count-smaller-numbers-after-self",
+        "difficulty": "hard",
+        "description": "For each element, count how many elements to its right are smaller than it.",
+        "constraints": "1 <= nums.length <= 10^5, -10^4 <= nums[i] <= 10^4",
+        "hints": ["Merge sort naturally counts inversions across halves.", "Carry original indices alongside values so results map back."],
+        "approach": "During the merge step, when a right-half element is placed, every remaining left-half element is greater than it, so count how many left elements it passes.",
+        "pattern": "Merge sort",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Merge pairs of (value, original_index). Whenever we take from the right half, add the number of remaining left elements to that original index's count, since all are larger.",
+        "tags": ["merge-sort", "divide-and-conquer"]
+      },
+      {
+        "name": "Merge Intervals",
+        "slug": "merge-intervals",
+        "difficulty": "medium",
+        "description": "Merge all overlapping intervals and return non-overlapping intervals covering the input.",
+        "constraints": "1 <= intervals.length <= 10^4",
+        "hints": ["Sort by start time first.", "Extend the current interval whenever the next start <= current end."],
+        "approach": "Sort intervals by start, then greedily merge: keep the current interval and extend its end when the next start overlaps.",
+        "pattern": "Merge sort",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort by start, then iterate: if the next interval's start is <= current end, extend current end to max(end, next end); otherwise push current and start a new one.",
+        "tags": ["sorting", "intervals"]
+      }
+    ]
+  },
+  {
+    "slug": "quick-sort",
+    "name": "Quick sort",
+    "difficulty": "medium",
+    "overview": "Quick sort picks a pivot, partitions the array so smaller elements sit on the left and larger on the right, then recursively sorts each side. It is in-place and average O(n log n), but degrades to O(n^2) on pathological pivots.",
+    "why": "Quick sort is the fastest general-purpose sort in practice and its partition step is reused in quickselect, three-way partitioning, and Dutch national flag problems. Understanding pivoting is a common interview differentiator.",
+    "when": "Use it for in-place sorting of large average-case data. Guard against worst case with random or median-of-three pivots, and use three-way partition when duplicates abound.",
+    "complexity": { "time": "O(n log n) average, O(n^2) worst", "space": "O(log n)" },
+    "concepts": [
+      { "name": "Pivot", "description": "A chosen element that splits the array into smaller and larger regions." },
+      { "name": "Partitioning", "description": "Rearranging elements so all those <= pivot precede all those > pivot." },
+      { "name": "Lomuto partition", "description": "Single left-to-right scan using a partition boundary; simple but O(n) swaps." },
+      { "name": "Hoare partition", "description": "Two pointers from both ends converging; fewer swaps but trickier to get right." },
+      { "name": "Quickselect", "description": "Stop after partitioning one side to find the kth order statistic in O(n) average." },
+      { "name": "Three-way partition", "description": "Segments into less/equal/greater, ideal for arrays with many duplicates." }
+    ],
+    "patterns": [
+      { "name": "Lomuto partition", "description": "Boundary index marks the split; swap pivot into place at the end.", "code": "def partition(a, lo, hi):\n    pivot = a[hi]\n    i = lo\n    for j in range(lo, hi):\n        if a[j] < pivot:\n            a[i], a[j] = a[j], a[i]\n            i += 1\n    a[i], a[hi] = a[hi], a[i]\n    return i\n\ndef quick_sort(a, lo, hi):\n    if lo < hi:\n        p = partition(a, lo, hi)\n        quick_sort(a, lo, p - 1)\n        quick_sort(a, p + 1, hi)\n    return a" },
+      { "name": "Hoare partition", "description": "Converging pointers swap out-of-place pairs; returns a split index.", "code": "def partition_hoare(a, lo, hi):\n    pivot = a[(lo + hi) // 2]\n    i, j = lo, hi\n    while True:\n        while a[i] < pivot:\n            i += 1\n        while a[j] > pivot:\n            j -= 1\n        if i >= j:\n            return j\n        a[i], a[j] = a[j], a[i]\n        i += 1\n        j -= 1" },
+      { "name": "Three-way partition", "description": "Dutch national flag style: lt, i, gt pointers segment the array.", "code": "def partition3(a, lo, hi):\n    lt, i, gt = lo, lo, hi\n    v = a[lo]\n    while i <= gt:\n        if a[i] < v:\n            a[lt], a[i] = a[i], a[lt]\n            lt += 1; i += 1\n        elif a[i] > v:\n            a[i], a[gt] = a[gt], a[i]\n            gt -= 1\n        else:\n            i += 1\n    return lt, gt" }
+    ],
+    "examples": [
+      {
+        "title": "Sort [10, 7, 8, 9, 1, 5]",
+        "problem": "Sort an array using quick sort with a simple Lomuto partition.",
+        "input": "[10, 7, 8, 9, 1, 5]",
+        "output": "[1, 5, 7, 8, 9, 10]",
+        "explanation": "Pivot 5 partitions the array into [1] and [10,7,8,9]. Recursing: 9 pivots to place [7,8] then 10, yielding a fully sorted array.",
+        "steps": [
+          "Pivot = 5; after partition: [1] 5 [10,7,8,9]",
+          "Left side [1] already sorted",
+          "Right side: pivot 9 -> [7,8] 9 [10]",
+          "Pivot 8 -> [7] 8; pivot 10 alone",
+          "Result: [1, 5, 7, 8, 9, 10]"
+        ],
+        "complexity": { "time": "O(n log n) average", "space": "O(log n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Choosing a bad pivot (e.g., always the last element on sorted input) causing O(n^2).", "fix": "Pick the pivot randomly or via median-of-three." },
+      { "mistake": "Off-by-one recursion ranges that either skip or re-process the pivot.", "fix": "After Lomuto partition, recurse on [lo, p-1] and [p+1, hi], never including p." },
+      { "mistake": "Forgetting that quick sort is unstable and using it where stability is required.", "fix": "Use merge sort when preserving equal-element order matters." }
+    ],
+    "problems": [
+      {
+        "name": "Sort Colors",
+        "slug": "sort-colors",
+        "difficulty": "medium",
+        "description": "Sort an array containing only 0, 1, and 2 in-place without a library sort.",
+        "constraints": "1 <= nums.length <= 300, values are 0, 1, or 2",
+        "hints": ["This is the Dutch national flag three-way partition.", "Track three pointers: low, mid, high."],
+        "approach": "Use a three-way (Dutch national flag) partition in a single pass, moving 0s left, 2s right, and leaving 1s in the middle.",
+        "pattern": "Three-way partition",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Maintain low, mid, high. When nums[mid] is 0 swap with low and advance both; when 2 swap with high (mid stays to recheck); when 1 just advance mid.",
+        "tags": ["sorting", "two-pointers"]
+      },
+      {
+        "name": "Largest Number",
+        "slug": "largest-number",
+        "difficulty": "medium",
+        "description": "Arrange numbers to form the largest possible value and return it as a string.",
+        "constraints": "1 <= nums.length <= 100, 0 <= nums[i] <= 10^9",
+        "hints": ["The right ordering is a comparator between two numbers.", "Compare x+y vs y+x as strings."],
+        "approach": "Sort with a custom comparator that orders a before b when a+b > b+a as strings; then concatenate, guarding against leading zeros.",
+        "pattern": "Quick sort",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Convert numbers to strings and sort using cmp_to_key comparing (a+b) vs (b+a) descending. Join, and strip leading zeros by returning '0' if the result starts with '0'.",
+        "tags": ["sorting", "custom-comparator"]
+      },
+      {
+        "name": "Wiggle Sort II",
+        "slug": "wiggle-sort",
+        "difficulty": "medium",
+        "description": "Reorder an array so that nums[0] < nums[1] > nums[2] < nums[3] ...",
+        "constraints": "1 <= nums.length <= 5 * 10^4, duplicates allowed",
+        "hints": ["Use the median to separate smaller and larger halves.", "Place values using virtual indexing to interleave halves."],
+        "approach": "Find the median via quickselect (nth_element), then interleave the lower half into even indices and upper half into odd indices with a mapping that avoids collisions.",
+        "pattern": "Quickselect",
+        "time": "O(n) average",
+        "space": "O(1)",
+        "solution": "Partition around the median so smaller values are in one half and larger in the other, then place smaller at even positions and larger at odd positions, using reverse halves to handle duplicates safely.",
+        "tags": ["quickselect", "sorting"]
+      }
+    ]
+  },
+  {
+    "slug": "heap-sort",
+    "name": "Heap sort",
+    "difficulty": "medium",
+    "overview": "Heap sort builds a max-heap from the array, then repeatedly extracts the root (the maximum) by swapping it with the last element and sifting the reduced heap down. It sorts in place in O(n log n) but is not stable.",
+    "why": "It demonstrates a heap being used as a sorting machine and is the only in-place O(n log n) comparison sort besides quick sort. Interviewers use it to check your heap mechanics: building, sifting, and shrinking.",
+    "when": "Use it when you need O(n log n) with no extra memory and stability is not required. In practice it underperforms quick sort and merge sort due to poor cache behavior.",
+    "complexity": { "time": "O(n log n)", "space": "O(1)" },
+    "concepts": [
+      { "name": "Max-heap", "description": "A complete binary tree where each parent is at least as large as its children." },
+      { "name": "Build heap", "description": "Turning the raw array into a heap via bottom-up sift-down in O(n)." },
+      { "name": "Sift-down", "description": "Pushing a misplaced root down to its correct level by swapping with the larger child." },
+      { "name": "Root extraction", "description": "Swapping the max root with the last element, then shrinking the heap size." },
+      { "name": "In-place", "description": "The heap lives inside the array with no auxiliary buffer; sorted values accumulate at the tail." },
+      { "name": "Unstable", "description": "Extraction swaps long distances, so equal elements can change relative order." }
+    ],
+    "patterns": [
+      { "name": "Sift down", "description": "Restore heap property at index i given a heap size.", "code": "def sift_down(a, n, i):\n    while True:\n        l = 2 * i + 1\n        r = 2 * i + 2\n        m = i\n        if l < n and a[l] > a[m]:\n            m = l\n        if r < n and a[r] > a[m]:\n            m = r\n        if m == i:\n            break\n        a[i], a[m] = a[m], a[i]\n        i = m" },
+      { "name": "Build max heap", "description": "Sift down every internal node from bottom to top.", "code": "def build_heap(a):\n    n = len(a)\n    for i in range(n // 2 - 1, -1, -1):\n        sift_down(a, n, i)\n    return a" },
+      { "name": "Extract and shrink", "description": "Swap root to end, shrink heap, sift down the new root.", "code": "def heap_sort(a):\n    n = len(a)\n    build_heap(a)\n    for end in range(n - 1, 0, -1):\n        a[0], a[end] = a[end], a[0]\n        sift_down(a, end, 0)\n    return a" }
+    ],
+    "examples": [
+      {
+        "title": "Sort [4, 10, 3, 5, 1]",
+        "problem": "Sort an array with heap sort using a max-heap.",
+        "input": "[4, 10, 3, 5, 1]",
+        "output": "[1, 3, 4, 5, 10]",
+        "explanation": "Build the max-heap [10,5,3,4,1], then swap 10 to the end and sift down [1,5,3,4]. Repeating places 5, 4, 3, and finally 1, leaving a sorted ascending array.",
+        "steps": [
+          "Build max-heap: [10, 5, 3, 4, 1]",
+          "Swap 10 to end, sift down: [5, 4, 3, 1, 10]",
+          "Swap 5, sift down: [4, 1, 3, 5, 10]",
+          "Swap 4, sift down: [3, 1, 4, 5, 10]",
+          "Swap 3: [1, 3, 4, 5, 10]"
+        ],
+        "complexity": { "time": "O(n log n)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Using sift-up instead of sift-down when building the heap, making it O(n log n) instead of O(n).", "fix": "Build by sifting down internal nodes from the last parent up to the root." },
+      { "mistake": "Forgetting to shrink the heap, so extracted max values get sifted back up.", "fix": "Pass the current end boundary to sift_down and stop treating the sorted tail as part of the heap." },
+      { "mistake": "Wrong child index math (2*i+1 vs 2*i) because the array is 0-indexed.", "fix": "For a 0-indexed array, children of i are at 2*i+1 and 2*i+2." }
+    ],
+    "problems": [
+      {
+        "name": "Relative Ranks",
+        "slug": "relative-ranks",
+        "difficulty": "easy",
+        "description": "Convert each score into its rank, mapping the top three to Gold, Silver, and Bronze.",
+        "constraints": "1 <= score.length <= 10^4, 0 <= score[i] <= 10^6",
+        "hints": ["Sort scores descending with their original indices.", "Assign 1-based ranks from the sorted order."],
+        "approach": "Sort pairs (score, index) descending, then fill the result by rank, substituting the medal names for the top three.",
+        "pattern": "Heap sort",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Build a list of (score, index), sort descending by score, then for each position assign 'Gold Medal', 'Silver Medal', 'Bronze Medal', or the numeric rank into the result at the stored index.",
+        "tags": ["sorting", "array"]
+      },
+      {
+        "name": "The K Weakest Rows in a Matrix",
+        "slug": "k-weakest-rows",
+        "difficulty": "easy",
+        "description": "Return the indices of the k rows with the fewest soldiers (1s), ties broken by row index.",
+        "constraints": "rows, cols <= 100, 1 <= k <= rows",
+        "hints": ["Each row has a strength equal to its count of 1s.", "Sort rows by (strength, index)."],
+        "approach": "Compute each row's strength with binary search over the sorted row, then sort rows by (strength, index) and take the first k indices.",
+        "pattern": "Heap sort",
+        "time": "O(m log n + m log m)",
+        "space": "O(m)",
+        "solution": "For each row, count soldiers with binary search since rows are sorted. Build pairs (strength, index), sort them, and return the indices of the first k pairs.",
+        "tags": ["sorting", "binary-search"]
+      },
+      {
+        "name": "Minimum Difference Between Largest and Smallest Value in Three Moves",
+        "slug": "min-difference-three-moves",
+        "difficulty": "medium",
+        "description": "After changing at most three elements, minimize the difference between the max and min of the array.",
+        "constraints": "1 <= nums.length <= 10^5",
+        "hints": ["Only the extremes matter after sorting.", "Try removing up to 3 elements from either end."],
+        "approach": "Sort the array, then try the four ways of trimming up to three elements from the ends and take the minimum resulting window.",
+        "pattern": "Heap sort",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "Sort, then for i in 0..3 consider the window nums[i : n-4+i] and compute nums[-1-i] - nums[3-i]; return the minimum of the four candidate differences.",
+        "tags": ["sorting", "greedy"]
+      }
+    ]
+  },
+  {
+    "slug": "counting-sort",
+    "name": "Counting sort",
+    "difficulty": "medium",
+    "overview": "Counting sort is a non-comparison sort that counts the occurrences of each distinct key and uses cumulative counts to place elements in final position. It runs in O(n + k) where k is the value range.",
+    "why": "It beats the O(n log n) comparison bound whenever keys are small integers, and the frequency-counting idea powers bucket sort, radix sort, and many frequency-based interview problems.",
+    "when": "Use it when keys are integers (or small enum values) within a bounded range, such as sorting ages, scores, or colors. Not suitable for arbitrary floats or huge ranges.",
+    "complexity": { "time": "O(n + k)", "space": "O(k)" },
+    "concepts": [
+      { "name": "Frequency array", "description": "An array indexed by key value storing how many times each key occurs." },
+      { "name": "Cumulative counts", "description": "Running sums that turn frequencies into starting positions for each key." },
+      { "name": "Stable placement", "description": "Walking the input backwards into cumulative-count slots preserves relative order." },
+      { "name": "Range k", "description": "The span of possible key values, which drives the space and time cost." },
+      { "name": "Non-comparison", "description": "Keys are used as indices, not compared against each other." }
+    ],
+    "patterns": [
+      { "name": "Count and place", "description": "Stable counting sort over a known range.", "code": "def counting_sort(a, k):\n    count = [0] * (k + 1)\n    for v in a:\n        count[v] += 1\n    for i in range(1, k + 1):\n        count[i] += count[i - 1]\n    out = [0] * len(a)\n    for v in reversed(a):\n        count[v] -= 1\n        out[count[v]] = v\n    return out" },
+      { "name": "Compact rebuild", "description": "Rebuild the array from frequencies directly when stability is not needed.", "code": "def counting_compact(a, k):\n    count = [0] * (k + 1)\n    for v in a:\n        count[v] += 1\n    out = []\n    for i, c in enumerate(count):\n        out.extend([i] * c)\n    return out" }
+    ],
+    "examples": [
+      {
+        "title": "Sort [4, 2, 2, 8, 3, 3, 1]",
+        "problem": "Sort an integer array with values in range 0..8 using counting sort.",
+        "input": "[4, 2, 2, 8, 3, 3, 1]",
+        "output": "[1, 2, 2, 3, 3, 4, 8]",
+        "explanation": "Counts are {1:1, 2:2, 3:2, 4:1, 8:1}. Cumulative counts give each key its output slots; rebuilding yields the sorted array in O(n + 9).",
+        "steps": [
+          "Tally counts: count[1]=1, count[2]=2, count[3]=2, count[4]=1, count[8]=1",
+          "Cumulative sums: 1,3,5,6,7",
+          "Walk input backwards placing into slots",
+          "Output: [1, 2, 2, 3, 3, 4, 8]"
+        ],
+        "complexity": { "time": "O(n + k)", "space": "O(k)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Indexing past the count array when a value exceeds the assumed range.", "fix": "Determine k = max(a) upfront and allocate a count array of size k + 1, or use an offset for negatives." },
+      { "mistake": "Rebuilding with enumerate into a plain extend, which is fine but must stay within range for large k.", "fix": "Prefer the cumulative-count pass for stable placement and predictable memory." },
+      { "mistake": "Assuming O(n) regardless of range; a huge k silently makes it O(n + k).", "fix": "Estimate k first; if k >> n, use a comparison sort instead." }
+    ],
+    "problems": [
+      {
+        "name": "Valid Anagram",
+        "slug": "valid-anagram",
+        "difficulty": "easy",
+        "description": "Determine if two strings are anagrams, meaning they use the same characters with the same counts.",
+        "constraints": "1 <= s.length, t.length <= 5 * 10^4, lowercase English letters",
+        "hints": ["Count each character's frequency in both strings.", "Anagrams have identical frequency maps."],
+        "approach": "Build a 26-slot frequency array for s, decrement with t, and check all slots return to zero.",
+        "pattern": "Counting sort",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Use a count array of size 26. Increment for each char of s and decrement for each char of t; the strings are anagrams iff every entry ends at 0.",
+        "tags": ["hash-map", "counting"]
+      },
+      {
+        "name": "Ransom Note",
+        "slug": "ransom-note",
+        "difficulty": "easy",
+        "description": "Return true if the ransom note can be constructed from letters available in the magazine.",
+        "constraints": "1 <= ransomNote.length, magazine.length <= 10^5",
+        "hints": ["Count magazine characters first.", "Consume counts while scanning the note."],
+        "approach": "Count each character available in magazine, then walk the note decrementing; fail if any character runs out.",
+        "pattern": "Counting sort",
+        "time": "O(n + m)",
+        "space": "O(1)",
+        "solution": "Build a 26-slot frequency map from magazine, then for each char in ransomNote decrement its slot and return false if it goes negative.",
+        "tags": ["hash-map", "string"]
+      },
+      {
+        "name": "Sort Array by Increasing Frequency",
+        "slug": "sort-array-by-frequency",
+        "difficulty": "easy",
+        "description": "Sort an array by increasing frequency, with ties broken by decreasing value.",
+        "constraints": "1 <= nums.length <= 100, -100 <= nums[i] <= 100",
+        "hints": ["Count occurrences of each value.", "Sort using the (frequency, -value) key."],
+        "approach": "Count frequencies, then sort pairs by (frequency, -value) so rarer values come first and equal-frequency ties go descending.",
+        "pattern": "Counting sort",
+        "time": "O(n + k log k)",
+        "space": "O(k)",
+        "solution": "Tally frequencies into a map, then sort the unique values by (freq, -value) and expand each into the output by its frequency.",
+        "tags": ["sorting", "frequency"]
+      }
+    ]
+  },
+  {
+    "slug": "radix-sort",
+    "name": "Radix sort",
+    "difficulty": "medium",
+    "overview": "Radix sort is a non-comparison sort that processes keys digit by digit, from least significant to most significant, applying a stable per-digit sort (usually counting sort). For fixed-width keys it runs in linear time.",
+    "why": "It achieves O(d * (n + k)) and beats the comparison lower bound for integers and fixed-length strings. Problems involving sorted integer streams and maximum-gap questions rely on this linear behavior.",
+    "when": "Use it for large arrays of integers or fixed-length strings with a small digit base. Avoid it for arbitrary floats or when the digit count grows with the data.",
+    "complexity": { "time": "O(d * (n + k))", "space": "O(n + k)" },
+    "concepts": [
+      { "name": "LSD order", "description": "Least significant digit first: the stable base is established before higher digits refine it." },
+      { "name": "MSD order", "description": "Most significant digit first with recursive subdivision of buckets." },
+      { "name": "Digit extraction", "description": "Pulling out the digit at a given position via integer division and modulo." },
+      { "name": "Stable per-digit sort", "description": "Each pass must preserve the previous ordering; counting sort guarantees this." },
+      { "name": "Base", "description": "The radix used for digits, commonly 10 or 256, trading passes against bucket size." }
+    ],
+    "patterns": [
+      { "name": "LSD radix sort", "description": "Stable counting sort per digit, least to most significant.", "code": "def radix_sort(a):\n    if not a:\n        return a\n    m = max(a)\n    exp = 1\n    while m // exp > 0:\n        count = [0] * 10\n        for v in a:\n            count[(v // exp) % 10] += 1\n        for i in range(1, 10):\n            count[i] += count[i - 1]\n        out = [0] * len(a)\n        for v in reversed(a):\n            d = (v // exp) % 10\n            count[d] -= 1\n            out[count[d]] = v\n        a = out\n        exp *= 10\n    return a" },
+      { "name": "Digit counting pass", "description": "The reusable stable bucket step for one digit position.", "code": "def digit_pass(a, exp):\n    count = [0] * 10\n    for v in a:\n        count[(v // exp) % 10] += 1\n    for i in range(1, 10):\n        count[i] += count[i - 1]\n    out = [0] * len(a)\n    for v in reversed(a):\n        d = (v // exp) % 10\n        count[d] -= 1\n        out[count[d]] = v\n    return out" }
+    ],
+    "examples": [
+      {
+        "title": "Sort [170, 45, 75, 90, 802, 24, 2, 66]",
+        "problem": "Sort an array of integers with LSD radix sort in base 10.",
+        "input": "[170, 45, 75, 90, 802, 24, 2, 66]",
+        "output": "[2, 24, 45, 66, 75, 90, 170, 802]",
+        "explanation": "Pass 1 sorts by units, pass 2 by tens, pass 3 by hundreds. Because each pass is stable, the earlier ordering is preserved within each digit group.",
+        "steps": [
+          "Sort by units: [170, 90, 802, 2, 24, 45, 75, 66]",
+          "Sort by tens: [802, 2, 24, 45, 66, 170, 75, 90]",
+          "Sort by hundreds: [2, 24, 45, 66, 75, 90, 170, 802]",
+          "Sorted"
+        ],
+        "complexity": { "time": "O(d * (n + k))", "space": "O(n + k)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Using an unstable per-digit sort, destroying the ordering established in earlier passes.", "fix": "Always run a stable counting-sort step per digit." },
+      { "mistake": "Sorting most-significant-first without recursive bucketing, which breaks LSD's simplicity.", "fix": "For simple arrays use LSD; if you must use MSD, recurse into each bucket after the first pass." },
+      { "mistake": "Ignoring negative numbers, which do not fit digit extraction on the sign.", "fix": "Separate negatives, sort the absolute values, reverse for negatives, and concatenate, or offset all values." }
+    ],
+    "problems": [
+      {
+        "name": "Maximum Gap",
+        "slug": "maximum-gap",
+        "difficulty": "hard",
+        "description": "Return the maximum difference between adjacent elements in the sorted form of an array.",
+        "constraints": "1 <= nums.length <= 10^5, 0 <= nums[i] <= 10^9",
+        "hints": ["Sort in linear time with radix sort, then scan adjacent gaps.", "Alternatively use pigeonhole buckets."],
+        "approach": "Sort the array with radix sort in O(n), then scan consecutive pairs to find the largest gap.",
+        "pattern": "Radix sort",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "Apply LSD radix sort over the values, then iterate the sorted array computing nums[i] - nums[i-1] and track the maximum.",
+        "tags": ["sorting", "radix-sort"]
+      },
+      {
+        "name": "Relative Sort Array",
+        "slug": "relative-sort-array",
+        "difficulty": "easy",
+        "description": "Reorder arr1 so elements present in arr2 come first in arr2's order, followed by remaining elements sorted ascending.",
+        "constraints": "1 <= arr1.length, arr2.length <= 1000, 0 <= values <= 1000",
+        "hints": ["Count occurrences in arr1.", "Emit arr2 elements by their counts, then leftover values in ascending order."],
+        "approach": "Build a frequency count of arr1, emit each element of arr2 as many times as it appears, then emit remaining values sorted.",
+        "pattern": "Radix sort",
+        "time": "O(n + m + k)",
+        "space": "O(k)",
+        "solution": "Count arr1 frequencies into an array of size 1001. First output each value in arr2 by its count; then output all remaining values with positive counts in ascending index order.",
+        "tags": ["sorting", "counting"]
+      },
+      {
+        "name": "Sort the Matrix Diagonals",
+        "slug": "sort-matrix-diagonals",
+        "difficulty": "medium",
+        "description": "Sort each diagonal of a matrix that runs from top-left to bottom-right independently, in ascending order.",
+        "constraints": "m, n <= 100, values are integers",
+        "hints": ["Group cells by the value of (row - col).", "Sort each group and write values back in order."],
+        "approach": "Group all cells by their diagonal id (row - col), sort each group, then write the sorted values back along the diagonal.",
+        "pattern": "Radix sort",
+        "time": "O(m * n * log(min(m, n)))",
+        "space": "O(m * n)",
+        "solution": "Collect each diagonal's values keyed by row - col, sort each list, then walk the matrix and refill cells from its diagonal's sorted list in traversal order.",
+        "tags": ["sorting", "matrix"]
+      }
+    ]
+  },
+  {
+    "slug": "binary-search",
+    "name": "Binary search",
+    "difficulty": "medium",
+    "overview": "Binary search locates a target in a sorted array in O(log n) by repeatedly comparing the middle element and discarding half of the search space. It works on any monotonic sequence.",
+    "why": "Binary search is one of the most frequently tested fundamentals in interviews. Logarithmic search over a billion elements takes about 30 steps, and mastering it unlocks bounds, rotated arrays, and answer search.",
+    "when": "Use it whenever the input is sorted or a predicate is monotonic: searching sorted arrays, finding boundaries, or guessing an answer. It also generalizes to search spaces that are not materialized.",
+    "complexity": { "time": "O(log n)", "space": "O(1)" },
+    "concepts": [
+      { "name": "Sorted input", "description": "The precondition: comparisons only cut the space if ordering is consistent." },
+      { "name": "Mid computation", "description": "mid = lo + (hi - lo) // 2 avoids integer overflow on huge arrays." },
+      { "name": "Loop invariant", "description": "The target, if present, always lies within [lo, hi] while the loop runs." },
+      { "name": "Search space shrinking", "description": "Each iteration halves the candidate range, guaranteeing O(log n) iterations." },
+      { "name": "Off-by-one discipline", "description": "Whether to set lo = mid + 1 or lo = mid depends on how mid is biased." }
+    ],
+    "patterns": [
+      { "name": "Classic search", "description": "Standard closed-interval binary search returning the index or -1.", "code": "def binary_search(a, t):\n    lo, hi = 0, len(a) - 1\n    while lo <= hi:\n        mid = lo + (hi - lo) // 2\n        if a[mid] == t:\n            return mid\n        elif a[mid] < t:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1" },
+      { "name": "Search with predicate", "description": "Find the boundary where a boolean predicate flips from False to True.", "code": "def first_true(lo, hi, pred):\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if pred(mid):\n            hi = mid\n        else:\n            lo = mid + 1\n    return lo" }
+    ],
+    "examples": [
+      {
+        "title": "Find 7 in [1, 3, 5, 7, 9, 11]",
+        "problem": "Return the index of the target using binary search.",
+        "input": "nums = [1, 3, 5, 7, 9, 11], target = 7",
+        "output": "3",
+        "explanation": "mid lands on 5, then 9, then 7. The range shrinks from 6 elements to 3 to 1 in three comparisons.",
+        "steps": [
+          "lo=0, hi=5, mid=2 -> a[2]=5 < 7, set lo=3",
+          "lo=3, hi=5, mid=4 -> a[4]=9 > 7, set hi=3",
+          "lo=3, hi=3, mid=3 -> a[3]=7, return 3"
+        ],
+        "complexity": { "time": "O(log n)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Using mid = (lo + hi) // 2 which can overflow in some languages with very large bounds.", "fix": "Write lo + (hi - lo) // 2 to keep the sum within range." },
+      { "mistake": "Mixing up the two branches and setting lo = mid or hi = mid, causing infinite loops.", "fix": "With the closed-interval form, always update lo = mid + 1 and hi = mid - 1." },
+      { "mistake": "Running binary search on unsorted data and getting arbitrary results.", "fix": "Verify monotonicity first; if input is unsorted, sort or use a different approach." }
+    ],
+    "problems": [
+      {
+        "name": "Binary Search",
+        "slug": "binary-search",
+        "difficulty": "easy",
+        "description": "Return the index of the target in a sorted array, or -1 if it is absent.",
+        "constraints": "1 <= nums.length <= 10^4, sorted ascending",
+        "hints": ["Compare the midpoint and shrink the range.", "Watch the lo <= hi loop condition."],
+        "approach": "Standard closed-interval binary search over the sorted array.",
+        "pattern": "Binary search",
+        "time": "O(log n)",
+        "space": "O(1)",
+        "solution": "Maintain lo and hi; compute mid, compare with target, and move one of the bounds accordingly until found or the range empties.",
+        "tags": ["binary-search", "array"]
+      },
+      {
+        "name": "Search Insert Position",
+        "slug": "search-insert-position",
+        "difficulty": "easy",
+        "description": "Return the index where the target would be inserted to keep the sorted array ordered.",
+        "constraints": "1 <= nums.length <= 10^4",
+        "hints": ["This is the lower-bound binary search.", "The answer is lo when the loop ends."],
+        "approach": "Binary search for the first position where nums[i] >= target; that position is the insert index.",
+        "pattern": "Binary search",
+        "time": "O(log n)",
+        "space": "O(1)",
+        "solution": "Run the predicate-style binary search returning lo when lo crosses hi; it points at the first element not smaller than the target.",
+        "tags": ["binary-search", "array"]
+      },
+      {
+        "name": "First Bad Version",
+        "slug": "first-bad-version",
+        "difficulty": "easy",
+        "description": "Given a predicate isBadVersion for 1..n that flips once, find the first bad version.",
+        "constraints": "1 <= bad <= n <= 2^31 - 1, isBadVersion is monotonic",
+        "hints": ["The predicate is False then True; find the flip point.", "Use the first_true template."],
+        "approach": "Binary search on the predicate: if mid is bad, the answer is at or before mid; otherwise after mid.",
+        "pattern": "Binary search",
+        "time": "O(log n)",
+        "space": "O(1)",
+        "solution": "Set lo=1, hi=n. If isBadVersion(mid) is true, hi=mid; else lo=mid+1. Return lo when lo == hi.",
+        "tags": ["binary-search", "predicate"]
+      }
+    ]
+  },
+  {
+    "slug": "lower-upper-bound",
+    "name": "Lower/upper bound",
+    "difficulty": "medium",
+    "overview": "Lower bound finds the first position where a value can be inserted without breaking order; upper bound finds the last such position. Together they pinpoint the entire block of a value in a sorted array.",
+    "why": "Many questions reduce to finding first or last occurrences, counting duplicates, or the smallest element satisfying a condition. These bounds are the exact tool and appear in Python's bisect module.",
+    "when": "Use when asked for the first/last occurrence of a value, an insertion index, or the count of a value in a sorted range. They also generalize to predicates beyond plain values.",
+    "complexity": { "time": "O(log n)", "space": "O(1)" },
+    "concepts": [
+      { "name": "Lower bound", "description": "First index where the element is >= target; the earliest valid insertion point." },
+      { "name": "Upper bound", "description": "First index where the element is > target; the insertion point after all copies." },
+      { "name": "Insertion index", "description": "The position target would occupy while preserving sorted order." },
+      { "name": "Duplicate handling", "description": "Bounds delimit the range [lower, upper) containing every copy of the target." },
+      { "name": "Predicate boundary", "description": "The flip point between elements failing and satisfying a monotonic condition." }
+    ],
+    "patterns": [
+      { "name": "Lower bound", "description": "First index with a value >= target.", "code": "def lower_bound(a, t):\n    lo, hi = 0, len(a)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if a[mid] < t:\n            lo = mid + 1\n        else:\n            hi = mid\n    return lo" },
+      { "name": "Upper bound", "description": "First index with a value > target.", "code": "def upper_bound(a, t):\n    lo, hi = 0, len(a)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if a[mid] <= t:\n            lo = mid + 1\n        else:\n            hi = mid\n    return lo" },
+      { "name": "Count occurrences", "description": "Upper minus lower gives the number of copies of target.", "code": "def count_occ(a, t):\n    return upper_bound(a, t) - lower_bound(a, t)" }
+    ],
+    "examples": [
+      {
+        "title": "Bounds of 2 in [1, 2, 2, 2, 3, 4]",
+        "problem": "Find the range of indices containing the value 2.",
+        "input": "nums = [1, 2, 2, 2, 3, 4], target = 2",
+        "output": "[1, 4), so indices 1, 2, 3",
+        "explanation": "Lower bound is 1 (first element >= 2) and upper bound is 4 (first element > 2), delimiting the three copies of 2.",
+        "steps": [
+          "Lower bound: first index with nums[i] >= 2 is 1",
+          "Upper bound: first index with nums[i] > 2 is 4",
+          "Count = 4 - 1 = 3 copies"
+        ],
+        "complexity": { "time": "O(log n)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Using <= instead of < in the lower bound, sliding past the first equal element.", "fix": "Lower bound narrows when a[mid] >= t (hi = mid); only advance lo when strictly less." },
+      { "mistake": "Forgetting the hi range includes len(a) to model an insert at the end.", "fix": "Initialize hi = len(a) (exclusive bound), not len(a) - 1." },
+      { "mistake": "Confusing upper bound with last occurrence index.", "fix": "Upper bound returns one past the last occurrence; the last index is upper_bound - 1." }
+    ],
+    "problems": [
+      {
+        "name": "Find First and Last Position of Element in Sorted Array",
+        "slug": "first-last-position",
+        "difficulty": "medium",
+        "description": "Return the first and last index of a target value in a sorted array, or [-1, -1] if absent.",
+        "constraints": "0 <= nums.length <= 10^5",
+        "hints": ["Run lower bound and upper bound searches.", "If lower == len(nums) or nums[lower] != target, the value is absent."],
+        "approach": "Compute lower bound for the target and upper bound for the target; the answer is [lower, upper - 1].",
+        "pattern": "Lower/upper bound",
+        "time": "O(log n)",
+        "space": "O(1)",
+        "solution": "Binary search for the first index >= target and the first index > target. If the first is out of range or not the target, return [-1,-1]; otherwise return [lo, up - 1].",
+        "tags": ["binary-search", "bounds"]
+      },
+      {
+        "name": "Find Smallest Letter Greater Than Target",
+        "slug": "smallest-letter-greater",
+        "difficulty": "easy",
+        "description": "Return the smallest character in a sorted list that is greater than a target, wrapping around if needed.",
+        "constraints": "2 <= letters.length <= 10^4, lowercase letters sorted",
+        "hints": ["This is exactly an upper-bound search.", "Wrap to index 0 when the bound equals the length."],
+        "approach": "Find the upper bound of target in letters; if it equals len(letters), wrap to index 0.",
+        "pattern": "Lower/upper bound",
+        "time": "O(log n)",
+        "space": "O(1)",
+        "solution": "Binary search for the first letter strictly greater than target. Return letters[idx % len(letters)] to handle the wrap-around case.",
+        "tags": ["binary-search", "bounds"]
+      },
+      {
+        "name": "Count Negative Numbers in a Sorted Matrix",
+        "slug": "count-negative-numbers",
+        "difficulty": "easy",
+        "description": "Count the negative numbers in a matrix sorted decreasing across rows and columns.",
+        "constraints": "m, n <= 100",
+        "hints": ["Each row is sorted, so the negatives form a suffix.", "Binary search each row or step along the staircase."],
+        "approach": "For each row use lower bound to find the first negative, adding the suffix length to a running total.",
+        "pattern": "Lower/upper bound",
+        "time": "O(m log n)",
+        "space": "O(1)",
+        "solution": "In each row binary search for the first element < 0 (a lower-bound style search), then add n - idx to the total.",
+        "tags": ["binary-search", "matrix"]
+      }
+    ]
+  },
+  {
+    "slug": "binary-search-on-answer",
+    "name": "Binary search on answer",
+    "difficulty": "hard",
+    "overview": "Binary search on answer applies binary search to the space of possible answers rather than the input itself. For each candidate answer a feasibility predicate decides whether it works, and monotonicity lets the search converge.",
+    "why": "This is a high-frequency advanced pattern for optimization problems: minimize the maximum load, find the minimum rate to finish within time, or the maximum feasible value. Spotting it separates strong from average candidates.",
+    "when": "Use when the question asks to minimize or maximize a quantity, and 'can we achieve X?' is monotonic: once X works, every larger (or smaller) X also works.",
+    "complexity": { "time": "O(log R * P) where R is the answer range and P the predicate cost", "space": "O(1)" },
+    "concepts": [
+      { "name": "Answer space", "description": "The range of possible final values the search sweeps over, independent of array size." },
+      { "name": "Monotonic predicate", "description": "A check that is False then True (or the reverse) exactly once over the answer range." },
+      { "name": "Feasibility check", "description": "A usually-greedy function answering 'can the answer be at most/least this value?'." },
+      { "name": "Lower/upper bounds on answers", "description": "Tight initialization of lo and hi shrinks the search and avoids wasted iterations." },
+      { "name": "Greedy validation", "description": "Most feasibility checks are simple greedy simulations, e.g., counting buckets or days." }
+    ],
+    "patterns": [
+      { "name": "Minimize feasible", "description": "Find the smallest value whose predicate is true (lower-bound style).", "code": "def min_feasible(lo, hi, ok):\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if ok(mid):\n            hi = mid\n        else:\n            lo = mid + 1\n    return lo" },
+      { "name": "Maximize feasible", "description": "Find the largest value whose predicate is true (upper-bound style).", "code": "def max_feasible(lo, hi, ok):\n    while lo < hi:\n        mid = (lo + hi + 1) // 2\n        if ok(mid):\n            lo = mid\n        else:\n            hi = mid - 1\n    return lo" },
+      { "name": "Greedy feasibility", "description": "Classic check: can a capacity or rate finish the job within limits?", "code": "def can_split(nums, m, cap):\n    groups = 1\n    cur = 0\n    for v in nums:\n        if cur + v > cap:\n            groups += 1\n            cur = v\n        else:\n            cur += v\n    return groups <= m" }
+    ],
+    "examples": [
+      {
+        "title": "Split Array Largest Sum",
+        "problem": "Split an array into k contiguous subarrays minimizing the largest subarray sum.",
+        "input": "nums = [7, 2, 5, 10, 8], k = 2",
+        "output": "18",
+        "explanation": "Binary search the answer in [max(nums), sum(nums)]. The feasibility check counts how many groups are needed for a candidate cap; 18 is the smallest cap fitting within 2 groups.",
+        "steps": [
+          "Answer range [10, 32]",
+          "mid=21: can split into [7,2,5] and [10,8]? yes, 2 groups -> search left",
+          "mid=14: 7+2+5=14 then 10, 8 needs 3 groups -> infeasible, search right",
+          "mid=18: 7+2+5=14, 10+8=18 -> 2 groups feasible",
+          "Answer 18"
+        ],
+        "complexity": { "time": "O(n log S)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Applying the search when the predicate is not monotonic, producing garbage answers.", "fix": "Verify that once ok(X) holds, ok(X+1) or ok(X-1) also holds depending on direction." },
+      { "mistake": "Wrong mid bias causing infinite loops in the maximize variant.", "fix": "In maximize-feasible use mid = (lo + hi + 1) // 2 and update lo = mid, hi = mid - 1." },
+      { "mistake": "Setting lo too small or hi too large and wasting iterations, or worse excluding the answer.", "fix": "Initialize lo from the structural lower bound (e.g., max element) and hi from the worst case (e.g., sum)." }
+    ],
+    "problems": [
+      {
+        "name": "Koko Eating Bananas",
+        "slug": "koko-eating-bananas",
+        "difficulty": "medium",
+        "description": "Find the minimum eating speed so Koko finishes all banana piles within h hours.",
+        "constraints": "1 <= piles.length <= 10^4, h >= piles.length",
+        "hints": ["Speed is the answer to binary search.", "Feasibility: does sum(ceil(pile / speed)) <= h?"],
+        "approach": "Binary search speed in [1, max(piles)]; the greedy check sums the hours each pile takes at a candidate speed.",
+        "pattern": "Binary search on answer",
+        "time": "O(n log max)",
+        "space": "O(1)",
+        "solution": "For a candidate speed, compute the total hours using integer ceiling division per pile. If it fits within h, try slower speeds; otherwise go faster.",
+        "tags": ["binary-search-on-answer", "greedy"]
+      },
+      {
+        "name": "Capacity To Ship Packages Within D Days",
+        "slug": "capacity-to-ship",
+        "difficulty": "medium",
+        "description": "Find the minimum ship capacity that can transport all packages in order within D days.",
+        "constraints": "1 <= weights.length <= 5 * 10^4, D >= 1",
+        "hints": ["Capacity is the answer; search [max(weights), sum(weights)].", "Simulate days greedily per candidate."],
+        "approach": "Binary search the capacity; feasibility counts the days needed by greedily loading packages in order.",
+        "pattern": "Binary search on answer",
+        "time": "O(n log sum)",
+        "space": "O(1)",
+        "solution": "For each candidate capacity, pack packages in order into daily loads and count days. If the count is <= D the capacity is feasible; narrow the search accordingly.",
+        "tags": ["binary-search-on-answer", "greedy"]
+      },
+      {
+        "name": "Sqrt(x)",
+        "slug": "sqrtx",
+        "difficulty": "easy",
+        "description": "Return the integer square root of a non-negative integer, truncated down.",
+        "constraints": "0 <= x <= 2^31 - 1",
+        "hints": ["Search the answer in [0, x].", "Predicate: mid * mid <= x."],
+        "approach": "Binary search the largest integer whose square is <= x, using the maximize-feasible template.",
+        "pattern": "Binary search on answer",
+        "time": "O(log x)",
+        "space": "O(1)",
+        "solution": "Run the maximize-feasible loop with predicate mid*mid <= x, returning the largest mid satisfying it. Use long arithmetic to avoid overflow.",
+        "tags": ["binary-search-on-answer", "math"]
+      },
+      {
+        "name": "Split Array Largest Sum",
+        "slug": "split-array-largest-sum",
+        "difficulty": "hard",
+        "description": "Partition an array into k contiguous subarrays minimizing the maximum subarray sum.",
+        "constraints": "1 <= nums.length <= 1000, 1 <= k <= nums.length",
+        "hints": ["Answer range is [max(nums), sum(nums)].", "Feasibility: can the array be split into at most k groups with each sum <= cap?"],
+        "approach": "Binary search the largest-sum cap; greedily count the minimum number of contiguous groups needed for a cap.",
+        "pattern": "Binary search on answer",
+        "time": "O(n log S)",
+        "space": "O(1)",
+        "solution": "For each candidate cap, walk the array accumulating into the current group and starting a new group whenever the cap would be exceeded. Feasible if the group count is <= k; search lower if feasible.",
+        "tags": ["binary-search-on-answer", "greedy"]
+      }
+    ]
+  },
+  {
+    "slug": "sorting",
+    "name": "Sorting",
+    "difficulty": "easy",
+    "overview": "Sorting is the family of algorithms that arrange data into a defined order, split into comparison-based sorts (bubble, insertion, merge, quick, heap) and non-comparison sorts (counting, radix). Each trades off time, space, stability, and adaptiveness.",
+    "why": "Sorting is the foundation for many other techniques: binary search requires it, greedy algorithms assume it, and interval/merge problems depend on ordered input. Knowing the tradeoff table is expected in interviews.",
+    "when": "Choose the algorithm from constraints: tiny input favors insertion, stability favors merge, in-place favors quick/heap, bounded integer keys favor counting or radix. In interviews, mention the tradeoff before coding.",
+    "complexity": { "time": "O(n log n) best general bound for comparisons", "space": "varies by algorithm" },
+    "concepts": [
+      { "name": "Comparison-based", "description": "Sorts that only compare pairs of elements, bounded below by O(n log n)." },
+      { "name": "Stability", "description": "Whether equal elements preserve their original relative order (merge, insertion, counting are stable)." },
+      { "name": "In-place", "description": "Whether the sort needs O(1) extra space (heap, quick, insertion, selection)." },
+      { "name": "Adaptive", "description": "Whether the sort speeds up on nearly sorted input (insertion does)." },
+      { "name": "Non-comparison sorts", "description": "Counting and radix sort use key structure to beat the comparison lower bound." },
+      { "name": "Divide and conquer", "description": "Merge and quick sort split, solve, and combine to reach O(n log n)." }
+    ],
+    "patterns": [
+      { "name": "Sort then process", "description": "Sort the input, then solve with a scan, two pointers, or greedy choice.", "code": "a.sort()\nbest = 0\nfor i in range(len(a)):\n    best = max(best, f(a[i]))" },
+      { "name": "Custom comparator", "description": "Sort by a derived key or a custom ordering rule.", "code": "from functools import cmp_to_key\na.sort(key=lambda x: (x[1], -x[0]))\n# custom string order\nnums.sort(key=cmp_to_key(lambda x, y: -1 if x + y > y + x else 1))" },
+      { "name": "Choose the right sort", "description": "Pick by constraints: stable -> merge, in-place -> heap/quick, small range -> counting.", "code": "if require_stable:\n    use_merge_sort()\nelif need_in_place:\n    use_quick_or_heap_sort()\nelif small_int_range:\n    use_counting_sort()\nelse:\n    use_builtin_sort()" }
+    ],
+    "examples": [
+      {
+        "title": "Sort [3, 1, 2, 1, 3] then search",
+        "problem": "Sort an array and then apply binary search to locate a value.",
+        "input": "nums = [3, 1, 2, 1, 3], target = 2",
+        "output": "sorted = [1, 1, 2, 3, 3], target at index 2",
+        "explanation": "After sorting, the array becomes ordered and binary search can locate 2 in O(log n). Without sorting, no sub-quadratic search exists.",
+        "steps": [
+          "Sort: [3, 1, 2, 1, 3] -> [1, 1, 2, 3, 3]",
+          "Binary search for 2",
+          "mid points to 2 at index 2",
+          "Return index 2"
+        ],
+        "complexity": { "time": "O(n log n) sort + O(log n) search", "space": "O(1) or O(n) by algorithm" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Picking an O(n^2) sort on large inputs and timing out.", "fix": "Check constraints; for n > 10^4 reach for merge, quick, heap, or the built-in sort." },
+      { "mistake": "Choosing an unstable sort when equal elements must keep relative order.", "fix": "Use merge sort or counting sort when stability matters." },
+      { "mistake": "Modifying the input when the caller expects the original array intact.", "fix": "Sort a copy (a[:].sort() or sorted(a)) when the input must be preserved." }
+    ],
+    "problems": [
+      {
+        "name": "Sort an Array",
+        "slug": "sort-an-array",
+        "difficulty": "medium",
+        "description": "Return the given array sorted in ascending order without using built-in library sort.",
+        "constraints": "1 <= nums.length <= 5 * 10^4, -5 * 10^4 <= nums[i] <= 5 * 10^4",
+        "hints": ["Any O(n log n) comparison sort works.", "Merge sort, quick sort, or heap sort are all acceptable."],
+        "approach": "Implement merge sort (or quick sort with randomized pivot) and return the sorted array.",
+        "pattern": "Sorting",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Recursively split the array, sort halves, and merge them with a temporary buffer, guaranteeing a stable O(n log n) result.",
+        "tags": ["sorting", "array"]
+      },
+      {
+        "name": "Meeting Rooms",
+        "slug": "meeting-rooms",
+        "difficulty": "easy",
+        "description": "Determine if a person can attend all meetings given intervals with no overlaps.",
+        "constraints": "0 <= intervals.length <= 10^4",
+        "hints": ["Sort by start time.", "Overlap occurs when the next start is before the current end."],
+        "approach": "Sort intervals by start time, then verify no consecutive pair overlaps.",
+        "pattern": "Sorting",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "Sort intervals by start. Iterate and return false if intervals[i].start < intervals[i-1].end for any adjacent pair.",
+        "tags": ["sorting", "intervals"]
+      },
+      {
+        "name": "Intersection of Two Arrays",
+        "slug": "intersection-two-arrays",
+        "difficulty": "easy",
+        "description": "Return the distinct values present in both arrays.",
+        "constraints": "1 <= nums1.length, nums2.length <= 1000",
+        "hints": ["Sort both arrays and merge-like scan.", "Or use a hash set for O(n)."],
+        "approach": "Sort both arrays, then advance pointers to collect equal values while skipping duplicates.",
+        "pattern": "Sorting",
+        "time": "O(n log n + m log m)",
+        "space": "O(1)",
+        "solution": "Sort both inputs, walk two pointers, and whenever values match add it once and advance past duplicates on both sides.",
+        "tags": ["sorting", "two-pointers"]
+      }
+    ]
+  },
+  {
+    "slug": "min-heap",
+    "name": "Min heap",
+    "difficulty": "easy",
+    "overview": "A min heap is a complete binary tree stored in an array where every parent is smaller than or equal to its children, so the minimum sits at the root. Insert and extract-min each run in O(log n).",
+    "why": "It is the standard tool for repeatedly retrieving the smallest element while the data changes, appearing in top-k, median, scheduling, and greedy problems. Knowing when a min heap is the answer is a core interview skill.",
+    "when": "Reach for it when you need fast access to the running minimum under dynamic insertions, or when processing items in increasing order one at a time.",
+    "complexity": { "time": "O(log n) insert and extract", "space": "O(n)" },
+    "concepts": [
+      { "name": "Complete binary tree", "description": "All levels are full except possibly the last, which fills left to right." },
+      { "name": "Root minimum", "description": "The smallest element always sits at index 0 by the heap property." },
+      { "name": "Sift up", "description": "Insertion: place the new element at the end and swap it upward past larger parents." },
+      { "name": "Sift down", "description": "Extraction: replace the root with the last element and push it down past smaller children." },
+      { "name": "Index math", "description": "For index i, children are 2i+1 and 2i+2, and the parent is (i-1)//2." }
+    ],
+    "patterns": [
+      { "name": "Insert and sift up", "description": "Add an element and restore the heap by bubbling it upward.", "code": "import heapq\nh = []\nheapq.heappush(h, x)      # insert\nsmallest = heapq.heappop(h)  # extract min" },
+      { "name": "Manual sift up", "description": "Restore order from the bottom without a library.", "code": "def sift_up(h, i):\n    while i > 0 and h[(i - 1) // 2] > h[i]:\n        p = (i - 1) // 2\n        h[i], h[p] = h[p], h[i]\n        i = p" },
+      { "name": "Manual sift down", "description": "Push a large root down to its proper place.", "code": "def sift_down(h, n, i):\n    while True:\n        l = 2 * i + 1\n        r = 2 * i + 2\n        m = i\n        if l < n and h[l] < h[m]: m = l\n        if r < n and h[r] < h[m]: m = r\n        if m == i: break\n        h[i], h[m] = h[m], h[i]\n        i = m" }
+    ],
+    "examples": [
+      {
+        "title": "Insert 3, 1, 2 and extract min",
+        "problem": "Push values into a min heap, then pop them to confirm ascending order.",
+        "input": "push 3, push 1, push 2",
+        "output": "pop -> 1, pop -> 2, pop -> 3",
+        "explanation": "Each push keeps the heap property: after pushing 1 the heap rearranges so 1 is the root. Pops always return the current minimum.",
+        "steps": [
+          "push 3: heap [3]",
+          "push 1: heap [1, 3] (sift up)",
+          "push 2: heap [1, 3, 2]",
+          "pop: 1, heap [2, 3]",
+          "pop: 2, pop: 3"
+        ],
+        "complexity": { "time": "O(log n) per op", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Writing child indices as 2i and 2i+1, treating the heap as 1-indexed.", "fix": "For a 0-indexed array, children are at 2i+1 and 2i+2 and parent at (i-1)//2." },
+      { "mistake": "Forgetting to shrink the heap size when sifting down after a pop.", "fix": "Treat the popped tail as outside the heap and never compare against it." },
+      { "mistake": "Confusing a min heap with a sorted array; a heap is only partially ordered.", "fix": "A heap gives O(1) access to the min only; iterate by popping to get sorted order." }
+    ],
+    "problems": [
+      {
+        "name": "Kth Largest Element in a Stream",
+        "slug": "kth-largest-stream",
+        "difficulty": "easy",
+        "description": "Design a class that adds numbers and returns the kth largest element so far.",
+        "constraints": "1 <= k <= 10^4, up to 10^5 add calls",
+        "hints": ["Keep only the k largest seen values.", "A min heap of size k exposes the kth largest at its root."],
+        "approach": "Maintain a min heap of size k; push new values and evict the smallest when the heap exceeds k.",
+        "pattern": "Min heap",
+        "time": "O(log k) per add",
+        "space": "O(k)",
+        "solution": "Initialize the heap from the first k values. For each add, push it; if the heap size exceeds k, pop the smallest. The root is the kth largest.",
+        "tags": ["heap", "design"]
+      },
+      {
+        "name": "Last Stone Weight",
+        "slug": "last-stone-weight",
+        "difficulty": "easy",
+        "description": "Repeatedly smash the two heaviest stones; return the weight of the last stone or 0.",
+        "constraints": "1 <= stones.length <= 30, 1 <= stones[i] <= 1000",
+        "hints": ["Extract the two largest stones each round.", "A max heap (or min heap of negatives) works."],
+        "approach": "Push all stones into a max heap, pop the top two, push back their difference if nonzero, and repeat.",
+        "pattern": "Min heap",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Store stones in a max heap using negative values. While more than one stone remains, pop two, smash them, and push the positive difference back if any.",
+        "tags": ["heap", "simulation"]
+      },
+      {
+        "name": "Minimum Cost to Connect Sticks",
+        "slug": "minimum-cost-connect-sticks",
+        "difficulty": "medium",
+        "description": "Combine all sticks into one, paying the sum of the two sticks joined each time; minimize total cost.",
+        "constraints": "1 <= sticks.length <= 10^4, 1 <= sticks[i] <= 1000",
+        "hints": ["Always join the two cheapest sticks.", "A min heap gives O(log n) access to the cheapest."],
+        "approach": "Repeatedly pop the two smallest sticks from a min heap, add their sum to the cost, and push the combined stick back.",
+        "pattern": "Min heap",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Heapify the sticks. While more than one remains, pop two, accumulate their sum as cost, and push the sum back. This greedy choice is optimal by exchange argument.",
+        "tags": ["heap", "greedy"]
+      }
+    ]
+  },
+  {
+    "slug": "max-heap",
+    "name": "Max heap",
+    "difficulty": "easy",
+    "overview": "A max heap is a complete binary tree stored in an array where every parent is greater than or equal to its children, so the maximum is always at the root. Insert and extract-max run in O(log n).",
+    "why": "It gives O(log n) access to the largest element under dynamic updates, used in scheduling, task ordering, and top-k of the largest values. It pairs with a min heap for two-heap structures like running medians.",
+    "when": "Use it when the largest item must be repeatedly retrieved or updated, or when simulating a max heap is done by pushing negatives into a min heap.",
+    "complexity": { "time": "O(log n) insert and extract", "space": "O(n)" },
+    "concepts": [
+      { "name": "Root maximum", "description": "The largest element always sits at index 0 by the heap property." },
+      { "name": "Heap property", "description": "Every parent must be >= both of its children." },
+      { "name": "Sift up/down", "description": "The same mechanics as a min heap with reversed comparisons." },
+      { "name": "Negation trick", "description": "Push -x into a min heap to simulate a max heap when only min heaps exist." },
+      { "name": "Array storage", "description": "The tree maps to an array with no pointers, using index arithmetic." }
+    ],
+    "patterns": [
+      { "name": "Max heap via negation", "description": "Use a min heap of negative keys to get max-at-root behavior.", "code": "import heapq\nh = []\nheapq.heappush(h, -x)       # insert max element\nlargest = -heapq.heappop(h) # extract max" },
+      { "name": "Manual max sift up", "description": "Bubble a large value upward with reversed comparison.", "code": "def sift_up_max(h, i):\n    while i > 0 and h[(i - 1) // 2] < h[i]:\n        p = (i - 1) // 2\n        h[i], h[p] = h[p], h[i]\n        i = p" },
+      { "name": "Manual max sift down", "description": "Push a small root down toward its proper level.", "code": "def sift_down_max(h, n, i):\n    while True:\n        l = 2 * i + 1\n        r = 2 * i + 2\n        m = i\n        if l < n and h[l] > h[m]: m = l\n        if r < n and h[r] > h[m]: m = r\n        if m == i: break\n        h[i], h[m] = h[m], h[i]\n        i = m" }
+    ],
+    "examples": [
+      {
+        "title": "Max heap from [1, 6, 3, 8, 2]",
+        "problem": "Build a max heap and confirm the root is the maximum.",
+        "input": "[1, 6, 3, 8, 2]",
+        "output": "heap root = 8",
+        "explanation": "Insertions maintain the property that each parent exceeds its children; the largest value 8 settles at the root.",
+        "steps": [
+          "Insert 1: [1]",
+          "Insert 6: [6, 1]",
+          "Insert 3: [6, 1, 3]",
+          "Insert 8: [8, 1, 3, 6] (sift up)",
+          "Insert 2: [8, 6, 3, 1, 2], root = 8"
+        ],
+        "complexity": { "time": "O(log n) per op", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Flipping the comparison wrong and accidentally building a min heap.", "fix": "In a max heap, parents must be greater; swap only when a child exceeds the parent." },
+      { "mistake": "Pushing negatives and forgetting to negate back when reading the value.", "fix": "Always recover the true value with -heapq.heappop(h) or -h[0]." },
+      { "mistake": "Assuming the heap returns the whole array sorted.", "fix": "Only the root is guaranteed; to get sorted order you must pop repeatedly." }
+    ],
+    "problems": [
+      {
+        "name": "Task Scheduler",
+        "slug": "task-scheduler",
+        "difficulty": "medium",
+        "description": "Given tasks and a cooldown n, return the minimum number of time units to finish all tasks.",
+        "constraints": "1 <= tasks.length <= 10^4, 0 <= n <= 100",
+        "hints": ["Schedule the most frequent remaining task first.", "Use a max heap of frequencies and a queue for cooldown."],
+        "approach": "Push task frequencies into a max heap; each cycle pick the most frequent available task, then place it on a cooldown queue for n steps.",
+        "pattern": "Max heap",
+        "time": "O(total_units * log k)",
+        "space": "O(k)",
+        "solution": "Greedily execute the highest-frequency available task each unit, decrement it, and after n units release it back. Idle time appears when no task is available.",
+        "tags": ["heap", "greedy"]
+      },
+      {
+        "name": "Reorganize String",
+        "slug": "reorganize-string",
+        "difficulty": "medium",
+        "description": "Rearrange a string so no two adjacent characters are the same, or return an empty string if impossible.",
+        "constraints": "1 <= s.length <= 500",
+        "hints": ["Always place the most frequent remaining character.", "A max heap plus a delayed char avoids adjacent repeats."],
+        "approach": "Push (frequency, char) into a max heap; each step pop the most frequent char not equal to the previous, place it, and re-push the previous char.",
+        "pattern": "Max heap",
+        "time": "O(n log k)",
+        "space": "O(k)",
+        "solution": "Count frequencies. Repeatedly take the highest-frequency character different from the last placed, append it, and return the other to the heap after a delay slot.",
+        "tags": ["heap", "string"]
+      },
+      {
+        "name": "Maximum Number of Events That Can Be Attended",
+        "slug": "max-number-events-attended",
+        "difficulty": "medium",
+        "description": "Attend at most one event per day, maximizing the number of events attended given each event's start and end days.",
+        "constraints": "1 <= events.length <= 10^5, 1 <= startDay <= endDay <= 10^5",
+        "hints": ["Sort events by start day.", "Each day, attend the available event with the earliest end day using a min heap of end days."],
+        "approach": "Sort events by start day, then sweep the calendar: add every event that begins today into a min heap of end days, and attend the one ending soonest.",
+        "pattern": "Max heap",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort by start day and sweep day by day (capped at the latest end). Add all events with start == day to a min heap by end day; pop the earliest-ending one to attend, discarding any already expired.",
+        "tags": ["heap", "greedy"]
+      }
+    ]
+  },
+  {
+    "slug": "heapify",
+    "name": "Heapify",
+    "difficulty": "medium",
+    "overview": "Heapify is building a heap from an arbitrary array in O(n) by sifting down every internal node from the bottom up. It is also the operation that restores the heap property after the root changes.",
+    "why": "Building a heap by repeated insertion costs O(n log n), but heapify does it in O(n). Many top-k and streaming solutions start by heapifying an existing collection, so the technique is central to heap problems.",
+    "when": "Use it whenever a heap must be constructed from a full dataset, or after a root replacement (e.g., extract-max swaps the last element to the root).",
+    "complexity": { "time": "O(n) build", "space": "O(1)" },
+    "concepts": [
+      { "name": "Bottom-up", "description": "Internal nodes are sifted down starting from the last parent up to the root." },
+      { "name": "Leaves", "description": "Nodes past n//2 - 1 have no children and are skipped during the build." },
+      { "name": "Sift-down cost", "description": "Most nodes sit near the bottom, so their sift depth is small, yielding a linear total." },
+      { "name": "Internal nodes", "description": "Indices 0 .. n//2 - 1 are the only candidates that can have children." },
+      { "name": "Property restore", "description": "The same sift-down fixes a heap after swapping in a new root." }
+    ],
+    "patterns": [
+      { "name": "Build heap", "description": "Sift down internal nodes from the bottom to the top.", "code": "def build_heap(a):\n    n = len(a)\n    for i in range(n // 2 - 1, -1, -1):\n        sift_down(a, n, i)\n    return a" },
+      { "name": "Restore root", "description": "Replace the root and sift it down to its place.", "code": "def replace_root(h, new_root):\n    h[0] = new_root\n    sift_down(h, len(h), 0)\n    return h" },
+      { "name": "Python heapify", "description": "Python's stdlib builds the heap in place with heapq.", "code": "import heapq\nheapq.heapify(a)  # in-place O(n)" }
+    ],
+    "examples": [
+      {
+        "title": "Heapify [4, 10, 3, 5, 1] into a max heap",
+        "problem": "Build a max heap in O(n) from an unsorted array.",
+        "input": "[4, 10, 3, 5, 1]",
+        "output": "[10, 5, 3, 4, 1]",
+        "explanation": "Only nodes at indices 0 and 1 can have children. Sift down index 1 (10 with children 5, 1 stays), then index 0 (4 swaps with 10, then with 5).",
+        "steps": [
+          "Internal nodes: indices 1 and 0",
+          "Sift down index 1: 10 >= 5 and 1, no change",
+          "Sift down index 0: 4 < 10, swap -> [10, 4, 3, 5, 1]",
+          "Sift down index 1: 4 < 5, swap -> [10, 5, 3, 4, 1]",
+          "Heap property satisfied"
+        ],
+        "complexity": { "time": "O(n)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Sifting up from index 0 to n, which builds in O(n log n) and misses the point.", "fix": "Sift down starting from the last internal node n//2 - 1 down to 0." },
+      { "mistake": "Including leaves in the sift loop, wasting work on nodes without children.", "fix": "Only iterate over indices 0 .. n//2 - 1." },
+      { "mistake": "Calling sift_down with the wrong heap size after extraction.", "fix": "Pass the live heap size, excluding the sorted/extracted tail." }
+    ],
+    "problems": [
+      {
+        "name": "Sort Characters By Frequency",
+        "slug": "sort-characters-by-frequency",
+        "difficulty": "medium",
+        "description": "Sort characters of a string by decreasing frequency.",
+        "constraints": "1 <= s.length <= 5 * 10^5",
+        "hints": ["Count frequencies first.", "Heapify the (frequency, char) pairs into a max heap."],
+        "approach": "Count characters, heapify a list of (-freq, char) pairs, then pop and rebuild the string.",
+        "pattern": "Heapify",
+        "time": "O(n + k log k)",
+        "space": "O(k)",
+        "solution": "Build a frequency map, heapify pairs keyed by negative frequency into a max heap, then pop each pair and append the character freq times.",
+        "tags": ["heap", "frequency"]
+      },
+      {
+        "name": "K Closest Points to Origin",
+        "slug": "k-closest-points",
+        "difficulty": "medium",
+        "description": "Return the k points closest to the origin by Euclidean distance.",
+        "constraints": "1 <= k <= points.length <= 10^4",
+        "hints": ["Heapify a max heap of size k keyed by distance.", "Or sort all points by squared distance."],
+        "approach": "Heapify the first k points into a max heap by squared distance; for each remaining point, replace the farthest if closer.",
+        "pattern": "Heapify",
+        "time": "O(n log k)",
+        "space": "O(k)",
+        "solution": "Heapify the first k points as a max heap by squared distance. For each later point, compare to the heap root and replace if nearer, then sift down.",
+        "tags": ["heap", "geometry"]
+      },
+      {
+        "name": "Meeting Rooms II",
+        "slug": "meeting-rooms-ii",
+        "difficulty": "medium",
+        "description": "Find the minimum number of conference rooms required for all meetings.",
+        "constraints": "0 <= intervals.length <= 10^4",
+        "hints": ["Sort meetings by start time.", "A min heap tracks the earliest end time of busy rooms."],
+        "approach": "Sort by start, then use a min heap of end times: if the earliest ending room is free, reuse it; otherwise allocate a new room.",
+        "pattern": "Heapify",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort meetings by start time. For each meeting, if the min-heap root end time <= the new start, pop it (reuse the room), then push the new end time. Heap size is the answer.",
+        "tags": ["heap", "intervals"]
+      }
+    ]
+  },
+  {
+    "slug": "priority-queue",
+    "name": "Priority queue",
+    "difficulty": "medium",
+    "overview": "A priority queue is an abstract data type where each element has a priority and the element with the highest priority is served first. Heaps are the standard implementation, giving O(log n) insert and extract of the best element.",
+    "why": "It is one of the most reusable tools in interviews: merging k sorted streams, scheduling jobs, Dijkstra-style traversal, and any greedy algorithm that always processes the best candidate next.",
+    "when": "Use it when processing order depends on a dynamic priority rather than arrival order, and the best element must be retrieved repeatedly.",
+    "complexity": { "time": "O(log n) insert and extract", "space": "O(n)" },
+    "concepts": [
+      { "name": "Abstract data type", "description": "Priority queue defines the interface; heaps supply the implementation." },
+      { "name": "Priority ordering", "description": "Elements are ordered by priority, not by insertion time." },
+      { "name": "Comparator", "description": "Custom comparisons define what 'highest priority' means for tuples or objects." },
+      { "name": "K-way merge", "description": "Pushing one element from each sorted stream lets you merge k lists in O(n log k)." },
+      { "name": "Greedy processing", "description": "Always handle the current best candidate, re-inserting derived candidates after processing." }
+    ],
+    "patterns": [
+      { "name": "K-way merge", "description": "Merge k sorted lists by pushing their heads and always popping the min.", "code": "import heapq\ndef merge_k(lists):\n    h = []\n    for i, lst in enumerate(lists):\n        if lst:\n            heapq.heappush(h, (lst[0], i, 0))\n    out = []\n    while h:\n        v, i, j = heapq.heappop(h)\n        out.append(v)\n        if j + 1 < len(lists[i]):\n            heapq.heappush(h, (lists[i][j + 1], i, j + 1))\n    return out" },
+      { "name": "Lazy scheduling", "description": "Process by current best, delaying items whose time has not come.", "code": "import heapq\nh = []\nfor item in stream:\n    heapq.heappush(h, (priority(item), item))\nwhile h:\n    p, item = heapq.heappop(h)\n    process(item)" },
+      { "name": "Custom priority", "description": "Store (key, value) tuples so the key drives ordering.", "code": "import heapq\nh = []\nheapq.heappush(h, (dist, node))\nd, u = heapq.heappop(h)" }
+    ],
+    "examples": [
+      {
+        "title": "Merge three sorted lists",
+        "problem": "Merge sorted lists [1,4,7], [2,5,8], [3,6,9] with a priority queue.",
+        "input": "[[1,4,7], [2,5,8], [3,6,9]]",
+        "output": "[1,2,3,4,5,6,7,8,9]",
+        "explanation": "Push each list's head into the heap, repeatedly pop the minimum, and push that list's next element. Each pop is O(log k).",
+        "steps": [
+          "Heap has heads 1, 2, 3",
+          "Pop 1, push 4",
+          "Pop 2, push 5; pop 3, push 6",
+          "Continue: 4,5,6,7,8,9 popped in order",
+          "Output is fully sorted"
+        ],
+        "complexity": { "time": "O(n log k)", "space": "O(k)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Storing bare values when ties or custom ordering are needed, breaking determinism.", "fix": "Store tuples like (priority, counter, value) so every entry compares uniquely." },
+      { "mistake": "Reusing the heap after mutating an element's priority without re-heapifying.", "fix": "Either push the updated entry lazily and skip stale ones, or rebuild the heap." },
+      { "mistake": "Choosing a full sort over a priority queue for streaming updates.", "fix": "If elements arrive over time or priorities change, a heap beats resorting." }
+    ],
+    "problems": [
+      {
+        "name": "Merge k Sorted Lists",
+        "slug": "merge-k-sorted-lists",
+        "difficulty": "hard",
+        "description": "Merge k sorted linked lists into one sorted linked list.",
+        "constraints": "k <= 10^4, total nodes <= 10^4",
+        "hints": ["Push each list head into a min heap.", "Pop the min, link it, and push that list's next node."],
+        "approach": "Heapify the heads of all lists, repeatedly pop the smallest node, append it, and push the next node from the same list.",
+        "pattern": "Priority queue",
+        "time": "O(n log k)",
+        "space": "O(k)",
+        "solution": "Seed a min heap with every list head (value, list index, node). Pop the smallest, append to the result, and push that list's next node until the heap empties.",
+        "tags": ["heap", "linked-list"]
+      },
+      {
+        "name": "Single-Threaded CPU",
+        "slug": "single-threaded-cpu",
+        "difficulty": "hard",
+        "description": "Given tasks with enqueue and processing times, return the order tasks are executed by a single CPU.",
+        "constraints": "1 <= tasks.length <= 10^5",
+        "hints": ["Sort tasks by enqueue time.", "A min heap selects the shortest available task when the CPU is free."],
+        "approach": "Sort by enqueue time; advance time to the next available task, add all due tasks to a heap, and execute the shortest one.",
+        "pattern": "Priority queue",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort by enqueue time. While tasks remain, add every task whose enqueue time <= current time to a heap keyed by (duration, index); if the heap is empty jump time forward, otherwise pop and run the shortest.",
+        "tags": ["heap", "scheduling"]
+      },
+      {
+        "name": "IPO",
+        "slug": "ipo",
+        "difficulty": "hard",
+        "description": "With initial capital and up to k projects, maximize capital by funding affordable projects in any order.",
+        "constraints": "1 <= k <= 10^5, 0 <= w, capital[i] <= 10^9",
+        "hints": ["Always take the most profitable affordable project.", "Sort by capital, use a max heap of profits."],
+        "approach": "Sort projects by required capital, push all affordable profits into a max heap, and repeatedly take the largest profit up to k times.",
+        "pattern": "Priority queue",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort projects by capital. Iterate: add every project whose capital <= current capital into a max heap of profits, pop the max, add it to capital, repeat k times.",
+        "tags": ["heap", "greedy"]
+      }
+    ]
+  },
+  {
+    "slug": "top-k-problems",
+    "name": "Top K problems",
+    "difficulty": "medium",
+    "overview": "Top-k problems ask for the k largest, smallest, or most frequent elements of a collection. They are solved with a k-sized heap (O(n log k)), quickselect (O(n) average), or counting/bucket methods when keys are bounded.",
+    "why": "This family appears constantly in interviews and measures your ability to trade off heap, partition, and counting approaches. Recognizing the right one from constraints is a key skill.",
+    "when": "Use a min-heap of size k for the k largest in streaming settings, quickselect when the array is in memory and k is arbitrary, and bucket counting for frequency-based top-k.",
+    "complexity": { "time": "O(n log k) heap, O(n) average quickselect", "space": "O(k) or O(n)" },
+    "concepts": [
+      { "name": "K-sized heap", "description": "A heap capped at k elements keeps only the k best, using O(k) memory." },
+      { "name": "Quickselect", "description": "Partitioning until the pivot lands at index k, discarding the other side each round." },
+      { "name": "Frequency counting", "description": "A frequency map or bucket array identifies frequent elements without sorting." },
+      { "name": "Streaming data", "description": "When elements arrive over time, an O(log k) per-element heap is the natural fit." },
+      { "name": "Duplicates", "description": "Top-k often concerns distinct elements, so deduplication matters in frequency approaches." }
+    ],
+    "patterns": [
+      { "name": "Min heap of size k", "description": "Keep the k largest; the root is the smallest of them.", "code": "import heapq\ndef top_k_largest(nums, k):\n    h = nums[:k]\n    heapq.heapify(h)\n    for x in nums[k:]:\n        if x > h[0]:\n            heapq.heapreplace(h, x)\n    return h" },
+      { "name": "Bucket by frequency", "description": "Index buckets by frequency count for O(n) top-k frequent.", "code": "def top_k_frequent(nums, k):\n    cnt = {}\n    for x in nums:\n        cnt[x] = cnt.get(x, 0) + 1\n    buckets = [[] for _ in range(len(nums) + 1)]\n    for v, c in cnt.items():\n        buckets[c].append(v)\n    res = []\n    for b in range(len(buckets) - 1, 0, -1):\n        res.extend(buckets[b])\n        if len(res) >= k:\n            break\n    return res[:k]" },
+      { "name": "Quickselect partition", "description": "Partition until the pivot index equals the desired position.", "code": "def quickselect(a, k):\n    lo, hi = 0, len(a) - 1\n    while lo < hi:\n        p = partition(a, lo, hi)\n        if p < k:\n            lo = p + 1\n        elif p > k:\n            hi = p - 1\n        else:\n            break\n    return a[k]" }
+    ],
+    "examples": [
+      {
+        "title": "Top 2 frequent elements in [1,1,1,2,2,3]",
+        "problem": "Return the two most frequent values.",
+        "input": "[1, 1, 1, 2, 2, 3], k = 2",
+        "output": "[1, 2]",
+        "explanation": "Frequencies are {1:3, 2:2, 3:1}. Buckets by count put 1 in bucket 3 and 2 in bucket 2, so scanning from the top yields [1, 2].",
+        "steps": [
+          "Count: 1 appears 3, 2 appears 2, 3 appears 1",
+          "Bucket by frequency: bucket[3]=[1], bucket[2]=[2], bucket[1]=[3]",
+          "Scan from highest bucket, collect until k",
+          "Result [1, 2]"
+        ],
+        "complexity": { "time": "O(n)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Sorting everything for O(n log n) when an O(n log k) heap or O(n) bucket approach is possible.", "fix": "Match the approach to constraints: streaming -> heap, bounded frequency -> buckets." },
+      { "mistake": "Using a max heap when the k largest require keeping the smallest of the top k.", "fix": "A min heap of size k rejects new values smaller than its root, which is what you want for the k largest." },
+      { "mistake": "Forgetting to deduplicate in frequency problems that ask for distinct elements.", "fix": "Iterate over the frequency map's keys, not the raw array, when collecting results." }
+    ],
+    "problems": [
+      {
+        "name": "Top K Frequent Elements",
+        "slug": "top-k-frequent-elements",
+        "difficulty": "medium",
+        "description": "Return the k most frequent elements in any order.",
+        "constraints": "1 <= nums.length <= 10^5, 1 <= k <= distinct values",
+        "hints": ["Count frequencies, then pick the top k.", "A k-sized heap or bucket array both work."],
+        "approach": "Count occurrences, then use a min heap of size k keyed by frequency or a frequency bucket array.",
+        "pattern": "Top K problems",
+        "time": "O(n log k)",
+        "space": "O(n)",
+        "solution": "Build a frequency map. Push (freq, value) pairs into a min heap of size k so the least frequent is evicted; the remaining k are the answer. A bucket approach gives O(n).",
+        "tags": ["heap", "frequency"]
+      },
+      {
+        "name": "Top K Frequent Words",
+        "slug": "top-k-frequent-words",
+        "difficulty": "medium",
+        "description": "Return the k most frequent words, ties broken lexicographically, in order.",
+        "constraints": "1 <= words.length <= 500",
+        "hints": ["Count word frequencies.", "Sort by (-count, word) or use a heap with a custom key."],
+        "approach": "Count words, then sort by negative frequency then lexicographic order, and take the first k.",
+        "pattern": "Top K problems",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Build a frequency map, then sort the unique words with key (-count, word), and slice the first k entries.",
+        "tags": ["heap", "string"]
+      },
+      {
+        "name": "Find K Closest Elements",
+        "slug": "find-k-closest-elements",
+        "difficulty": "medium",
+        "description": "Return the k integers closest to x from a sorted array, in ascending order.",
+        "constraints": "1 <= k <= arr.length <= 10^4",
+        "hints": ["Use binary search to find the window around x.", "Or use a max heap of size k keyed by distance."],
+        "approach": "Binary search for the window of k elements whose distance to x is minimal, or heapify a k-sized max heap by |value - x|.",
+        "pattern": "Top K problems",
+        "time": "O(log n + k)",
+        "space": "O(1)",
+        "solution": "Binary search for the left boundary of a length-k window such that the distances at the two edges compare favorably, then return that window.",
+        "tags": ["heap", "binary-search"]
+      }
+    ]
+  },
+  {
+    "slug": "kth-largest-smallest",
+    "name": "Kth largest/smallest",
+    "difficulty": "medium",
+    "overview": "Finding the kth largest or smallest element (an order statistic) without fully sorting. The classic tools are quickselect (O(n) average), a heap of size k (O(n log k)), or sorting (O(n log n)).",
+    "why": "Order-statistic problems are asked directly and serve as building blocks for medians, percentiles, and streaming queries. They test partitioning skill and heap reasoning.",
+    "when": "Use quickselect when the whole array is in memory, a k-size heap for streaming or limited memory, and sorting when k is near the ends or simpler code is preferred.",
+    "complexity": { "time": "O(n) average quickselect, O(n log k) heap", "space": "O(1) or O(k)" },
+    "concepts": [
+      { "name": "Order statistic", "description": "The kth smallest (or largest) element of a collection by rank, not value." },
+      { "name": "Quickselect", "description": "Run partition and recurse only into the side that contains the target rank." },
+      { "name": "Heap of size k", "description": "For the kth largest, a min heap of size k holds the k largest so far." },
+      { "name": "Rank conversion", "description": "kth largest is the (n - k)th smallest; convert ranks consistently." },
+      { "name": "Duplicates", "description": "Equal values each count toward rank, so duplicates are handled naturally by index-based ranks." }
+    ],
+    "patterns": [
+      { "name": "Min heap of size k", "description": "kth largest = root of a min heap holding the k largest values.", "code": "import heapq\ndef kth_largest(nums, k):\n    h = nums[:k]\n    heapq.heapify(h)\n    for x in nums[k:]:\n        if x > h[0]:\n            heapq.heapreplace(h, x)\n    return h[0]" },
+      { "name": "Max heap with negatives", "description": "kth smallest via a min heap of size k built on -value.", "code": "import heapq\ndef kth_smallest(nums, k):\n    h = [-v for v in nums[:k]]\n    heapq.heapify(h)\n    for v in nums[k:]:\n        if -v > h[0]:\n            heapq.heapreplace(h, -v)\n    return -h[0]" },
+      { "name": "Quickselect partition", "description": "Partition and recurse into only one side.", "code": "def quickselect(a, k):\n    lo, hi = 0, len(a) - 1\n    while lo <= hi:\n        p = partition(a, lo, hi)\n        if p < k:\n            lo = p + 1\n        elif p > k:\n            hi = p - 1\n        else:\n            return a[p]" }
+    ],
+    "examples": [
+      {
+        "title": "3rd largest in [3, 2, 1, 5, 6, 4]",
+        "problem": "Return the third largest distinct-ranked element.",
+        "input": "[3, 2, 1, 5, 6, 4], k = 3",
+        "output": "4",
+        "explanation": "Sorted descending the values are 6, 5, 4, 3, 2, 1, so the 3rd largest is 4. A min heap of size 3 keeps 4, 5, 6 and its root is 4.",
+        "steps": [
+          "Seed heap with first 3: [1, 2, 3]",
+          "5 > 1, replace -> [2, 3, 5]",
+          "6 > 2, replace -> [3, 5, 6]",
+          "4 > 3, replace -> [4, 5, 6]",
+          "Root 4 is the answer"
+        ],
+        "complexity": { "time": "O(n log k)", "space": "O(k)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Off-by-one k indexing, treating kth largest as index k instead of k-1.", "fix": "Convert to a 0-based rank: kth largest is index len(a) - k after ascending sort." },
+      { "mistake": "Using the wrong heap direction: a max heap evicts the wrong end for the kth largest.", "fix": "For the kth largest keep a min heap of size k; for the kth smallest keep a max heap of size k." },
+      { "mistake": "Quickselect partitioning only one side with the wrong pivot placement and losing elements.", "fix": "Verify the partition returns the final index of the pivot, then recurse into exactly the side containing rank k." }
+    ],
+    "problems": [
+      {
+        "name": "Kth Largest Element in an Array",
+        "slug": "kth-largest-element",
+        "difficulty": "medium",
+        "description": "Return the kth largest element of an unsorted array.",
+        "constraints": "1 <= k <= nums.length <= 10^5",
+        "hints": ["Use a min heap of size k.", "Or quickselect for O(n) average."],
+        "approach": "Maintain a min heap of the k largest values; the root is the kth largest.",
+        "pattern": "Kth largest/smallest",
+        "time": "O(n log k)",
+        "space": "O(k)",
+        "solution": "Heapify the first k elements, then for each remaining element replace the root if larger. Return the root after the pass.",
+        "tags": ["heap", "quickselect"]
+      },
+      {
+        "name": "Kth Smallest Element in a Sorted Matrix",
+        "slug": "kth-smallest-sorted-matrix",
+        "difficulty": "medium",
+        "description": "Given a matrix where rows and columns are sorted, return the kth smallest value.",
+        "constraints": "1 <= n <= 300, 1 <= k <= n^2",
+        "hints": ["Merge the n sorted rows with a heap.", "Or binary search the value space."],
+        "approach": "Heapify the first element of each row, pop the smallest k times while pushing the next element from the same row.",
+        "pattern": "Kth largest/smallest",
+        "time": "O(k log n)",
+        "space": "O(n)",
+        "solution": "Seed a min heap with (matrix[i][0], i, 0) for all rows. Pop k times; each pop pushes the next element in that row. The kth popped value is the answer.",
+        "tags": ["heap", "matrix"]
+      },
+      {
+        "name": "Kth Smallest Element in a BST",
+        "slug": "kth-smallest-bst",
+        "difficulty": "medium",
+        "description": "Return the kth smallest value in a binary search tree.",
+        "constraints": "1 <= k <= number of nodes <= 10^4",
+        "hints": ["Inorder traversal visits a BST in sorted order.", "Stop after visiting k nodes."],
+        "approach": "Perform an iterative inorder traversal, decrementing a counter at each node and returning when it reaches zero.",
+        "pattern": "Kth largest/smallest",
+        "time": "O(H + k)",
+        "space": "O(H)",
+        "solution": "Iterative inorder with an explicit stack: repeatedly go left, then pop and process a node, decrementing k; return the node value when k hits 0.",
+        "tags": ["tree", "bst"]
+      }
+    ]
+  },
+  {
+    "slug": "median-from-data-stream",
+    "name": "Median from data stream",
+    "difficulty": "hard",
+    "overview": "The median from a data stream problem asks for a structure that adds numbers one at a time and returns the current median in O(1). The two-heap technique splits the data into a lower max-heap and an upper min-heap, kept balanced in size.",
+    "why": "It is a canonical hard problem testing heap mastery, balance invariants, and design quality. The two-heap pattern generalizes to sliding-window medians and running percentiles.",
+    "when": "Use the two-heap pattern whenever data arrives incrementally and the current median or a similar order statistic must be queried repeatedly.",
+    "complexity": { "time": "O(log n) insert, O(1) median", "space": "O(n)" },
+    "concepts": [
+      { "name": "Two heaps", "description": "A max heap for the lower half and a min heap for the upper half of all seen values." },
+      { "name": "Balance invariant", "description": "The heap sizes differ by at most one, so the median is at their roots." },
+      { "name": "Rebalancing", "description": "After each insert, move the top of one heap to the other if sizes drift apart." },
+      { "name": "Median definition", "description": "Average of the two roots for even counts; the larger heap's root for odd counts." },
+      { "name": "Lazy deletion", "description": "For sliding windows, mark removals and skip stale heap entries instead of deleting." }
+    ],
+    "patterns": [
+      { "name": "Add and rebalance", "description": "Insert into the appropriate half, then fix the size invariant.", "code": "import heapq\nlo = []   # max heap (negated)\nhi = []   # min heap\ndef add_num(x):\n    if not lo or x <= -lo[0]:\n        heapq.heappush(lo, -x)\n    else:\n        heapq.heappush(hi, x)\n    if len(lo) > len(hi) + 1:\n        heapq.heappush(hi, -heapq.heappop(lo))\n    elif len(hi) > len(lo):\n        heapq.heappush(lo, -heapq.heappop(hi))" },
+      { "name": "Find median", "description": "Root of the larger half, or average of both roots.", "code": "def find_median():\n    if len(lo) > len(hi):\n        return -lo[0]\n    return (-lo[0] + hi[0]) / 2" }
+    ],
+    "examples": [
+      {
+        "title": "Median of stream [5, 15, 1, 3]",
+        "problem": "Insert values and return the median after each insert.",
+        "input": "add 5, add 15, add 1, add 3",
+        "output": "5, 10.0, 5, 4.0",
+        "explanation": "After 5 median is 5. After 15 the lower heap holds 5 and upper holds 15, median (5+15)/2=10. After 1 the lower heap holds 5,1 with root 5. After 3 the halves are {1,3} and {5,15}, median (3+5)/2=4.",
+        "steps": [
+          "Add 5: lo=[5], median 5",
+          "Add 15: lo=[5], hi=[15], median 10.0",
+          "Add 1: lo=[5,1], hi=[15], median 5",
+          "Add 3: lo=[3,1], hi=[5,15], median 4.0"
+        ],
+        "complexity": { "time": "O(log n) per add", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Forgetting to rebalance after every insert, so the median comes from the wrong heap.", "fix": "After each add, move an element if len(lo) > len(hi) + 1 or len(hi) > len(lo)." },
+      { "mistake": "Mixing up odd/even median rules and returning the wrong root.", "fix": "Odd count: the larger heap's root. Even count: average of both roots." },
+      { "mistake": "Inserting equal values inconsistently between the halves.", "fix": "Use a consistent tie rule, e.g., push values <= -lo[0] into the lower heap." }
+    ],
+    "problems": [
+      {
+        "name": "Find Median from Data Stream",
+        "slug": "median-data-stream",
+        "difficulty": "hard",
+        "description": "Design a data structure that supports adding integers and returning the median at any time.",
+        "constraints": "up to 5 * 10^4 add calls, values in int range",
+        "hints": ["Keep the lower half in a max heap and upper half in a min heap.", "Balance sizes after each add."],
+        "approach": "Implement the two-heap median with balanced max/min heaps.",
+        "pattern": "Median from data stream",
+        "time": "O(log n) add, O(1) median",
+        "space": "O(n)",
+        "solution": "Push each value into the correct half, rebalance so sizes differ by at most one, and read the median from the roots.",
+        "tags": ["heap", "design"]
+      },
+      {
+        "name": "Sliding Window Median",
+        "slug": "sliding-window-median",
+        "difficulty": "hard",
+        "description": "Return the median of every window of size k as it slides over an array.",
+        "constraints": "1 <= k <= nums.length <= 10^5",
+        "hints": ["Extend two heaps with lazy deletion for removals.", "Track stale entries and clean heap tops."],
+        "approach": "Keep two heaps for the current window; on each slide add the new value and lazily remove the old one, then rebalance and read the median.",
+        "pattern": "Median from data stream",
+        "time": "O(n log k)",
+        "space": "O(k)",
+        "solution": "Maintain the lower/upper heaps for the window. Add new elements normally; for evictions, mark a removal count and pop stale heap tops before reading the median.",
+        "tags": ["heap", "sliding-window"]
+      },
+      {
+        "name": "Median of Two Sorted Arrays",
+        "slug": "median-two-sorted-arrays",
+        "difficulty": "hard",
+        "description": "Return the median of two sorted arrays in O(log(min(m, n))) time.",
+        "constraints": "0 <= m, n <= 1000, sorted ascending",
+        "hints": ["Binary search the partition point in the smaller array.", "The two halves must satisfy the cross-order conditions."],
+        "approach": "Binary search the cut in the smaller array so that left partitions of both arrays combine into the left half; check max-left <= min-right.",
+        "pattern": "Median from data stream",
+        "time": "O(log(min(m, n)))",
+        "space": "O(1)",
+        "solution": "Partition the smaller array with binary search and derive the cut in the larger one. Adjust the cut until every left element is <= every right element, then read the median from the boundary elements.",
+        "tags": ["binary-search", "median"]
+      }
+    ]
+  },
+  {
+    "slug": "heap-priority-queue",
+    "name": "Heap / Priority Queue",
+    "difficulty": "easy",
+    "overview": "This category covers the heap data structure and the priority queue abstraction built on it: inserting and extracting the best element in O(log n), building heaps in O(n), and the problem family they power (top-k, median, scheduling, merging).",
+    "why": "Heap and priority queue patterns recur across many interview topics. Recognizing when a problem needs 'repeatedly take the min/max of a changing set' is a high-value skill that generalizes beyond any single problem.",
+    "when": "Reach for a heap/PQ when the solution repeatedly needs the smallest or largest element of a dynamically changing collection, or when items must be processed in priority order.",
+    "complexity": { "time": "O(log n) per insert/extract, O(1) peek", "space": "O(n)" },
+    "concepts": [
+      { "name": "Heap property", "description": "A parent is always <= (min heap) or >= (max heap) its children." },
+      { "name": "Priority queue ADT", "description": "The interface contract: insert, peek, and extract the best element." },
+      { "name": "Two-heap pattern", "description": "Pairing a max and min heap to maintain a running order statistic like the median." },
+      { "name": "K-way merge", "description": "Using a heap to merge several sorted sequences by always consuming the smallest head." },
+      { "name": "Greedy with heap", "description": "Always act on the current best candidate, re-inserting new candidates after acting." },
+      { "name": "Lazy deletion", "description": "Marking stale entries and cleaning them when they reach the top, used in sliding windows." }
+    ],
+    "patterns": [
+      { "name": "Two-heap median", "description": "Balanced max/min heaps answer median queries in O(1).", "code": "import heapq\nlo, hi = [], []\nfor x in stream:\n    heapq.heappush(lo, -x)\n    heapq.heappush(hi, -heapq.heappop(lo))\n    if len(lo) < len(hi):\n        heapq.heappush(lo, -heapq.heappop(hi))" },
+      { "name": "K-way merge", "description": "Merge k sorted lists by always popping the minimum head.", "code": "import heapq\nh = [(lst[0], i, 0) for i, lst in enumerate(lists) if lst]\nheapq.heapify(h)\nout = []\nwhile h:\n    v, i, j = heapq.heappop(h)\n    out.append(v)\n    if j + 1 < len(lists[i]):\n        heapq.heappush(h, (lists[i][j + 1], i, j + 1))" },
+      { "name": "Top-k via heap", "description": "Keep the k best with a k-sized heap and evict the worst.", "code": "import heapq\ndef top_k(a, k):\n    h = a[:k]\n    heapq.heapify(h)\n    for x in a[k:]:\n        if x > h[0]:\n            heapq.heapreplace(h, x)\n    return sorted(h, reverse=True)" }
+    ],
+    "examples": [
+      {
+        "title": "When to reach for a heap",
+        "problem": "Pick a heap-based solution over a sort or linear scan.",
+        "input": "repeated 'best of' queries on a changing collection",
+        "output": "use a heap (O(log n) per update)",
+        "explanation": "If you must repeatedly grab the min/max while data changes, a sort recomputes O(n log n) each time; a heap costs O(log n) per operation.",
+        "steps": [
+          "Identify the repeated best-element query",
+          "If the collection changes between queries, use a heap",
+          "If the collection is static, a single sort then O(1) reads is better",
+          "Choose min or max heap by which end is queried"
+        ],
+        "complexity": { "time": "O(log n) per operation", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Sorting repeatedly on changing data instead of using a heap.", "fix": "Use a heap for dynamic best-element access; reserve sorting for static data." },
+      { "mistake": "Neglecting the comparator when priorities are tuples or objects.", "fix": "Store (priority, counter, payload) so ordering is total and deterministic." },
+      { "mistake": "Using a heap when the array is static and a sort plus prefix logic suffices.", "fix": "For a one-shot query, sorting is O(n log n) once and simpler than heap bookkeeping." }
+    ],
+    "problems": [
+      {
+        "name": "Design Twitter",
+        "slug": "design-twitter",
+        "difficulty": "medium",
+        "description": "Design a simplified Twitter with postTweet, getNewsFeed, follow, and unfollow.",
+        "constraints": "users and tweets up to 10^4, feed size 10",
+        "hints": ["Keep each user's tweets with a global timestamp.", "Merge the feeds of followed users with a max heap."],
+        "approach": "Store tweets per user with a global counter; for the feed, push each followed user's recent tweets into a max heap and pop the top 10.",
+        "pattern": "Heap / Priority Queue",
+        "time": "O(f log f) per feed query",
+        "space": "O(tweets)",
+        "solution": "Maintain per-user tweet lists and a follow map. To build a feed, push the latest tweets of the user and all followed users into a max heap ordered by timestamp and pop ten.",
+        "tags": ["heap", "design"]
+      },
+      {
+        "name": "Longest Happy String",
+        "slug": "longest-happy-string",
+        "difficulty": "medium",
+        "description": "Build the longest string from a, b, c letters avoiding three consecutive identical letters.",
+        "constraints": "0 <= a, b, c <= 100",
+        "hints": ["Always append the most abundant letter allowed.", "A max heap of (count, letter) works."],
+        "approach": "Push (count, letter) into a max heap; each step take the most abundant letter not equal to the last two, and allow the previously blocked letter back.",
+        "pattern": "Heap / Priority Queue",
+        "time": "O((a+b+c) log 3)",
+        "space": "O(1)",
+        "solution": "Repeatedly pick the letter with the largest remaining count that is not the same as the last two placed; if it would repeat, pick the next best, then decrement and push back.",
+        "tags": ["heap", "greedy"]
+      },
+      {
+        "name": "Course Schedule III",
+        "slug": "course-schedule-iii",
+        "difficulty": "hard",
+        "description": "Return the maximum number of courses you can take given duration and last-day deadlines.",
+        "constraints": "1 <= courses.length <= 10^4",
+        "hints": ["Sort by deadline.", "A max heap of durations lets you drop the longest course when time exceeds a deadline."],
+        "approach": "Sort by deadline; take courses greedily, and when total time exceeds the current deadline, remove the longest-duration course taken so far.",
+        "pattern": "Heap / Priority Queue",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort by deadline ascending. Add each course's duration to a running total and a max heap; if the total exceeds the deadline, pop the longest duration, restoring feasibility. Heap size is the answer.",
+        "tags": ["heap", "greedy"]
+      }
+    ]
+  }
+]

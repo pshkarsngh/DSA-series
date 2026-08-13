@@ -1,0 +1,686 @@
+[
+  {
+    "slug": "trie",
+    "name": "Trie",
+    "difficulty": "medium",
+    "overview": "A trie, or prefix tree, is a tree-shaped data structure that stores a set of strings by sharing common prefixes. Each node holds a map of next characters, and special nodes mark the end of a stored word. Traversing from root to a node spells out the string that node represents.",
+    "why": "Tries answer prefix-based questions such as autocomplete, spell checking, and prefix counting in O(length of the word) time, independent of how many words are stored. They appear regularly in phone screen and on-site rounds, often as a building block for harder search problems.",
+    "when": "Reach for a trie when you need fast word lookup, prefix matching, longest-prefix questions, or when many strings share prefixes and you want to avoid comparing full strings repeatedly. It is also the natural structure to pair with backtracking for grid-based word search.",
+    "complexity": { "time": "O(L) per insertion or search, where L is the string length", "space": "O(N * L) worst case, where N is the number of words and L their average length" },
+    "concepts": [
+      { "name": "Root node", "description": "The empty entry point; every word starts here. It usually holds no character and only child pointers." },
+      { "name": "Children map", "description": "A dictionary (or fixed-size array) mapping a character to the next trie node, enabling O(1) char transitions." },
+      { "name": "Word-end flag", "description": "A boolean on each node marking that a complete word ends there, so a prefix is not confused with a full word." },
+      { "name": "Shared prefixes", "description": "Strings that share a beginning reuse the same nodes, which is what makes the structure space-efficient for common prefixes." },
+      { "name": "Trie vs hash set", "description": "A hash set gives O(L) amortized lookup too but cannot answer prefix queries or retrieve all words with a given prefix." }
+    ],
+    "patterns": [
+      {
+        "name": "Node-per-character",
+        "description": "Model each character as a node containing a children map and an end-of-word flag.",
+        "code": "class TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.is_end = False"
+      },
+      {
+        "name": "Walk-and-create on insert",
+        "description": "Create missing nodes while walking the characters, then mark the final node as a word end.",
+        "code": "def insert(root, word):\n    node = root\n    for ch in word:\n        node = node.children.setdefault(ch, TrieNode())\n    node.is_end = True"
+      },
+      {
+        "name": "Walk-only on search",
+        "description": "Search must follow only existing nodes and fail on any missing character.",
+        "code": "def search(root, word):\n    node = root\n    for ch in word:\n        node = node.children.get(ch)\n        if node is None:\n            return False\n    return node.is_end"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Store and find words",
+        "problem": "Insert 'cat' and 'car' into a trie, then search for 'cat' and for 'ca'.",
+        "input": "insert('cat'), insert('car'), search('cat'), search('ca')",
+        "output": "search('cat') -> True, search('ca') -> False",
+        "explanation": "'cat' and 'car' share the prefix 'ca', so both words reuse the same two leading nodes. 'ca' is a prefix but no word ends there, so the end-of-word check returns False.",
+        "steps": [
+          "Insert 'cat': create nodes for c, a, t and mark the t node as a word end.",
+          "Insert 'car': reuse c and a nodes, create r, mark it as a word end.",
+          "Search 'cat': walk c -> a -> t; the t node has is_end set, return True.",
+          "Search 'ca': walk c -> a; the a node has is_end False, return False."
+        ],
+        "complexity": { "time": "O(L) for each insert and search", "space": "O(N * L) for the trie" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Returning True for a prefix that is not a stored word because you ignore the end-of-word flag.", "fix": "Always verify node.is_end (or a word count) at the final node before confirming a search hit." },
+      { "mistake": "Storing words in a hash set and thinking it can answer prefix queries.", "fix": "Use a trie when the question involves prefixes; a set can only do exact-match lookups." },
+      { "mistake": "Forgetting to mark the end of a word during insert, which breaks all later searches.", "fix": "Set the end flag on the last node created or visited for every inserted string." }
+    ],
+    "problems": [
+      {
+        "name": "Longest Common Prefix",
+        "slug": "longest-common-prefix",
+        "difficulty": "easy",
+        "description": "Given an array of strings, return the longest common prefix shared by all of them.",
+        "constraints": "1 <= strs.length <= 200, 0 <= strs[i].length <= 200",
+        "hints": ["Insert all words into a trie.", "Walk from the root while exactly one child exists and the node is not a word end."],
+        "approach": "Build a trie with all words, then descend from the root along the single-child chain, stopping when a node has more than one child or marks a word end. The path traversed is the common prefix.",
+        "pattern": "Node-per-character",
+        "time": "O(N * L)",
+        "space": "O(N * L)",
+        "solution": "Insert all strings, then repeatedly follow the only child while the current node has a single child and is not the end of a word. Each visited character belongs to the common prefix. If at any point a word ends (one input is a prefix of all others), stop and return the prefix built so far.",
+        "tags": ["trie", "string"]
+      },
+      {
+        "name": "Implement Trie",
+        "slug": "implement-trie-prefix-tree",
+        "difficulty": "medium",
+        "description": "Design a Trie class supporting insert, search, and startsWith operations.",
+        "constraints": "1 <= word.length <= 2000, at most 30000 calls",
+        "hints": ["Use a root node with a children dictionary and an end-of-word flag.", "startsWith only needs to confirm the path exists, not that a word ends there."],
+        "approach": "Store each word by creating nodes for every character, and use two separate walks: one requiring the end flag for search and one ignoring it for startsWith.",
+        "pattern": "Walk-and-create on insert",
+        "time": "O(L) per operation",
+        "space": "O(N * L)",
+        "solution": "Every node holds a children map and an is_end flag. insert walks the word, creating missing nodes and finally setting is_end. search walks and requires the last node's is_end. startsWith walks and returns True as soon as the full prefix path exists, with no end flag needed.",
+        "tags": ["trie", "design"]
+      },
+      {
+        "name": "Design Add and Search Words Data Structure",
+        "slug": "design-add-and-search-words",
+        "difficulty": "medium",
+        "description": "Design a data structure that supports addWord and search, where search supports the '.' wildcard matching any letter.",
+        "constraints": "1 <= word.length <= 25, at most 10^4 calls",
+        "hints": ["The '.' forces a recursive search over all children at that position.", "At each '.', recurse into every child; the base case checks is_end at the word's end."],
+        "approach": "Store words in a trie. For search, run DFS: on a literal character follow that child, and on '.' try every child, pruning when a path dies early.",
+        "pattern": "Walk-only on search",
+        "time": "O(L) for addWord, O(N * L) worst case for search with wildcards",
+        "space": "O(N * L)",
+        "solution": "addWord inserts normally. search uses a recursive helper over the trie: for each character, if it is '.' recurse into every existing child; otherwise descend to that exact child and fail fast if missing. When the entire word is consumed, return the current node's is_end.",
+        "tags": ["trie", "backtracking", "design"]
+      }
+    ]
+  },
+  {
+    "slug": "trie-implementation",
+    "name": "Trie implementation",
+    "difficulty": "medium",
+    "overview": "A complete trie implementation defines a node class and the operations insert, search, and prefix search (startsWith). Nodes lazily create children only when characters are added, keeping memory proportional to actual content. It is the foundation for all advanced trie problems.",
+    "why": "Interviewers often start with a bare-bones trie implementation to test clean object modeling and pointer manipulation. A solid, bug-free base lets you spend interview time on the harder part of the problem instead of the scaffolding.",
+    "when": "Use this exact structure whenever a problem asks to support fast insert and lookup of words or prefixes, or when you plan to build a trie as an intermediate step for word-search and dictionary problems.",
+    "complexity": { "time": "O(L) for each insert/search/startsWith call", "space": "O(N * L) worst case for storing all words" },
+    "concepts": [
+      { "name": "Node class", "description": "A lightweight object with a children dict and an is_end boolean; typically the only stored state is child links." },
+      { "name": "Root as empty node", "description": "The root represents the empty string and never stores a character, simplifying edge cases for empty input." },
+      { "name": "setdefault during insert", "description": "Insert uses setdefault(ch, TrieNode()) to reuse existing nodes and only allocate for missing characters." },
+      { "name": "Separate search vs startsWith", "description": "search requires the final node to be a word end; startsWith only requires the node to exist." },
+      { "name": "Iterative traversal", "description": "Both operations are written iteratively with a single walking pointer, avoiding recursion overhead on long words." }
+    ],
+    "patterns": [
+      {
+        "name": "Complete class wrapper",
+        "description": "Wrap the root node and all operations in a single Trie class with a clean public API.",
+        "code": "class Trie:\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, word):\n        node = self.root\n        for ch in word:\n            node = node.children.setdefault(ch, TrieNode())\n        node.is_end = True"
+      },
+      {
+        "name": "Traverse with early exit",
+        "description": "A shared helper walks the word and returns the final node or None, which both queries use.",
+        "code": "def _find(self, word):\n    node = self.root\n    for ch in word:\n        node = node.children.get(ch)\n        if node is None:\n            return None\n    return node"
+      },
+      {
+        "name": "Return node or None",
+        "description": "Queries check for a missing node first, then apply the is_end rule only when the node exists.",
+        "code": "def search(self, word):\n    node = self._find(word)\n    return node is not None and node.is_end\n\ndef startsWith(self, prefix):\n    return self._find(prefix) is not None"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Inserting duplicate and overlapping words",
+        "problem": "Insert 'app' then 'apple', and verify that 'app' still reads as a complete word.",
+        "input": "t.insert('app'); t.insert('apple'); t.search('app')",
+        "output": "search('app') -> True",
+        "explanation": "The first insert marks the 'p' node as a word end. The second insert reuses that exact node and just adds 'le', leaving the end flag intact, so 'app' remains searchable.",
+        "steps": [
+          "Insert 'app': allocate a, p, p; mark the final p as a word end.",
+          "Insert 'apple': reuse a, p, p; allocate l, e; mark e as a word end.",
+          "Search 'app': walk to the p node, which still has is_end True, return True."
+        ],
+        "complexity": { "time": "O(L) per operation", "space": "O(N * L)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Allocating a fixed array of 26 buckets even for sparse tries, wasting memory.", "fix": "Use a dictionary of children and allocate lazily; upgrade to arrays only when memory profiling demands it." },
+      { "mistake": "Confusing search with startsWith and returning True when only a prefix exists.", "fix": "Keep two separate methods and gate search on the end-of-word flag." },
+      { "mistake": "Making insert recursive and blowing the call stack on very long words.", "fix": "Write insert iteratively with a walking pointer, or rely on the string length being small in practice." }
+    ],
+    "problems": [
+      {
+        "name": "Count Words With a Given Prefix",
+        "slug": "count-words-with-prefix",
+        "difficulty": "medium",
+        "description": "Given a list of words, count how many of them contain each queried prefix.",
+        "constraints": "1 <= words.length <= 50, 1 <= prefix.length <= 10",
+        "hints": ["Store a count of words passing through each node.", "The answer for a prefix is the count stored at its terminal node."],
+        "approach": "Extend the node to hold a freq counter incremented on every insert, then read freq at the prefix's terminal node.",
+        "pattern": "Walk-and-create on insert",
+        "time": "O(N * L + Q * P)",
+        "space": "O(N * L)",
+        "solution": "Each node keeps a count of how many inserted words pass through it. Insert increments the counter at every node along the path. To answer a query, walk to the prefix's final node and return its stored count, or 0 if the prefix is absent.",
+        "tags": ["trie", "prefix"]
+      },
+      {
+        "name": "Delete a Word From a Trie",
+        "slug": "delete-word-from-trie",
+        "difficulty": "medium",
+        "description": "Implement delete in a trie so the word can no longer be found, pruning branches when possible.",
+        "constraints": "1 <= word.length <= 2000",
+        "hints": ["Recurse to the end of the word first, then unset the end flag.", "On the way back up, prune a node if it has no children and is not a word end."],
+        "approach": "DFS to the final node, clear its is_end, then delete child references on the unwind while a node has no children and no end flag.",
+        "pattern": "Walk-only on search",
+        "time": "O(L)",
+        "space": "O(L) recursion depth",
+        "solution": "A recursive helper returns whether the subtree can be deleted. At the word's end, set is_end False and return 'has children' = False. Each parent then removes the child pointer for a prunable branch, propagating upward until a node with children or a remaining word end is found.",
+        "tags": ["trie", "tree"]
+      },
+      {
+        "name": "Implement Magic Dictionary",
+        "slug": "implement-magic-dictionary",
+        "difficulty": "medium",
+        "description": "Design a structure with buildDict and search where a search matches if the word differs from a stored word by exactly one character.",
+        "constraints": "1 <= word length <= 100, at most 100 search calls",
+        "hints": ["Insert all words into a trie.", "DFS while tracking whether you have already made the one allowed change."],
+        "approach": "Build a trie and run a DFS that counts edits: at each position you may match a child or use the single permitted mismatch.",
+        "pattern": "Walk-and-create on insert",
+        "time": "O(N * L) build, O(L * 26) worst case search",
+        "space": "O(N * L)",
+        "solution": "Insert every dictionary word. For search, recursively walk the trie; at each character try matching the exact child, and exactly once allow picking any different child (the mismatch). Return True only if the full word is consumed with exactly one mismatch used and the final node is a word end.",
+        "tags": ["trie", "dfs", "design"]
+      }
+    ]
+  },
+  {
+    "slug": "insert-search",
+    "name": "Insert/search",
+    "difficulty": "easy",
+    "overview": "Insert and search are the two primitive trie operations. Insert walks each character, creating nodes on demand and marking the last one as a word end. Search walks the same path but requires every node to exist and the final node to be flagged as a word.",
+    "why": "Nearly every trie interview problem is just insert/search plus one twist: wildcards, deletion, or prefix counting. Master the two basic walks and the harder variants become incremental.",
+    "when": "Use these operations directly whenever you need fast dictionary membership checks, and build on them when a problem asks for prefix queries, autocomplete, or grid word searches.",
+    "complexity": { "time": "O(L) per operation where L is the word length", "space": "O(N * L) for the trie" },
+    "concepts": [
+      { "name": "Insert walk", "description": "Follow or create a child node for each character; missing nodes are allocated with setdefault." },
+      { "name": "Search walk", "description": "Follow only existing children and bail out returning False on the first missing character." },
+      { "name": "End-of-word marker", "description": "Only the node for the final character of an inserted word gets is_end = True." },
+      { "name": "Prefix versus word", "description": "A prefix search stops after confirming the path exists; a word search additionally requires the marker." },
+      { "name": "Immutability of existing nodes", "description": "Inserting a longer word never overwrites nodes already used by shorter words, so earlier searches stay valid." }
+    ],
+    "patterns": [
+      {
+        "name": "Insert via setdefault",
+        "description": "Create missing nodes in one line and always move the pointer to the child.",
+        "code": "def insert(self, word):\n    node = self.root\n    for ch in word:\n        node = node.children.setdefault(ch, TrieNode())\n    node.is_end = True"
+      },
+      {
+        "name": "Search via get",
+        "description": "Use .get to return None on a missing character, avoiding key errors.",
+        "code": "def search(self, word):\n    node = self.root\n    for ch in word:\n        node = node.children.get(ch)\n        if node is None:\n            return False\n    return node.is_end"
+      },
+      {
+        "name": "Walk helper",
+        "description": "Factor the common traversal into a helper returning the terminal node or None.",
+        "code": "def _walk(self, s):\n    node = self.root\n    for ch in s:\n        node = node.children.get(ch)\n        if node is None:\n            return None\n    return node"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Search returning True for words but False for prefixes",
+        "problem": "Insert 'car', 'carpet', 'dog', then search for 'car', 'carpet', 'carp'.",
+        "input": "insert('car'), insert('carpet'), insert('dog'), search('car'), search('carpet'), search('carp')",
+        "output": "True, True, False",
+        "explanation": "'car' and 'carpet' end at marked nodes. 'carp' is a prefix that exists in the tree but its node is not marked as a complete word, so search correctly returns False.",
+        "steps": [
+          "Insert 'car' and 'carpet' sharing the 'car' path, marking nodes for r and t.",
+          "Insert 'dog' on a separate branch.",
+          "Search 'car': path exists and r is marked, return True.",
+          "Search 'carp': path exists but p is unmarked, return False."
+        ],
+        "complexity": { "time": "O(L) per operation", "space": "O(N * L)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Returning True from search as soon as the path exists, treating any prefix as a stored word.", "fix": "Gate the final return on node.is_end so prefixes without a stored word return False." },
+      { "mistake": "Using bracket indexing in search and crashing on a KeyError for missing characters.", "fix": "Use dict.get(child) and check for None before descending." },
+      { "mistake": "Forgetting to mark is_end during insert, making every stored word unsearchable.", "fix": "Set is_end = True on the final node after the insert loop." }
+    ],
+    "problems": [
+      {
+        "name": "Replace Words",
+        "slug": "replace-words",
+        "difficulty": "medium",
+        "description": "Given a dictionary of roots and a sentence, replace each word with its shortest root that is a prefix of it.",
+        "constraints": "1 <= dictionary.length <= 1000, 1 <= sentence length <= 10^6",
+        "hints": ["Insert every root into a trie and mark ends.", "For each sentence word, walk characters until you hit a root end or the word runs out."],
+        "approach": "Insert roots, then for each sentence word walk the trie collecting the prefix until a marked node; if none found, keep the original word.",
+        "pattern": "Walk-only on search",
+        "time": "O(N + M) where N is dictionary size and M is total sentence characters",
+        "space": "O(N)",
+        "solution": "Insert all roots and mark their terminal nodes. For each word in the sentence, walk the trie one character at a time, building the prefix. Stop as soon as the current node is a root end and use that prefix; if the word ends first with no root found, keep the word unchanged.",
+        "tags": ["trie", "string"]
+      },
+      {
+        "name": "Add and Search Word with Prefix",
+        "slug": "shortest-unique-prefix",
+        "difficulty": "medium",
+        "description": "For each word in a list, find the shortest prefix that is unique to that word among all words.",
+        "constraints": "1 <= words.length <= 1000, words are distinct",
+        "hints": ["Track how many words pass through each node.", "A prefix is unique when its terminal node count is 1."],
+        "approach": "Increment a frequency on every node during insert, then for each word walk until a node with count 1 is reached and return that prefix.",
+        "pattern": "Insert via setdefault",
+        "time": "O(N * L)",
+        "space": "O(N * L)",
+        "solution": "During insert, increment a counter at every node along the path. After all inserts, walk each word again and cut it off at the first node whose counter equals 1, meaning only that word uses that prefix.",
+        "tags": ["trie", "prefix"]
+      },
+      {
+        "name": "Top K Frequent Words in Stream",
+        "slug": "top-k-frequent-words",
+        "difficulty": "medium",
+        "description": "Given a stream of words, return the K most frequent words seen so far.",
+        "constraints": "1 <= k <= number of distinct words",
+        "hints": ["Use a trie or hash map to maintain counts, plus a min-heap of size K.", "Tie-break equal frequencies lexicographically."],
+        "approach": "Count words with a hash map and keep a K-sized min-heap ordered by frequency then lexicographic order.",
+        "pattern": "Walk-only on search",
+        "time": "O(N log K) for N streamed words",
+        "space": "O(N)",
+        "solution": "Maintain a frequency counter per word. For each new word, update the count and adjust a min-heap capped at size K so the least frequent (and among ties, the lexicographically largest) is evicted. At any time the heap holds the K most frequent words.",
+        "tags": ["heap", "hashing", "streaming"]
+      }
+    ]
+  },
+  {
+    "slug": "prefix-search",
+    "name": "Prefix search",
+    "difficulty": "medium",
+    "overview": "Prefix search answers whether any stored word begins with a given string, and can go further to list or count all words under a prefix. Because prefixes are shared as tree paths, checking startsWith is a simple walk with no end-of-word requirement, while enumeration is a subtree traversal.",
+    "why": "Prefix queries power autocomplete, typeahead, dictionary suggestions, and text-searching features, which are frequent product-style interview questions. Proving you can enumerate all words under a prefix shows deeper understanding than a one-line startsWith.",
+    "when": "Reach for prefix search whenever the problem mentions suggestions, autocomplete, words starting with a given string, or retrieving every stored word that shares a prefix.",
+    "complexity": { "time": "O(P) to check a prefix; O(P + M) to enumerate, where M is output size", "space": "O(N * L) for the trie plus O(M) for collected results" },
+    "concepts": [
+      { "name": "startsWith check", "description": "A walk that returns True if the prefix's path exists, ignoring end-of-word flags." },
+      { "name": "Subtree traversal", "description": "DFS from a prefix node that visits every descendant, emitting characters along each path." },
+      { "name": "Prefix terminal node", "description": "The node reached after consuming the prefix; all completions live in its subtree." },
+      { "name": "Word collection", "description": "During DFS, append the built string whenever a node has is_end set." },
+      { "name": "Reconstructing strings", "description": "Build each candidate string by accumulating characters as you descend, avoiding full-path rebuilds." }
+    ],
+    "patterns": [
+      {
+        "name": "Check prefix existence",
+        "description": "Reuse the walk helper and drop the end-of-word requirement.",
+        "code": "def starts_with(self, prefix):\n    return self._walk(prefix) is not None"
+      },
+      {
+        "name": "Collect all words under a node",
+        "description": "DFS the subtree, appending each marked word to a list.",
+        "code": "def _collect(self, node, prefix, out):\n    if node.is_end:\n        out.append(prefix)\n    for ch, nxt in node.children.items():\n        self._collect(nxt, prefix + ch, out)"
+      },
+      {
+        "name": "Autocomplete helper",
+        "description": "Combine both walks to produce up to k suggestions for a prefix.",
+        "code": "def suggest(self, prefix, k):\n    node = self._walk(prefix)\n    if node is None:\n        return []\n    out = []\n    self._collect(node, prefix, out)\n    return out[:k]"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Autocomplete for a shared prefix",
+        "problem": "With words 'app', 'apple', 'apricot', 'banana' stored, list completions for 'ap'.",
+        "input": "suggest('ap')",
+        "output": "['app', 'apple', 'apricot']",
+        "explanation": "The prefix 'ap' leads to a single node whose subtree contains all three 'ap...' words. DFS visits them in lexicographic order and returns the collected completions.",
+        "steps": [
+          "Walk the 'a' then 'p' edges to reach the prefix node.",
+          "Start DFS, appending 'app' when the p node is marked.",
+          "Continue to 'apple' and 'apricot' along their branches.",
+          "Skip 'banana' entirely since it is not under this prefix node."
+        ],
+        "complexity": { "time": "O(P + M)", "space": "O(M) for the result list" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Treating a prefix check like a full search and requiring an end-of-word flag, which returns False for valid prefixes.", "fix": "Use startsWith semantics: presence of the path alone is enough." },
+      { "mistake": "Naively scanning every stored word for a prefix match on each query, losing the trie's speed advantage.", "fix": "Walk the trie directly so each query only pays for the prefix length plus results." },
+      { "mistake": "Recursing into the prefix node itself and re-emitting the prefix characters as a completion.", "fix": "Only append a word when the node's is_end flag is set." }
+    ],
+    "problems": [
+      {
+        "name": "Implement Magic Dictionary",
+        "slug": "magic-dictionary",
+        "difficulty": "medium",
+        "description": "Build a dictionary that supports search where a match is a stored word differing by exactly one character.",
+        "constraints": "1 <= dictionary length <= 100, 1 <= search word length <= 100",
+        "hints": ["Insert all dictionary words into a trie.", "During search, allow exactly one mismatch while walking."],
+        "approach": "Store words in a trie and DFS while counting edits, committing the single mismatch at any one character.",
+        "pattern": "Subtree traversal",
+        "time": "O(N * L) build, O(L * 26) worst-case search",
+        "space": "O(N * L)",
+        "solution": "Insert all words. For a search, recursively descend with a flag for whether the mismatch has been used. At each index, first try the exact child; if the mismatch is still available, also try each other child. Accept only when the word is fully consumed, exactly one mismatch was used, and the node is a word end.",
+        "tags": ["trie", "dfs"]
+      },
+      {
+        "name": "Concatenated Words",
+        "slug": "concatenated-words",
+        "difficulty": "hard",
+        "description": "Given a list of words, return all words that can be formed by concatenating two or more shorter words from the list.",
+        "constraints": "1 <= words.length <= 10^4, 1 <= word length <= 30",
+        "hints": ["Insert all words into a trie.", "For each word, run DFS that segments it into trie words and cache failed positions."],
+        "approach": "Build a trie, then for each word try to segment it recursively into dictionary words with memoization.",
+        "pattern": "Check prefix existence",
+        "time": "O(N * L^2) worst case with memoization",
+        "space": "O(N * L)",
+        "solution": "Insert every word. For each candidate word, a memoized DFS tries every prefix that exists in the trie, recursively verifying the remainder, requiring at least one split point in the middle (so the word is not just itself). Caching failed start indices keeps it efficient.",
+        "tags": ["trie", "dynamic-programming", "dfs"]
+      },
+      {
+        "name": "Prefix and Suffix Search",
+        "slug": "prefix-and-suffix-search",
+        "difficulty": "hard",
+        "description": "Design a structure that, given a prefix and suffix, returns the index of the word with the greatest index matching both.",
+        "constraints": "1 <= words.length <= 10^4, 1 <= prefix/suffix length <= 10",
+        "hints": ["Store each word as prefix + '#' + suffix in a single trie.", "Each node keeps the maximum word index seen below it."],
+        "approach": "Insert every possible (prefix, suffix) pair key as f'{prefix}#{suffix}' into a trie that stores max index per node, then query by direct walk.",
+        "pattern": "Walk-and-create on insert",
+        "time": "O(N * L^2) build, O(P + S) query",
+        "space": "O(N * L^2)",
+        "solution": "For each word index i, insert all keys of the form prefix + '#' + suffix for every prefix and suffix, updating each node with max index i. A query walks the exact key 'p#s' and returns the node's stored maximum, which is the desired largest index.",
+        "tags": ["trie", "design"]
+      }
+    ]
+  },
+  {
+    "slug": "word-search",
+    "name": "Word search",
+    "difficulty": "hard",
+    "overview": "Word search finds all words from a dictionary that appear in a grid of letters, moving through adjacent cells. A trie prunes the search dramatically: backtracking only explores paths that are prefixes of some dictionary word, so the search space collapses instead of testing every word against the grid.",
+    "why": "Combining a trie with backtracking on a grid is a classic hard-interview pattern that tests data-structure design and pruning discipline. It is the canonical way to answer 'find many words in a board' without brute-force string matching.",
+    "when": "Use trie + backtracking whenever you must find multiple dictionary words in a grid or matrix, or any time you need to search many targets against a structured space where prefix pruning applies.",
+    "complexity": { "time": "O(M * N * 4^L) worst case where L is max word length, far less with pruning", "space": "O(N * L) for the trie plus O(M * N) visited state" },
+    "concepts": [
+      { "name": "Board backtracking", "description": "DFS from each cell, extending a current prefix only through unvisited neighbors." },
+      { "name": "Visited marking", "description": "Mark cells as used on the way down and restore them on the way up so paths do not revisit cells." },
+      { "name": "Trie pruning", "description": "Stop a DFS branch the moment the current string is not a prefix of any dictionary word." },
+      { "name": "Duplicate-word dedup", "description": "Remove the trie node's end flag or track found words in a set so a word is reported only once." },
+      { "name": "Pruning inserted nodes", "description": "Delete leaf nodes after a word is found to speed up later searches, an advanced optimization." }
+    ],
+    "patterns": [
+      {
+        "name": "DFS over the board with trie",
+        "description": "Walk neighbors while the prefix stays alive in the trie, adding a word when its end node is reached.",
+        "code": "def dfs(board, r, c, node, path, res):\n    if node.is_end:\n        res.append(path)\n        node.is_end = False\n    if not (0 <= r < len(board) and 0 <= c < len(board[0])):\n        return\n    ch = board[r][c]\n    nxt = node.children.get(ch)\n    if nxt is None:\n        return\n    board[r][c] = '#'\n    for dr, dc in [(1,0),(-1,0),(0,1),(0,-1)]:\n        dfs(board, r+dr, c+dc, nxt, path+ch, res)\n    board[r][c] = ch"
+      },
+      {
+        "name": "Scan every start cell",
+        "description": "Launch DFS from every board cell using the trie root as the starting node.",
+        "code": "def find_words(board, words):\n    root = build_trie(words)\n    res = []\n    for r in range(len(board)):\n        for c in range(len(board[0])):\n            dfs(board, r, c, root, '', res)\n    return res"
+      },
+      {
+        "name": "Dedup via end-flag reset",
+        "description": "Clear the found word's end flag so duplicate copies in the board are not reported again.",
+        "code": "if node.is_end:\n    res.append(path)\n    node.is_end = False"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Find two words in a small board",
+        "problem": "Board [['o','a'],['t','e']] with dictionary ['oat', 'tea'] - find all words.",
+        "input": "board = [[o, a], [t, e]], words = [oat, tea]",
+        "output": "['oat', 'tea']",
+        "explanation": "From (0,0)='o' the DFS follows o -> a -> t to form 'oat', all cells adjacent. From (1,0)='t' it builds t -> e -> a for 'tea'. The trie cuts off any branch like 'oe' immediately because no dictionary word starts with it.",
+        "steps": [
+          "Insert 'oat' and 'tea' into a trie.",
+          "Start DFS at cell (0,0) 'o'; node children contain 'o', continue.",
+          "Move to (0,1) 'a' then (1,1) 't'; 'oat' node is an end, append 'oat' and clear its flag.",
+          "Start DFS at (1,0) 't'; follow 't' -> (1,1) 'e' -> (0,1) 'a'; append 'tea'."
+        ],
+        "complexity": { "time": "O(M * N * 4^L) worst case", "space": "O(N * L) for the trie" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Searching the grid for every word independently, re-walking the board N times and missing shared-prefix savings.", "fix": "Invert the search: walk the board once per cell and use the trie to prune shared prefixes." },
+      { "mistake": "Reporting the same word multiple times when the board contains duplicate occurrences.", "fix": "Clear the word's end flag after finding it, or add results to a set." },
+      { "mistake": "Forgetting to restore a cell after exploring, causing false non-revisiting bugs in later paths.", "fix": "Unmark cells (restore the original letter) at the end of each DFS call." }
+    ],
+    "problems": [
+      {
+        "name": "Word Search II",
+        "slug": "word-search-ii",
+        "difficulty": "hard",
+        "description": "Given a board and a list of words, return all words that can be built from adjacent cells without reusing a cell.",
+        "constraints": "m, n <= 12, words up to 3 * 10^4 entries",
+        "hints": ["Build a trie of the dictionary.", "DFS from every cell, stopping when the current prefix is not in the trie."],
+        "approach": "Insert all words into a trie, then run backtracking from every board cell with trie-guided pruning and in-place visited marking.",
+        "pattern": "DFS over the board with trie",
+        "time": "O(M * N * 4 * 3^(L-1)) with pruning",
+        "space": "O(N * L)",
+        "solution": "Insert the dictionary into a trie. From each cell, run DFS that keeps the current trie node; explore only unvisited neighbors whose letter exists as a child. Whenever a node is a word end, record the word and clear the flag to avoid duplicates. Replace visited cells with a sentinel during recursion and restore them afterward.",
+        "tags": ["trie", "backtracking", "matrix"]
+      },
+      {
+        "name": "Maximum XOR of Two Numbers in an Array",
+        "slug": "maximum-xor-of-two-numbers",
+        "difficulty": "medium",
+        "description": "Given an integer array, find the maximum XOR of any two numbers.",
+        "constraints": "1 <= nums.length <= 2 * 10^5, 0 <= nums[i] < 2^31",
+        "hints": ["Insert every number's bits into a bitwise trie.", "For each number, greedily take the opposite bit at each position when available."],
+        "approach": "Insert all numbers bit-by-bit into a trie, then for each number greedily prefer the opposite bit to maximize the XOR.",
+        "pattern": "Scan every start cell",
+        "time": "O(N * 31)",
+        "space": "O(N * 31)",
+        "solution": "Insert each number as a 31-bit path in a binary trie. For every number, walk the trie from the most significant bit, always choosing the complementary bit if a child exists (contributing 1 to the result) and falling back to the same bit otherwise. The maximum contribution across all numbers is the answer.",
+        "tags": ["trie", "bit-manipulation"]
+      },
+      {
+        "name": "Boggle",
+        "slug": "boggle",
+        "difficulty": "medium",
+        "description": "Given a board and a dictionary, find all valid dictionary words reachable through adjacent cells.",
+        "constraints": "Board at most 6x6, words up to 10^4",
+        "hints": ["Insert dictionary into a trie.", "DFS with prefix pruning and a visited set, collecting any word encountered."],
+        "approach": "Same trie + backtracking core, exploring all four neighbors and collecting any word that ends in the trie during traversal.",
+        "pattern": "DFS over the board with trie",
+        "time": "O(M * N * 4 * 3^(L-1))",
+        "space": "O(N * L)",
+        "solution": "Insert the dictionary into a trie, then DFS from every cell with a visited mask. At each step, if the current trie node is a word end, record the word. Continue into neighbors only when the next letter exists as a child. This finds all words without checking each dictionary entry against the board.",
+        "tags": ["trie", "backtracking", "matrix"]
+      }
+    ]
+  },
+  {
+    "slug": "word-dictionary",
+    "name": "Word Dictionary",
+    "difficulty": "medium",
+    "overview": "A Word Dictionary is a trie extended to support wildcard search, most famously the '.' character that matches any letter. Literal characters are handled by the normal walk, while a '.' branches into every child, turning search into a small DFS over the trie.",
+    "why": "The '.'-wildcard dictionary is a very common medium problem that tests your ability to add recursion to an otherwise iterative structure. Handling partial wildcards and proving you explored all branches cleanly is a strong signal to interviewers.",
+    "when": "Use this pattern when a problem asks for search with single-character wildcards, fuzzy matching, or dictionary queries where some letters are unknown.",
+    "complexity": { "time": "O(L) for addWord; O(L) typical, O(26^K) worst case for search with K wildcards", "space": "O(N * L)" },
+    "concepts": [
+      { "name": "Wildcard expansion", "description": "A '.' cannot be mapped to one child, so the search must iterate over all children at that node." },
+      { "name": "Recursive search helper", "description": "Search walks the word one character at a time; on '.', it recurses into each available child." },
+      { "name": "Base case on index", "description": "When the whole word is consumed, return the current node's end-of-word flag." },
+      { "name": "Termination on missing child", "description": "A literal char with no matching child means this branch can never match; backtrack immediately." },
+      { "name": "Multiple wildcards", "description": "Several '.'s multiply the branches explored, so worst-case runtime is exponential in the number of wildcards." }
+    ],
+    "patterns": [
+      {
+        "name": "Iterative insert",
+        "description": "Words are inserted exactly as in a plain trie; only search changes.",
+        "code": "def add_word(self, word):\n    node = self.root\n    for ch in word:\n        node = node.children.setdefault(ch, TrieNode())\n    node.is_end = True"
+      },
+      {
+        "name": "Recursive wildcard search",
+        "description": "DFS over trie nodes driven by the remaining suffix of the query.",
+        "code": "def _match(self, node, word, i):\n    if i == len(word):\n        return node.is_end\n    ch = word[i]\n    if ch == '.':\n        return any(self._match(n, word, i+1) for n in node.children.values())\n    nxt = node.children.get(ch)\n    return nxt is not None and self._match(nxt, word, i+1)"
+      },
+      {
+        "name": "Public search wrapper",
+        "description": "Delegate the public method to the recursive helper starting at the root.",
+        "code": "def search(self, word):\n    return self._match(self.root, word, 0)"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Matching a wildcard pattern",
+        "problem": "After adding 'apple', 'bat', search for 'a..le' and for 'b.t'.",
+        "input": "add_word('apple'), add_word('bat'), search('a..le'), search('b.t')",
+        "output": "True, True",
+        "explanation": "'a..le' walks 'a', then '.' forks to child 'p' (from 'apple'), matching 'p' then 'l','e'. 'b.t' similarly walks 'b', forks at '.' into 'a', then 't' matches the stored 'bat'.",
+        "steps": [
+          "Add 'apple' and 'bat' into the trie.",
+          "Search 'a..le': consume 'a', then '.' tests the 'p' child, then 'l' and 'e' match, and the 'e' node is a word end.",
+          "Search 'b.t': consume 'b', '.' tests the 'a' child, then 't' matches, and it is a word end."
+        ],
+        "complexity": { "time": "O(L) for addWord, O(26^K) worst case for wildcard search", "space": "O(N * L)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Treating '.' like a literal character with dict.get('.') and always returning False.", "fix": "Special-case '.': iterate over every child of the current node instead of a single lookup." },
+      { "mistake": "Returning True on a branch that matches a prefix but is not a complete stored word.", "fix": "The recursion's base case must check node.is_end at the end of the query." },
+      { "mistake": "Using a shared visited flag across branches so one failed subtree poisons sibling branches.", "fix": "Keep the search stateless per path; each recursion is independent and mutates nothing." }
+    ],
+    "problems": [
+      {
+        "name": "Design Add and Search Words Data Structure",
+        "slug": "add-and-search-word",
+        "difficulty": "medium",
+        "description": "Implement a dictionary supporting addWord and search with '.' wildcards.",
+        "constraints": "1 <= word.length <= 25, up to 10^4 calls",
+        "hints": ["Store words in a trie.", "Search recursively, branching on '.'."],
+        "approach": "Insert into a trie and run a recursive match that forks across children on wildcards.",
+        "pattern": "Recursive wildcard search",
+        "time": "O(L) add, O(L) typical search, O(26^K) worst case",
+        "space": "O(N * L)",
+        "solution": "add_word inserts the string normally, marking the end node. search calls a recursive helper with the word and a position index: on a literal, descend to that exact child and continue or fail; on '.', try every child and return True if any subtree matches the rest. The base case returns is_end when the full word is consumed.",
+        "tags": ["trie", "backtracking", "design"]
+      },
+      {
+        "name": "Word Break II",
+        "slug": "word-break-ii",
+        "difficulty": "hard",
+        "description": "Given a string and a word dictionary, return all possible sentences by segmenting the string into dictionary words.",
+        "constraints": "1 <= s.length <= 20, dictionary up to 1000 words",
+        "hints": ["Insert the dictionary into a trie.", "DFS from each index, extending while the prefix is in the trie."],
+        "approach": "Build a trie, then DFS segmenting the string at every index where the prefix is a dictionary word, concatenating results.",
+        "pattern": "Iterative insert",
+        "time": "O(2^L) worst case for sentence generation",
+        "space": "O(N * L)",
+        "solution": "Insert dictionary words into a trie. A recursive function at start index i walks the trie from i, and every time it reaches a word end it recurses from the next index, prepending the matched word to each result. At the end of the string, return [''] so the sentence joins correctly.",
+        "tags": ["trie", "backtracking", "memoization"]
+      },
+      {
+        "name": "Word Squares",
+        "slug": "word-squares",
+        "difficulty": "hard",
+        "description": "Given a set of words, find all word squares where the kth row equals the kth column.",
+        "constraints": "1 <= words.length <= 1000, all words same length L <= 5",
+        "hints": ["Use a trie keyed by prefixes to fetch words starting with a given prefix.", "Backtrack row by row, using the partial column prefixes to pick the next word."],
+        "approach": "Store words in a prefix-indexed trie; build the square row by row, choosing the next word from words matching the column prefixes formed so far.",
+        "pattern": "Recursive wildcard search",
+        "time": "O(N * L^2 + branches)",
+        "space": "O(N * L)",
+        "solution": "Insert every word and record which words pass through each prefix node. Backtracking fills rows; at step k, the next word must start with the letters already placed in column k. Fetch candidate words from the trie by that prefix and recurse until a full square is formed or candidates run out.",
+        "tags": ["trie", "backtracking"]
+      }
+    ]
+  },
+  {
+    "slug": "bitwise-trie",
+    "name": "Bitwise Trie",
+    "difficulty": "medium",
+    "overview": "A bitwise trie stores integers bit by bit in a binary tree, usually from the most significant bit down. Each node has at most two children (0 and 1), which makes it a compact structure for maximizing XOR, finding minimum XOR pairs, and range-based bit queries.",
+    "why": "Bitwise trie problems, especially 'maximum XOR of two numbers', are frequent hard-then-medium favorites that combine tree thinking with bit manipulation. Greedy traversal over a binary trie is a technique that impresses and is broadly reusable.",
+    "when": "Reach for a bitwise trie when the problem involves XOR maximization/minimization over a set of numbers, pair statistics based on bit prefixes, or queries that split the number space by leading bits.",
+    "complexity": { "time": "O(B) per insert or query, where B is the bit length (e.g., 31 for 32-bit ints)", "space": "O(N * B)" },
+    "concepts": [
+      { "name": "Binary children", "description": "Each node has a 0-child and a 1-child; a full path encodes one integer's bits from MSB to LSB." },
+      { "name": "MSB-first insertion", "description": "Insert bits from the most significant bit so shared high-order bits are merged near the root." },
+      { "name": "Greedy XOR maximization", "description": "To maximize a xor x, prefer the bit opposite to x's bit at every position when such a child exists." },
+      { "name": "Trailing count or terminal flag", "description": "Optionally store counts per node to support deletions and minimum-XOR pair queries." },
+      { "name": "XOR identity", "description": "The result of two numbers is largest when their differing high-order bits are set, motivating MSB-first greedy choice." }
+    ],
+    "patterns": [
+      {
+        "name": "Insert integer bit by bit",
+        "description": "Extract bits MSB-first and create the matching child nodes.",
+        "code": "def insert(root, num, B=31):\n    node = root\n    for b in range(B, -1, -1):\n        bit = (num >> b) & 1\n        node = node.children.setdefault(bit, TrieNode())"
+      },
+      {
+        "name": "Greedy max XOR walk",
+        "description": "Choose the opposite bit when available to maximize the XOR value.",
+        "code": "def max_xor(root, num, B=31):\n    node = root\n    best = 0\n    for b in range(B, -1, -1):\n        bit = (num >> b) & 1\n        want = 1 - bit\n        if want in node.children:\n            best |= 1 << b\n            node = node.children[want]\n        else:\n            node = node.children[bit]\n    return best"
+      },
+      {
+        "name": "Build from list and scan",
+        "description": "Insert all numbers first, then query each one against the shared trie.",
+        "code": "def max_xor_pair(nums):\n    root = TrieNode()\n    for n in nums:\n        insert(root, n)\n    return max(max_xor(root, n) for n in nums)"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Maximum XOR of a pair",
+        "problem": "Given nums = [3, 10, 5, 25, 2, 8], find the maximum XOR of any two numbers.",
+        "input": "nums = [3, 10, 5, 25, 2, 8]",
+        "output": "28",
+        "explanation": "25 (11001) XOR 3 (00011) = 28 (11100). The MSB-first greedy walk for 25 prefers opposite bits at each position, hitting a 0-child at the top and continuing down to maximize the low bits.",
+        "steps": [
+          "Insert all six numbers as 5-bit paths into the trie.",
+          "Query 25: at the MSB, the trie has a 0-child (from 3, 5, 2, 8), take it and set that bit of the result.",
+          "Continue choosing the opposite bit at each level when present.",
+          "The walk yields 28, which is the maximum over all pairs."
+        ],
+        "complexity": { "time": "O(N * B)", "space": "O(N * B)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Processing bits from LSB to MSB, which ruins the shared-prefix structure and the greedy property.", "fix": "Always insert and query from the most significant bit down." },
+      { "mistake": "Taking the opposite bit even when it is absent and falling back incorrectly, inflating the result.", "fix": "Set the result bit only when the opposite child exists; otherwise follow the same-bit child without setting it." },
+      { "mistake": "Querying each number against a trie that does not yet contain it, undercounting self-pair XORs.", "fix": "Either build the whole trie first, or insert-then-query per element to exclude it from its own answer." }
+    ],
+    "problems": [
+      {
+        "name": "Maximum XOR of Two Numbers in an Array",
+        "slug": "maximum-xor-two-numbers",
+        "difficulty": "medium",
+        "description": "Find the maximum XOR of any two numbers in the array.",
+        "constraints": "1 <= nums.length <= 2 * 10^5, 0 <= nums[i] < 2^31",
+        "hints": ["Insert every number into a bitwise trie.", "For each number, greedily pick the opposite bit at every position."],
+        "approach": "Insert all numbers into a binary trie, then run the greedy opposite-bit walk for each number and take the maximum.",
+        "pattern": "Greedy max XOR walk",
+        "time": "O(N * 31)",
+        "space": "O(N * 31)",
+        "solution": "Insert each number as a 31-bit path from MSB to LSB. For every number, walk the trie preferring the complementary bit whenever it exists, which contributes that bit to the result; otherwise follow the same bit. The largest contribution seen is the maximum XOR pair.",
+        "tags": ["trie", "bit-manipulation"]
+      },
+      {
+        "name": "Minimum XOR Value Pair",
+        "slug": "minimum-xor-value-pair",
+        "difficulty": "medium",
+        "description": "Given an integer array, find the minimum XOR value among any pair of distinct numbers.",
+        "constraints": "1 <= nums.length <= 10^5",
+        "hints": ["Sorting works: the minimum XOR pair is always adjacent after sorting.", "For a trie approach, follow same-bit children to keep XOR small."],
+        "approach": "Sort the array; the minimum XOR pair must be adjacent, so compute XOR over consecutive elements.",
+        "pattern": "Insert integer bit by bit",
+        "time": "O(N log N)",
+        "space": "O(1)",
+        "solution": "Two numbers that differ only in low-order bits produce the smallest XOR. After sorting, the closest-valued numbers are adjacent, so the minimum pair must be consecutive. Scan adjacent XORs and keep the minimum.",
+        "tags": ["bit-manipulation", "sorting"]
+      },
+      {
+        "name": "Maximum XOR With an Element From Array",
+        "slug": "maximum-xor-with-element-from-array",
+        "difficulty": "hard",
+        "description": "For each query (x, m), find the maximum value of x XOR y where y is in nums and y <= m.",
+        "constraints": "nums.length up to 10^5, queries up to 10^5, values < 2^31",
+        "hints": ["Offline-sort queries by m and insert nums incrementally.", "Use a bitwise trie whose nodes also track the minimum value in their subtree to reject ys above m."],
+        "approach": "Sort queries by m, insert numbers into a trie as m grows, and track min value per node to skip subtrees that only contain numbers above m.",
+        "pattern": "Greedy max XOR walk",
+        "time": "O((N + Q) * 31)",
+        "space": "O(N * 31)",
+        "solution": "Sort queries by limit m and keep a pointer that inserts all nums <= m into the bitwise trie. Each trie node stores the minimum value in its subtree. During the greedy XOR walk, only descend into children whose min value is <= m. Return the best XOR or -1 when no qualifying number exists.",
+        "tags": ["trie", "bit-manipulation", "sorting", "offline"]
+      }
+    ]
+  }
+]

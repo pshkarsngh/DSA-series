@@ -1,0 +1,3255 @@
+[
+ {
+  "slug": "singly-linked-list",
+  "name": "Singly linked list",
+  "difficulty": "easy",
+  "overview": "A singly linked list is a linear data structure where each node stores a value and a reference to the next node. Traversal moves only forward from head to tail. It grows and shrinks dynamically without the resizing cost of arrays.",
+  "why": "Interviewers use linked lists to test pointer manipulation, recursion, and careful edge-case handling. Many classic problems such as reverse, cycle detection, and reorder build directly on the singly linked list.",
+  "when": "Reach for a singly linked list when you need dynamic size with cheap insertions and deletions near a known node, or when the problem explicitly presents a linked list. Prefer arrays when random access is important.",
+  "complexity": {
+   "time": "O(n) access and search, O(1) insertion or deletion at a known node",
+   "space": "O(n) storage for n nodes"
+  },
+  "concepts": [
+   {
+    "name": "Node",
+    "description": "The basic unit holding a value and a pointer to the next node."
+   },
+   {
+    "name": "Head",
+    "description": "Pointer to the first node; an empty list is represented by head = None."
+   },
+   {
+    "name": "Next pointer",
+    "description": "The field that chains nodes together; the last node's next points to None."
+   },
+   {
+    "name": "Traversal",
+    "description": "Walking node-by-node through next until reaching None to visit every element."
+   },
+   {
+    "name": "Insertion",
+    "description": "Re-linking neighbors to place a new node at the head, tail, or middle."
+   },
+   {
+    "name": "Deletion",
+    "description": "Skipping a node by pointing its predecessor directly to its successor."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Iterative traversal",
+    "description": "Move a pointer through the list, processing each node until the end.",
+    "code": "cur = head\nwhile cur is not None:\n    print(cur.val)\n    cur = cur.next"
+   },
+   {
+    "name": "Insert at head",
+    "description": "Point the new node at the old head and update the head reference.",
+    "code": "new = Node(val)\nnew.next = head\nhead = new"
+   },
+   {
+    "name": "Delete a known node",
+    "description": "Copy the successor's value and skip it, avoiding the need for a predecessor.",
+    "code": "# copy successor's value, then skip it\nnode.val = node.next.val\nnode.next = node.next.next"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Count the length of a list",
+    "problem": "Given a singly linked list, return the number of nodes it contains.",
+    "input": "1 -> 2 -> 3 -> 4",
+    "output": "4",
+    "explanation": "Walk from the head while the current node is not None, incrementing a counter and advancing one node at a time.",
+    "steps": [
+     "Start count at 0 and current at head.",
+     "While current is not None, increment count.",
+     "Advance current = current.next.",
+     "Return the count when the traversal ends."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Overwriting current before saving its next pointer, losing the rest of the list.",
+    "fix": "Capture cur.next (or advance via cur = cur.next) before any reassignment that changes cur."
+   },
+   {
+    "mistake": "Forgetting to update the head pointer after inserting or removing at the front.",
+    "fix": "Always reassign head to the new first node after a head insertion or removal."
+   },
+   {
+    "mistake": "Dereferencing cur.next when cur is already None.",
+    "fix": "Guard loops and recursion with a cur is not None check before touching cur.next."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Remove Nth Node From End of List",
+    "slug": "remove-nth-node-from-end",
+    "difficulty": "medium",
+    "description": "Given the head of a linked list, remove the nth node from the end of the list and return its head.",
+    "constraints": "1 <= n <= size of the list; list can have a single node.",
+    "hints": [
+     "Use a dummy node so removal of the head is uniform.",
+     "Advance a fast pointer n steps, then move both pointers together.",
+     "The slow pointer ends one node before the target."
+    ],
+    "approach": "Use two pointers: fast is advanced n nodes, then slow and fast move in lockstep until fast reaches the end. Slow then sits just before the node to remove.",
+    "pattern": "Traversal",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Create a dummy node before head, set slow and fast to dummy, advance fast n times, then step both until fast.next is None. Point slow.next to slow.next.next and return dummy.next.",
+    "tags": [
+     "linked list",
+     "two pointers"
+    ]
+   },
+   {
+    "name": "Palindrome Linked List",
+    "slug": "palindrome-linked-list",
+    "difficulty": "easy",
+    "description": "Given the head of a singly linked list, return true if it is a palindrome.",
+    "constraints": "List length between 1 and 100,000.",
+    "hints": [
+     "Find the middle node using the fast and slow technique.",
+     "Reverse the second half in place.",
+     "Compare the first half with the reversed second half."
+    ],
+    "approach": "Split the list at its middle, reverse the second half, then compare both halves node by node.",
+    "pattern": "Traversal",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Use fast-slow to locate the middle, reverse the second half, then walk both halves comparing values. An O(1) space solution is what interviewers expect.",
+    "tags": [
+     "linked list",
+     "two pointers",
+     "reverse"
+    ]
+   },
+   {
+    "name": "Remove Linked List Elements",
+    "slug": "remove-linked-list-elements",
+    "difficulty": "easy",
+    "description": "Given the head of a linked list and an integer val, remove all nodes with node.val == val and return the new head.",
+    "constraints": "0 to 10,000 nodes; values between -50 and 50.",
+    "hints": [
+     "A dummy node removes the special case of removing the head.",
+     "Keep a previous pointer while scanning.",
+     "Skip a node by relinking prev.next to cur.next."
+    ],
+    "approach": "Scan the list with a prev pointer and a dummy head, unlinking every node whose value matches val.",
+    "pattern": "Traversal",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Attach a dummy node, iterate cur from dummy.next, and whenever cur.val equals val set prev.next = cur.next, otherwise advance prev. Return dummy.next.",
+    "tags": [
+     "linked list",
+     "deletion"
+    ]
+   },
+   {
+    "name": "Remove Duplicates from Sorted List",
+    "slug": "remove-duplicates-from-sorted-list",
+    "difficulty": "easy",
+    "description": "Given the head of a sorted linked list, delete all duplicates so each value appears only once.",
+    "constraints": "List is sorted in non-decreasing order.",
+    "hints": [
+     "Adjacent duplicates are the only ones to worry about in a sorted list.",
+     "Compare cur.val with cur.next.val.",
+     "Relink past the duplicate and keep scanning."
+    ],
+    "approach": "Walk the sorted list once, skipping any node whose value equals the next node's value.",
+    "pattern": "Traversal",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Set cur = head. While cur and cur.next exist, if cur.val == cur.next.val set cur.next = cur.next.next, else advance cur. Return head.",
+    "tags": [
+     "linked list",
+     "deletion",
+     "sorted"
+    ]
+   },
+   {
+    "name": "Swap Nodes in Pairs",
+    "slug": "swap-nodes-in-pairs",
+    "difficulty": "medium",
+    "description": "Given a linked list, swap every two adjacent nodes and return its head. Do not modify the node values.",
+    "constraints": "0 to 100 nodes.",
+    "hints": [
+     "Use a dummy node to track the node before each pair.",
+     "Swap by relinking next pointers, not by swapping values.",
+     "Walk two nodes at a time."
+    ],
+    "approach": "Iterate over the list in pairs, relinking the previous node to point to the second node of the pair first.",
+    "pattern": "Traversal",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Create a dummy node. For each pair, record the two nodes and the node after them, then rewire pointers so the second node becomes first and the first links to the remainder. Advance past the pair.",
+    "tags": [
+     "linked list",
+     "pointer manipulation"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "doubly-linked-list",
+  "name": "Doubly linked list",
+  "difficulty": "medium",
+  "overview": "A doubly linked list is a linear structure where each node holds both a previous and a next pointer. This enables backward traversal and O(1) removal of a node given its reference, at the cost of an extra pointer per node.",
+  "why": "Doubly linked lists power real systems such as LRU caches, browser history, and text editor undo buffers. They appear in design-style interview questions that demand O(1) operations.",
+  "when": "Use a doubly linked list when you need bidirectional traversal or when you must delete or insert around a known node in O(1) time without a predecessor pointer.",
+  "complexity": {
+   "time": "O(n) traversal, O(1) insertion or deletion of a known node",
+   "space": "O(n) storage for n nodes"
+  },
+  "concepts": [
+   {
+    "name": "Prev pointer",
+    "description": "A reference to the previous node that enables backward traversal."
+   },
+   {
+    "name": "Sentinel nodes",
+    "description": "Dummy head and tail nodes that eliminate edge-case checks for empty lists."
+   },
+   {
+    "name": "Unlink operation",
+    "description": "Rewiring prev and next of neighbors to remove a node in O(1) time."
+   },
+   {
+    "name": "Insertion at ends",
+    "description": "Linking a new node before the head sentinel or after the tail sentinel."
+   },
+   {
+    "name": "Bidirectional traversal",
+    "description": "Walking from tail to head via prev or from head to tail via next."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Remove a node",
+    "description": "Unlink a node by bypassing it with its neighbors' pointers.",
+    "code": "# bypass node with its neighbors\nnode.prev.next = node.next\nnode.next.prev = node.prev"
+   },
+   {
+    "name": "Insert after a node",
+    "description": "Wire a new node between two existing neighbors.",
+    "code": "new.prev = node\nnew.next = node.next\nnode.next.prev = new\nnode.next = new"
+   },
+   {
+    "name": "Move to front",
+    "description": "Unlink a node and reinsert it at the head in constant time.",
+    "code": "unlink(node)\nnode.next = head.next\nnode.prev = head\nhead.next.prev = node\nhead.next = node"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Remove a middle node in O(1)",
+    "problem": "Given a pointer to a node in a doubly linked list (not the head or tail), remove it in O(1) time.",
+    "input": "A <-> B <-> C <-> D, remove B",
+    "output": "A <-> C <-> D",
+    "explanation": "Because B knows both A and C, we can bypass B directly without scanning the list.",
+    "steps": [
+     "Set A.next = C (B's next).",
+     "Set C.prev = A (B's prev).",
+     "Optionally clear B.prev and B.next.",
+     "The list now reads A <-> C <-> D."
+    ],
+    "complexity": {
+     "time": "O(1)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Updating only one of the two pointers when unlinking, corrupting the chain.",
+    "fix": "Always update both node.prev.next and node.next.prev when removing a node."
+   },
+   {
+    "mistake": "Null pointer access when removing the head or tail.",
+    "fix": "Guard with None checks or use sentinel nodes so ends always have neighbors."
+   },
+   {
+    "mistake": "Forgetting to update the last-node pointer when inserting at the tail.",
+    "fix": "Use a tail sentinel and always set the new last node's next to the sentinel."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Design Linked List",
+    "slug": "design-linked-list",
+    "difficulty": "medium",
+    "description": "Design a linked list with get, addAtHead, addAtTail, addAtIndex, and deleteAtIndex supporting indices.",
+    "constraints": "Indices may be invalid; up to 2000 operations.",
+    "hints": [
+     "Sentinel head and tail nodes simplify boundary cases.",
+     "Implement index validation helpers.",
+     "Traverse from whichever end is closer to the target index."
+    ],
+    "approach": "Implement a doubly linked list with head and tail sentinels plus an index-based API.",
+    "pattern": "Doubly linked list design",
+    "time": "O(n) per indexed operation, O(1) at ends",
+    "space": "O(n)",
+    "solution": "Keep sentinel head and tail and a size counter. get walks from the nearer end. addAtHead and addAtTail insert near the sentinels in O(1). addAtIndex validates the index then walks and inserts.",
+    "tags": [
+     "doubly linked list",
+     "design"
+    ]
+   },
+   {
+    "name": "Flatten a Multilevel Doubly Linked List",
+    "slug": "flatten-a-multilevel-doubly-linked-list",
+    "difficulty": "medium",
+    "description": "Flatten a doubly linked list where some nodes have child sublists, so all nodes appear in a single-level list.",
+    "constraints": "Each node may have one child; lists are acyclic.",
+    "hints": [
+     "When a node has a child, insert the entire child chain in place.",
+     "Save the next node before descending so you can reconnect.",
+     "Use recursion or an explicit stack to flatten."
+    ],
+    "approach": "Recursively flatten each child list and splice it between the parent node and its original next node.",
+    "pattern": "Recursive flatten",
+    "time": "O(n)",
+    "space": "O(d) recursion depth",
+    "solution": "For each node with a child, call flatten on the child, then link the child's head after the current node and its tail to the saved next. Set child pointers to None.",
+    "tags": [
+     "doubly linked list",
+     "recursion"
+    ]
+   },
+   {
+    "name": "Design Browser History",
+    "slug": "design-browser-history",
+    "difficulty": "medium",
+    "description": "Build a browser history that supports visiting a URL, moving back steps, and moving forward steps.",
+    "constraints": "Up to 5000 operations; forward history clears on new visits.",
+    "hints": [
+     "A doubly linked list models back and forward navigation perfectly.",
+     "A current pointer represents the active page.",
+     "Visiting a new URL drops all forward nodes."
+    ],
+    "approach": "Maintain a doubly linked list of pages with a current pointer; navigate with prev and next.",
+    "pattern": "Doubly linked list navigation",
+    "time": "O(steps) for back and forward",
+    "space": "O(n)",
+    "solution": "visit creates a node after current, truncating forward history. back and forward walk step times, stopping at the ends. Return the value at the current node.",
+    "tags": [
+     "doubly linked list",
+     "design"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "circular-linked-list",
+  "name": "Circular linked list",
+  "difficulty": "medium",
+  "overview": "A circular linked list is a linked list whose last node points back to the head instead of None. The structure has no natural end, which makes loop guards and do-while traversals the natural tools for working with it.",
+  "why": "Circular lists model repeating systems such as round-robin scheduling, Josephus elimination, and ring buffers. They also appear as the adversarial case in cycle-detection questions.",
+  "when": "Reach for a circular linked list when data repeats cyclically or when a process continues until some condition instead of until an end marker.",
+  "complexity": {
+   "time": "O(n) full traversal, O(1) insert or delete of a known node",
+   "space": "O(n) storage"
+  },
+  "concepts": [
+   {
+    "name": "Tail-to-head link",
+    "description": "The last node's next points at the head, closing the loop."
+   },
+   {
+    "name": "No null end",
+    "description": "Every node has a valid next, so traversals must detect the starting point."
+   },
+   {
+    "name": "Circular traversal",
+    "description": "Walking until you return to the starting node rather than until None."
+   },
+   {
+    "name": "Rotating origin",
+    "description": "Using the head pointer itself to represent a rotating starting point for the list."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Traverse once around",
+    "description": "Use a do-while so you process the start node before stopping.",
+    "code": "cur = head\nwhile True:\n    print(cur.val)\n    cur = cur.next\n    if cur is head:\n        break"
+   },
+   {
+    "name": "Find the tail",
+    "description": "The tail is the node whose next is the head.",
+    "code": "cur = head\nwhile cur.next is not head:\n    cur = cur.next\ntail = cur"
+   },
+   {
+    "name": "Insert after tail",
+    "description": "Splice a new node before the head by relinking the tail.",
+    "code": "# insert new just before the head\ntail.next = new\nnew.next = head"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Split a circular list in half",
+    "problem": "Given a circular linked list, split it into two circular lists each holding about half the nodes.",
+    "input": "1 -> 2 -> 3 -> 4 -> 5 -> (back to 1)",
+    "output": "1 -> 2 -> 3 -> (cycle) and 4 -> 5 -> (cycle)",
+    "explanation": "Find the middle with fast and slow pointers, then break the link at the middle to form two circles.",
+    "steps": [
+     "Use fast-slow to find the middle of the circle.",
+     "Let the first circle end where the middle begins.",
+     "Find the tail of the second half (node whose next is the head).",
+     "Close both halves back into circles."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Writing an infinite loop because a traversal never detects the return to the start.",
+    "fix": "Track the starting node and break when cur loops back to it."
+   },
+   {
+    "mistake": "Treating a circular list as if it ends at None.",
+    "fix": "Always compare against the head reference, never against None."
+   },
+   {
+    "mistake": "Breaking the circle incorrectly when inserting at the head or tail.",
+    "fix": "Update both the tail's next and the new node's next consistently."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Insert into a Sorted Circular Linked List",
+    "slug": "insert-into-a-sorted-circular-linked-list",
+    "difficulty": "medium",
+    "description": "Given the head of a circular sorted linked list and a value, insert a node with that value while keeping the list sorted.",
+    "constraints": "1 to 5 x 10^4 nodes; the list may be empty (head None).",
+    "hints": [
+     "There are three cases: between two nodes, at the tail wrap, or into an empty list.",
+     "Detect the wrap when cur.val > cur.next.val.",
+     "If no valid position exists, insert at the wrap point."
+    ],
+    "approach": "Walk the circle looking for a spot where the value fits between two neighbors, falling back to the wrap point.",
+    "pattern": "Circular traversal",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "If head is None, return a self-looping node. Otherwise scan until you find cur.val <= insertVal <= cur.next.val, or until you detect the wrap where cur.val > cur.next.val. Insert and return head.",
+    "tags": [
+     "circular linked list",
+     "insertion"
+    ]
+   },
+   {
+    "name": "Split a Circular Linked List",
+    "slug": "split-circular-linked-list",
+    "difficulty": "medium",
+    "description": "Split a circular linked list into two circular lists of roughly equal length.",
+    "constraints": "At least 1 node; lengths up to 10,000.",
+    "hints": [
+     "Use fast and slow pointers to find the middle.",
+     "The tail is found by walking until cur.next is head.",
+     "Close both halves back into circles."
+    ],
+    "approach": "Locate the midpoint with fast-slow, then break the single circle into two circles.",
+    "pattern": "Fast and slow pointers",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Find the middle and the node before it via fast-slow, plus the tail. Point the predecessor's next at the head of the first half and the tail at the middle to close both circles.",
+    "tags": [
+     "circular linked list",
+     "two pointers"
+    ]
+   },
+   {
+    "name": "Josephus Problem",
+    "slug": "josephus-circle",
+    "difficulty": "medium",
+    "description": "n people sit in a circle and every kth person is eliminated; determine the survivor's position.",
+    "constraints": "1 <= n <= 10^5, k >= 1.",
+    "hints": [
+     "Model the circle as a circular linked list.",
+     "Walk k-1 steps then remove the next node.",
+     "Keep walking from the surviving node until one remains."
+    ],
+    "approach": "Build a circular linked list of positions 1..n and repeatedly skip k-1 nodes and delete the kth.",
+    "pattern": "Circular traversal with deletion",
+    "time": "O(n * k)",
+    "space": "O(n)",
+    "solution": "Create the circle, start at position 1, and loop: advance k-1 steps, delete the next node, and continue until a single node remains. Return its value.",
+    "tags": [
+     "circular linked list",
+     "simulation",
+     "deletion"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "reverse-a-linked-list",
+  "name": "Reverse a linked list",
+  "difficulty": "easy",
+  "overview": "Reversing a linked list flips the direction of every next pointer so the tail becomes the new head. It can be done iteratively with three pointers or recursively by reversing the rest of the list first.",
+  "why": "Reversal is a prerequisite for palindrome checks, reordering, adding two numbers, and k-group reversal. Interviewers use it to gauge comfort with pointer rewiring.",
+  "when": "Reach for reversal whenever a problem needs data processed from tail to head in place, or as a sub-step inside larger linked list transformations.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(1) iterative, O(n) recursion stack"
+  },
+  "concepts": [
+   {
+    "name": "Prev, curr, next",
+    "description": "The three pointers that rewire each link without losing the rest of the list."
+   },
+   {
+    "name": "Head swap",
+    "description": "After the loop the original tail becomes the new head returned to the caller."
+   },
+   {
+    "name": "Sub-list reversal",
+    "description": "Reversing only a range by saving and restoring the boundaries around it."
+   },
+   {
+    "name": "Recursive reversal",
+    "description": "Reversing the tail first, then attaching the current node after it."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Iterative three-pointer reverse",
+    "description": "Walk through the list flipping each next pointer.",
+    "code": "prev, cur = None, head\nwhile cur:\n    nxt = cur.next\n    cur.next = prev\n    prev, cur = cur, nxt\nreturn prev"
+   },
+   {
+    "name": "Recursive reverse",
+    "description": "Reverse the rest of the list, then fix the current node.",
+    "code": "def rev(head):\n    if not head or not head.next:\n        return head\n    new = rev(head.next)\n    head.next.next = head\n    head.next = None\n    return new"
+   },
+   {
+    "name": "Reverse a segment",
+    "description": "Reverse nodes between given positions keeping the boundaries intact.",
+    "code": "pre = dummy\nfor _ in range(left - 1):\n    pre = pre.next\ncur = pre.next\nfor _ in range(right - left):\n    nxt = cur.next\n    cur.next = nxt.next\n    nxt.next = pre.next\n    pre.next = nxt"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Reverse the full list",
+    "problem": "Given 1 -> 2 -> 3 -> 4 -> 5, return the list reversed.",
+    "input": "1 -> 2 -> 3 -> 4 -> 5",
+    "output": "5 -> 4 -> 3 -> 2 -> 1",
+    "explanation": "Each node's next is flipped to point backward while a saved reference keeps the forward chain alive.",
+    "steps": [
+     "Set prev to None and cur to head.",
+     "Save nxt = cur.next.",
+     "Point cur.next = prev.",
+     "Advance prev = cur, cur = nxt.",
+     "Repeat until cur is None; return prev."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Losing the rest of the list because cur.next is overwritten before saving it.",
+    "fix": "Always store nxt = cur.next before setting cur.next = prev."
+   },
+   {
+    "mistake": "Returning the old head, which now points to None.",
+    "fix": "Return the final prev (the original tail) after the loop finishes."
+   },
+   {
+    "mistake": "Forgetting to set head.next = None in recursion, creating a cycle.",
+    "fix": "Explicitly clear the current node's next pointer after recursion returns."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Reverse Linked List",
+    "slug": "reverse-linked-list",
+    "difficulty": "easy",
+    "description": "Given the head of a singly linked list, reverse the list and return the new head.",
+    "constraints": "0 to 5000 nodes.",
+    "hints": [
+     "Track prev, curr, and next.",
+     "Iterative reversal uses O(1) space.",
+     "The new head is the original tail."
+    ],
+    "approach": "Iterate once, flipping each node's next to point to the previous node.",
+    "pattern": "Iterative three-pointer reverse",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Initialize prev = None, cur = head. In each step save cur.next, point cur.next backward, and advance. Return prev as the new head.",
+    "tags": [
+     "linked list",
+     "reverse"
+    ]
+   },
+   {
+    "name": "Reverse Linked List II",
+    "slug": "reverse-linked-list-ii",
+    "difficulty": "medium",
+    "description": "Given a linked list, reverse the nodes from position left to right and return the head.",
+    "constraints": "1 <= left <= right <= n.",
+    "hints": [
+     "Use a dummy node to handle left = 1 cleanly.",
+     "Walk to the node just before left.",
+     "Reverse only the segment by repeatedly moving nodes after the start."
+    ],
+    "approach": "Locate the predecessor of the segment, then use insertion-based reversal to flip the range in place.",
+    "pattern": "Segment reversal",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Walk prev to the node before left. Set cur = prev.next. For right - left steps, take cur.next, remove it, and splice it right after prev. This reverses the segment while leaving boundaries intact.",
+    "tags": [
+     "linked list",
+     "reverse"
+    ]
+   },
+   {
+    "name": "Reverse Nodes in k-Group",
+    "slug": "reverse-nodes-in-k-group",
+    "difficulty": "hard",
+    "description": "Given a linked list, reverse the nodes of each group of k, leaving any trailing shorter group unchanged.",
+    "constraints": "1 <= k <= n <= 5000.",
+    "hints": [
+     "Count ahead to confirm a full group of k exists.",
+     "Reverse one group at a time using the insertion method.",
+     "Connect the reversed group's tail to the next group's head."
+    ],
+    "approach": "For each k-sized group, reverse it in place, then link the previous group's tail to the new head.",
+    "pattern": "Segment reversal",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Use a dummy head and a group head pointer. Before each group, verify k nodes exist. Reverse the group, reattach boundaries, then move the pointer to the group tail and repeat.",
+    "tags": [
+     "linked list",
+     "reverse",
+     "divide and conquer"
+    ]
+   },
+   {
+    "name": "Reorder List",
+    "slug": "reorder-list",
+    "difficulty": "medium",
+    "description": "Reorder a list 1 -> 2 -> 3 -> 4 -> 5 into 1 -> 5 -> 2 -> 4 -> 3 (first, last, second, second-last...).",
+    "constraints": "1 to 5 x 10^4 nodes.",
+    "hints": [
+     "Split the list at the middle with fast and slow pointers.",
+     "Reverse the second half.",
+     "Merge the two halves by alternating nodes."
+    ],
+    "approach": "Find the middle, reverse the second half, then interleave the two halves.",
+    "pattern": "Fast and slow pointers with reverse",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Use fast-slow to split, reverse the second half, then merge by taking one node from each list alternately until all nodes are consumed.",
+    "tags": [
+     "linked list",
+     "two pointers",
+     "reverse"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "fast-slow-pointers",
+  "name": "Fast & slow pointers",
+  "difficulty": "medium",
+  "overview": "The fast and slow pointer technique runs two pointers over a sequence at different speeds. The slow pointer moves one step while the fast pointer moves two, creating relationships that expose structural properties like the midpoint or a cycle.",
+  "why": "This pattern solves many linked list and array problems in O(1) extra space where a hash set would cost O(n). It is a staple of medium-difficulty interviews.",
+  "when": "Reach for fast-slow pointers to find a midpoint, detect a cycle, find the node where two paths meet, or locate the kth element from a cyclic structure.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(1)"
+  },
+  "concepts": [
+   {
+    "name": "Speed ratio",
+    "description": "The fast pointer moves twice as fast as the slow one, doubling the distance covered per step."
+   },
+   {
+    "name": "Midpoint property",
+    "description": "When fast reaches the end, slow is exactly at the middle of the sequence."
+   },
+   {
+    "name": "Cycle entry point",
+    "description": "After meeting inside a cycle, resetting one pointer to the start locates the entry node."
+   },
+   {
+    "name": "Tortoise and hare",
+    "description": "The classic name for this pattern; the two pointers eventually meet if a cycle exists."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Find the middle",
+    "description": "Move slow one step and fast two; slow lands on the midpoint.",
+    "code": "slow = fast = head\nwhile fast and fast.next:\n    slow = slow.next\n    fast = fast.next.next\nreturn slow"
+   },
+   {
+    "name": "Detect a cycle",
+    "description": "If the pointers ever meet, a cycle exists.",
+    "code": "slow = fast = head\nwhile fast and fast.next:\n    slow = slow.next\n    fast = fast.next.next\n    if slow is fast:\n        return True\nreturn False"
+   },
+   {
+    "name": "Find the kth from end",
+    "description": "Advance fast k steps, then move both together.",
+    "code": "slow = fast = head\nfor _ in range(k):\n    fast = fast.next\nwhile fast:\n    slow = slow.next\n    fast = fast.next\nreturn slow"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Find the middle node",
+    "problem": "Given 1 -> 2 -> 3 -> 4 -> 5, return the middle node.",
+    "input": "1 -> 2 -> 3 -> 4 -> 5",
+    "output": "3",
+    "explanation": "The fast pointer covers twice the distance of the slow pointer, so when fast reaches the tail the slow pointer sits in the middle.",
+    "steps": [
+     "Start both pointers at the head.",
+     "Advance slow one step and fast two steps.",
+     "Stop when fast or fast.next is None.",
+     "Return slow as the middle."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Dereferencing fast.next.next when fast or fast.next is None.",
+    "fix": "Guard the loop with while fast and fast.next before moving the fast pointer."
+   },
+   {
+    "mistake": "Using this technique on structures without a clear linear pass.",
+    "fix": "Confirm the sequence is traversable; for arrays prefer index math or other methods."
+   },
+   {
+    "mistake": "Assuming slow reaches the middle on odd-length lists when even-length lists have two middles.",
+    "fix": "Decide upfront which middle (lower or upper) the problem expects and adjust the stop condition."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Middle of the Linked List",
+    "slug": "middle-of-the-linked-list",
+    "difficulty": "easy",
+    "description": "Given the head of a singly linked list, return the middle node (the second middle for even lengths).",
+    "constraints": "1 to 100 nodes.",
+    "hints": [
+     "Run slow and fast from the head.",
+     "Fast moves twice per slow step.",
+     "Return slow when fast can no longer move."
+    ],
+    "approach": "Advance slow once and fast twice until fast reaches the end.",
+    "pattern": "Fast and slow pointers",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Loop while fast and fast.next are non-null: slow = slow.next, fast = fast.next.next. Return slow.",
+    "tags": [
+     "linked list",
+     "two pointers"
+    ]
+   },
+   {
+    "name": "Find the Duplicate Number",
+    "slug": "find-the-duplicate-number",
+    "difficulty": "medium",
+    "description": "Given an array of n+1 integers in [1, n], find the one duplicate without modifying the array.",
+    "constraints": "Exactly one duplicate; it may repeat more than once.",
+    "hints": [
+     "Treat the array as a linked list via index values.",
+     "Use Floyd's cycle detection on that virtual list.",
+     "The duplicate is the cycle's entry point."
+    ],
+    "approach": "Interpret nums[i] as a pointer to the next index and run Floyd's algorithm to find the cycle entry.",
+    "pattern": "Fast and slow pointers",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Since values point to valid indices, the sequence forms a linked structure with a cycle whose entry is the duplicate. Use slow and fast to detect the meeting point, then walk from the start to locate the entry.",
+    "tags": [
+     "two pointers",
+     "cycle detection",
+     "array"
+    ]
+   },
+   {
+    "name": "Happy Number",
+    "slug": "happy-number",
+    "difficulty": "easy",
+    "description": "Determine if a number is happy: repeatedly replace it with the sum of the squares of its digits until it becomes 1.",
+    "constraints": "1 <= n <= 2^31 - 1.",
+    "hints": [
+     "The digit-square process either reaches 1 or enters a cycle.",
+     "Use fast and slow pointers on the sequence of numbers.",
+     "If the pointers meet, the number is not happy."
+    ],
+    "approach": "Generate the next number by squaring digits and use Floyd's method to detect the inevitable cycle.",
+    "pattern": "Fast and slow pointers",
+    "time": "O(log n)",
+    "space": "O(1)",
+    "solution": "Define next(n) as the digit-square sum. Move slow by one next() and fast by two. If they meet before slow reaches 1, a cycle exists and n is not happy.",
+    "tags": [
+     "two pointers",
+     "cycle detection",
+     "math"
+    ]
+   },
+   {
+    "name": "Rotate List",
+    "slug": "rotate-list",
+    "difficulty": "medium",
+    "description": "Given the head of a linked list, rotate the list to the right by k places.",
+    "constraints": "0 to 500 nodes; k >= 0 and can exceed the list length.",
+    "hints": [
+     "Reduce k modulo the list length.",
+     "Find the node before the new head by walking length - k steps.",
+     "Break the temporary cycle at the correct point."
+    ],
+    "approach": "Compute the length, normalize k, then move a pointer length - k steps to find the split point.",
+    "pattern": "Pointer advance",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Measure the length and connect the tail to the head to form a temporary cycle. Advance length - k % length steps from head, break the link there, and return the new head.",
+    "tags": [
+     "linked list",
+     "rotation",
+     "two pointers"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "cycle-detection",
+  "name": "Cycle detection",
+  "difficulty": "medium",
+  "overview": "Cycle detection finds whether a linked structure contains a loop and often locates where the loop starts. Floyd's tortoise and hare algorithm solves it with constant extra space using pointers moving at different speeds. Cycle detection asks whether a graph contains a closed path that returns to its starting vertex. Undirected graphs use a parent check, while directed graphs require tracking recursion state.",
+  "why": "Detecting and fixing cycles appears frequently in linked list and functional-graph problems. It also underlies the standard trick for finding duplicate numbers in an array. Detecting cycles is essential for validating dependencies, scheduling tasks, and checking preconditions, and it is the core of several LeetCode medium and hard problems.",
+  "when": "Use cycle detection when a structure is traversed by following pointers or functions and you must verify it terminates or find its repeating section. Use cycle detection before running topological sorts, when validating course prerequisites, or when you need to confirm a graph is a tree (acyclic and connected).",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(1)"
+  },
+  "concepts": [
+   {
+    "name": "Loop",
+    "description": "A portion of the list that a traversal re-enters forever because no None end exists."
+   },
+   {
+    "name": "Meeting point",
+    "description": "Where slow and fast collide if and only if a cycle exists."
+   },
+   {
+    "name": "Cycle entry",
+    "description": "The first node of the loop, found by advancing from the head and the meeting point at equal speed."
+   },
+   {
+    "name": "Hash set approach",
+    "description": "An O(n) space alternative that records every visited node."
+   },
+   {
+    "name": "Cycle",
+    "description": "A path of length >= 1 where the first and last vertices are the same."
+   },
+   {
+    "name": "Back edge",
+    "description": "An edge pointing to an ancestor in the DFS tree; indicates a cycle."
+   },
+   {
+    "name": "Parent check",
+    "description": "In undirected graphs, ignoring the immediate parent avoids treating the edge you came from as a back edge."
+   },
+   {
+    "name": "Three-color marking",
+    "description": "White (unvisited), gray (in the current DFS stack), black (finished); encountering a gray node means a directed cycle."
+   },
+   {
+    "name": "Acyclic",
+    "description": "A graph with no cycles; a connected acyclic graph is a tree."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Floyd's detection",
+    "description": "Move one pointer one step and the other two; they meet iff a cycle exists.",
+    "code": "slow = fast = head\nwhile fast and fast.next:\n    slow = slow.next\n    fast = fast.next.next\n    if slow is fast:\n        return True\nreturn False"
+   },
+   {
+    "name": "Find the cycle entry",
+    "description": "After the meeting, step from the head and the meeting point at the same pace.",
+    "code": "slow = head\nwhile slow is not fast:\n    slow = slow.next\n    fast = fast.next\nreturn slow"
+   },
+   {
+    "name": "Hash set detection",
+    "description": "Remember every visited node and stop on a repeat.",
+    "code": "seen = set()\ncur = head\nwhile cur:\n    if cur in seen:\n        return True\n    seen.add(cur)\n    cur = cur.next\nreturn False"
+   },
+   {
+    "name": "Undirected cycle detection via DFS",
+    "description": "Track the parent of each node so the tree edge is not misread as a back edge.",
+    "code": "def has_cycle_undirected(g):\n    visited = [False] * len(g)\n    def dfs(u, parent):\n        visited[u] = True\n        for v in g[u]:\n            if not visited[v]:\n                if dfs(v, u):\n                    return True\n            elif v != parent:\n                return True\n        return False\n    for u in range(len(g)):\n        if not visited[u] and dfs(u, -1):\n            return True\n    return False"
+   },
+   {
+    "name": "Directed cycle detection with 3 colors",
+    "description": "A gray (in-stack) neighbor signals a cycle in directed graphs.",
+    "code": "def has_cycle_directed(g):\n    WHITE, GRAY, BLACK = 0, 1, 2\n    state = [WHITE] * len(g)\n    def dfs(u):\n        state[u] = GRAY\n        for v in g[u]:\n            if state[v] == GRAY:\n                return True\n            if state[v] == WHITE and dfs(v):\n                return True\n        state[u] = BLACK\n        return False\n    return any(dfs(u) for u in range(len(g)) if state[u] == WHITE)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Detect a cycle in a linked list",
+    "problem": "Given a list where node 3 points back to node 2, determine if a cycle exists.",
+    "input": "1 -> 2 -> 3 -> 2 (cycle)",
+    "output": "True",
+    "explanation": "The fast pointer laps the slow pointer inside the loop, proving a cycle exists.",
+    "steps": [
+     "Start slow and fast at the head.",
+     "Advance slow by one and fast by two each iteration.",
+     "If they point to the same node, return True.",
+     "If fast hits None, return False."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(1)"
+    }
+   },
+   {
+    "title": "Detecting a cycle in an undirected graph",
+    "problem": "Graph with edges (0,1),(1,2),(2,0) forms a triangle.",
+    "input": "g = [[1,2],[0,2],[0,1]]",
+    "output": "True (a cycle exists)",
+    "explanation": "DFS from 0 visits 1 then 2; when 2 looks at its neighbor 0, 0 is visited and is not the parent, proving a cycle.",
+    "steps": [
+     "Start DFS at 0 with parent -1.",
+     "Visit 1 with parent 0, then 2 with parent 1.",
+     "From 2, neighbor 0 is already visited and not the parent.",
+     "This back edge closes the cycle, so return True."
+    ],
+    "complexity": {
+     "time": "O(V + E)",
+     "space": "O(V)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Calling fast.next.next without confirming fast and fast.next exist.",
+    "fix": "Loop while fast and fast.next are both non-null before advancing."
+   },
+   {
+    "mistake": "Comparing node values instead of node identity to detect a cycle.",
+    "fix": "Compare the pointer references themselves with is, since values can repeat legitimately."
+   },
+   {
+    "mistake": "Stopping at the meeting point instead of continuing to find the entry node.",
+    "fix": "After the meet, run the second phase from the head to locate the cycle entry."
+   },
+   {
+    "mistake": "In undirected graphs, flagging the edge back to the parent as a cycle.",
+    "fix": "Pass the parent and ignore the visited neighbor only when it equals the parent."
+   },
+   {
+    "mistake": "Using only a visited boolean for directed graphs, which misses cycles reachable from a later DFS root.",
+    "fix": "Track a separate 'in stack' state and reset it on backtracking."
+   },
+   {
+    "mistake": "Forgetting that self-loops and duplicate edges count as cycles in some problems.",
+    "fix": "Decide how the problem defines edges and handle self-loops explicitly."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Linked List Cycle",
+    "slug": "linked-list-cycle",
+    "difficulty": "easy",
+    "description": "Given the head of a linked list, determine whether the list contains a cycle.",
+    "constraints": "0 to 10^4 nodes.",
+    "hints": [
+     "Use two pointers moving at different speeds.",
+     "They must collide inside any cycle.",
+     "If a pointer reaches None, there is no cycle."
+    ],
+    "approach": "Run Floyd's algorithm and check whether the two pointers meet.",
+    "pattern": "Floyd's cycle detection",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Move slow one step and fast two steps per iteration. If they ever coincide, a cycle exists; if fast hits None, the list is acyclic.",
+    "tags": [
+     "linked list",
+     "two pointers",
+     "cycle detection"
+    ]
+   },
+   {
+    "name": "Linked List Cycle II",
+    "slug": "linked-list-cycle-ii",
+    "difficulty": "medium",
+    "description": "Given the head of a linked list, return the node where the cycle begins, or null if there is no cycle.",
+    "constraints": "0 to 10^4 nodes.",
+    "hints": [
+     "First detect the meeting point with Floyd's method.",
+     "From the meeting point, walk with a pointer starting at the head.",
+     "The two pointers meet exactly at the cycle entry."
+    ],
+    "approach": "Detect the meeting point, then run the second phase to find where the cycle starts.",
+    "pattern": "Floyd's cycle detection",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Find the meeting point via slow and fast. Then reset slow to head and advance both pointers one step at a time; their collision node is the cycle's entry.",
+    "tags": [
+     "linked list",
+     "two pointers",
+     "cycle detection"
+    ]
+   },
+   {
+    "name": "Circular Array Loop",
+    "slug": "circular-array-loop",
+    "difficulty": "medium",
+    "description": "Determine whether an array contains a circular loop: a cycle of same-direction moves with length greater than 1.",
+    "constraints": "1 to 5000 elements; each value is nonzero.",
+    "hints": [
+     "Each index jumps to (i + nums[i]) mod n, forming a functional graph.",
+     "Only nodes that all move in the same direction can form a valid loop.",
+     "Mark visited indices so each starting point is scanned once."
+    ],
+    "approach": "Treat the array as a functional graph and simulate walks, pruning visited positions and rejecting mixed directions.",
+    "pattern": "Graph traversal with cycle detection",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "For each unvisited index, follow moves, requiring every step to share the jump's sign, and detect a revisit. A self-loop (length 1) is invalid; a revisit to the start with length greater than 1 is a valid loop.",
+    "tags": [
+     "array",
+     "cycle detection",
+     "simulation"
+    ]
+   },
+   {
+    "name": "Course Schedule",
+    "slug": "course-schedule",
+    "difficulty": "medium",
+    "description": "Given numCourses and prerequisites, return whether it is possible to finish all courses.",
+    "constraints": "1 <= numCourses <= 2000; prerequisites list edges.",
+    "hints": [
+     "A valid schedule exists iff the prerequisite graph is acyclic.",
+     "Detect a directed cycle with DFS or Kahn's algorithm."
+    ],
+    "approach": "Build the graph of prerequisites and detect a directed cycle using DFS with recursion state.",
+    "pattern": "Cycle detection",
+    "time": "O(V + E)",
+    "space": "O(V + E)",
+    "solution": "Model each course as a node and prerequisites as directed edges u -> v meaning u must come before v. Run DFS with three states (unvisited, on stack, done). If a neighbor is on the current DFS stack, a cycle exists and the answer is false; otherwise true.",
+    "tags": [
+     "graph",
+     "dfs",
+     "topological-sort"
+    ]
+   },
+   {
+    "name": "Redundant Connection",
+    "slug": "redundant-connection",
+    "difficulty": "medium",
+    "description": "Given edges of an n-node graph that is a tree plus one extra edge, return the extra edge that creates a cycle.",
+    "constraints": "n in [3, 1000]; exactly one extra edge.",
+    "hints": [
+     "Process edges with DSU; the edge whose endpoints are already connected is redundant.",
+     "Return the last such edge for 1-indexed inputs."
+    ],
+    "approach": "Union endpoints edge by edge; the first edge whose endpoints share a root is the redundant one.",
+    "pattern": "Disjoint Set Union (DSU)",
+    "time": "O(E * alpha(V))",
+    "space": "O(V)",
+    "solution": "Initialize DSU with n nodes. Iterate the edges in order; for each edge, find the roots of both endpoints. If they already share a root, this edge closes a cycle and is the answer. Otherwise union the two sets. Because there is exactly one extra edge, this edge is unique.",
+    "tags": [
+     "union-find",
+     "graph",
+     "cycle"
+    ]
+   },
+   {
+    "name": "Find Eventual Safe States",
+    "slug": "find-eventual-safe-states",
+    "difficulty": "medium",
+    "description": "Given a directed graph, return all nodes that are eventual safe states (nodes from which every path terminates at a terminal node).",
+    "constraints": "n in [1, 10000]; graph[i] is the list of outgoing edges.",
+    "hints": [
+     "Safe nodes are those not part of any cycle.",
+     "Use three-state DFS to detect nodes that lead to cycles."
+    ],
+    "approach": "Three-color DFS: nodes that never reach a cycle are safe.",
+    "pattern": "Cycle detection",
+    "time": "O(V + E)",
+    "space": "O(V)",
+    "solution": "Run DFS with colors 0 (unvisited), 1 (on stack), 2 (finished and safe). A node is unsafe if any neighbor is on the stack (cycle) or is itself unsafe. After all neighbors resolve to safe, mark the node safe. Return all nodes colored 2 in sorted order.",
+    "tags": [
+     "graph",
+     "dfs",
+     "topological-sort"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "merge-linked-lists",
+  "name": "Merge linked lists",
+  "difficulty": "medium",
+  "overview": "Merging linked lists combines two or more sorted lists into one sorted sequence, or splices one list into another. A dummy head node makes edge cases such as empty lists trivial to handle.",
+  "why": "Merging is the core of merge sort and a common building block in interview problems, from merging two lists to merging k lists with a heap.",
+  "when": "Reach for merging when inputs are sorted lists that must combine into one sorted output, or when a problem asks to interleave or splice two linked structures.",
+  "complexity": {
+   "time": "O(n + m) for two lists, O(n log k) with a heap for k lists",
+   "space": "O(1) for iterative two-list merge, O(k) for the heap"
+  },
+  "concepts": [
+   {
+    "name": "Dummy head",
+    "description": "A sentinel node whose next becomes the result head, removing empty-list special cases."
+   },
+   {
+    "name": "Two-pointer merge",
+    "description": "Advance the smaller head repeatedly, appending it to the merged tail."
+   },
+   {
+    "name": "K-way merge",
+    "description": "Combine k sorted lists using a min-heap of heads or divide and conquer."
+   },
+   {
+    "name": "Tail pointer",
+    "description": "Tracks the end of the output list to append in O(1) time."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Merge two sorted lists",
+    "description": "Compare heads and append the smaller one.",
+    "code": "dummy = tail = Node(0)\nwhile l1 and l2:\n    if l1.val < l2.val:\n        tail.next, l1 = l1, l1.next\n    else:\n        tail.next, l2 = l2, l2.next\n    tail = tail.next\ntail.next = l1 or l2\nreturn dummy.next"
+   },
+   {
+    "name": "K-way merge with a heap",
+    "description": "Push each list head into a min-heap and pop the smallest.",
+    "code": "import heapq\nheap = [(l.val, i, l) for i, l in enumerate(lists) if l]; heapq.heapify(heap)\ndummy = tail = Node(0)\nwhile heap:\n    _, _, node = heapq.heappop(heap)\n    tail.next = node\n    tail = tail.next\n    if node.next:\n        heapq.heappush(heap, (node.next.val, 0, node.next))\nreturn dummy.next"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Merge two sorted lists",
+    "problem": "Merge 1 -> 3 -> 5 and 2 -> 4 into a single sorted list.",
+    "input": "1 -> 3 -> 5 and 2 -> 4",
+    "output": "1 -> 2 -> 3 -> 4 -> 5",
+    "explanation": "Repeatedly attach the smaller current node of the two lists until one is exhausted, then append the remainder.",
+    "steps": [
+     "Create a dummy node and a tail pointer.",
+     "While both lists have nodes, append the smaller head.",
+     "Append whichever list still has nodes.",
+     "Return dummy.next."
+    ],
+    "complexity": {
+     "time": "O(n + m)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Returning the dummy node instead of dummy.next.",
+    "fix": "Always return dummy.next, the first real node of the merged result."
+   },
+   {
+    "mistake": "Forgetting to append the leftover tail of the non-empty list.",
+    "fix": "After the main loop, attach tail.next = l1 or l2 to consume the remainder."
+   },
+   {
+    "mistake": "Pushing tuples into a heap without a tiebreaker when values are equal.",
+    "fix": "Include an index in the heap tuple so comparisons never touch list nodes."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Merge Two Sorted Lists",
+    "slug": "merge-two-sorted-lists",
+    "difficulty": "easy",
+    "description": "Merge two sorted linked lists into one sorted linked list and return its head.",
+    "constraints": "0 to 50 nodes in each list; sorted in non-decreasing order.",
+    "hints": [
+     "Use a dummy node for the result.",
+     "Compare the two current heads each step.",
+     "Attach the remaining tail when one list ends."
+    ],
+    "approach": "Walk both lists with a tail pointer, always appending the smaller current node.",
+    "pattern": "Two-pointer merge",
+    "time": "O(n + m)",
+    "space": "O(1)",
+    "solution": "Create a dummy head. While both lists are non-empty, attach the smaller head to the tail and advance. When one list empties, attach the other's remainder. Return dummy.next.",
+    "tags": [
+     "linked list",
+     "merge",
+     "two pointers"
+    ]
+   },
+   {
+    "name": "Merge k Sorted Lists",
+    "slug": "merge-k-sorted-lists",
+    "difficulty": "hard",
+    "description": "Merge k sorted linked lists into one sorted linked list.",
+    "constraints": "0 <= k <= 10^4; total nodes <= 10^4.",
+    "hints": [
+     "A min-heap over the k current heads works in O(n log k).",
+     "Pop the smallest, append it, and push its successor.",
+     "Skip empty lists when seeding the heap."
+    ],
+    "approach": "Use a min-heap of the current heads, repeatedly extracting the minimum.",
+    "pattern": "K-way merge",
+    "time": "O(n log k)",
+    "space": "O(k)",
+    "solution": "Push all non-null heads into a heap keyed by value. Pop the minimum, append to the merged tail, and push that node's next if it exists. Repeat until the heap is empty.",
+    "tags": [
+     "linked list",
+     "merge",
+     "heap"
+    ]
+   },
+   {
+    "name": "Sort List",
+    "slug": "sort-list",
+    "difficulty": "medium",
+    "description": "Sort a linked list in O(n log n) time using constant extra space.",
+    "constraints": "1 to 5 x 10^4 nodes.",
+    "hints": [
+     "Merge sort works well on linked lists.",
+     "Find the middle with fast and slow pointers.",
+     "Merge the two sorted halves with the two-pointer merge."
+    ],
+    "approach": "Split the list at the middle, recursively sort each half, then merge them.",
+    "pattern": "Merge sort",
+    "time": "O(n log n)",
+    "space": "O(log n) recursion",
+    "solution": "Base case: empty or single node. Find the midpoint with fast-slow, cut the list, sort both halves recursively, and merge with the standard linked list merge.",
+    "tags": [
+     "linked list",
+     "merge sort",
+     "divide and conquer"
+    ]
+   },
+   {
+    "name": "Merge In Between Linked Lists",
+    "slug": "merge-in-between-linked-lists",
+    "difficulty": "medium",
+    "description": "Remove nodes from index a to b of list1 and insert list2 in their place.",
+    "constraints": "1 <= a <= b < length of list1.",
+    "hints": [
+     "Find the node just before a and the node at index b.",
+     "Find the tail of list2.",
+     "Rewire the two boundary pointers."
+    ],
+    "approach": "Locate the boundaries, find list2's tail, then splice list2 between the two boundary nodes.",
+    "pattern": "List splicing",
+    "time": "O(n + m)",
+    "space": "O(1)",
+    "solution": "Walk list1 to the node before a and the node at b. Walk list2 to its tail. Link the a-predecessor to list2, list2's tail to the node after b, and return list1's head.",
+    "tags": [
+     "linked list",
+     "splicing"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "lru-cache",
+  "name": "LRU Cache",
+  "difficulty": "hard",
+  "overview": "An LRU (Least Recently Used) cache evicts the least recently accessed entry when capacity is exceeded. It is implemented with a hash map for O(1) lookup combined with a doubly linked list to track access recency.",
+  "why": "LRU caching is a canonical system-design and data-structure interview question testing your ability to combine two structures for O(1) get and put.",
+  "when": "Use an LRU-style structure whenever you need fast lookup plus ordered eviction, such as caches, recent-history lists, or priority tiers.",
+  "complexity": {
+   "time": "O(1) for both get and put",
+   "space": "O(capacity)"
+  },
+  "concepts": [
+   {
+    "name": "Hash map of nodes",
+    "description": "Maps keys directly to list nodes so any entry is reachable in O(1)."
+   },
+   {
+    "name": "Recency order",
+    "description": "The doubly linked list keeps the most recent entry at the head and the least recent at the tail."
+   },
+   {
+    "name": "Eviction",
+    "description": "When full, the tail node is removed because it was least recently used."
+   },
+   {
+    "name": "Move to front",
+    "description": "Any get or put reinserts the touched node at the head, updating recency."
+   },
+   {
+    "name": "Sentinel head and tail",
+    "description": "Dummy boundary nodes that make insertion and removal edge cases uniform."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Remove a node",
+    "description": "Unlink a node from the doubly linked list in O(1).",
+    "code": "# unlink node from the doubly linked list\nnode.prev.next = node.next\nnode.next.prev = node.prev"
+   },
+   {
+    "name": "Add to front",
+    "description": "Insert a node right after the head sentinel.",
+    "code": "node.next = head.next\nnode.prev = head\nhead.next.prev = node\nhead.next = node"
+   },
+   {
+    "name": "Evict the tail",
+    "description": "Drop the node before the tail sentinel when capacity is reached.",
+    "code": "last = tail.prev\nlast.prev.next = tail\ntail.prev = last.prev\nreturn last"
+   }
+  ],
+  "examples": [
+   {
+    "title": "LRU cache with capacity 2",
+    "problem": "Put (1,1), put (2,2), get(1), put (3,3) which evicts the least recently used.",
+    "input": "put(1,1), put(2,2), get(1) -> 1, put(3,3), get(2)",
+    "output": "get(1) = 1, get(2) = -1",
+    "explanation": "After getting 1, key 1 becomes most recent. Adding key 3 overflows the cache, so the least recently used key 2 is evicted.",
+    "steps": [
+     "Insert key 1, making it the most recent.",
+     "Insert key 2; list order is 2, 1.",
+     "Get key 1 moves it to the front: 1, 2.",
+     "Insert key 3 evicts the tail key 2.",
+     "Get key 2 returns -1."
+    ],
+    "complexity": {
+     "time": "O(1) per operation",
+     "space": "O(capacity)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Updating only the hash map without maintaining list order.",
+    "fix": "Every get and put must call remove plus add-to-front so recency stays accurate."
+   },
+   {
+    "mistake": "Evicting before checking whether the key already exists in a put.",
+    "fix": "On put, first check the map: update an existing node, otherwise evict only when over capacity."
+   },
+   {
+    "mistake": "Leaving stale keys in the map after eviction.",
+    "fix": "Always pop the evicted key from the hash map at the same time you unlink its node."
+   }
+  ],
+  "problems": [
+   {
+    "name": "LRU Cache",
+    "slug": "lru-cache",
+    "difficulty": "medium",
+    "description": "Design an LRU cache with O(1) get and put, evicting the least recently used key when at capacity.",
+    "constraints": "1 <= capacity <= 3000; up to 2 x 10^5 calls.",
+    "hints": [
+     "Pair a dict of key to node with a doubly linked list.",
+     "Move a touched node to the front on every access.",
+     "Evict the node just before the tail sentinel."
+    ],
+    "approach": "Combine a hash map with a doubly linked list using head and tail sentinels.",
+    "pattern": "Hash map plus doubly linked list",
+    "time": "O(1)",
+    "space": "O(capacity)",
+    "solution": "Store each key's node in a dict. On get, move the node to the front and return its value. On put, update or insert the node at the front and, if over capacity, remove the tail node and its dict entry.",
+    "tags": [
+     "design",
+     "hash map",
+     "doubly linked list",
+     "cache"
+    ]
+   },
+   {
+    "name": "LFU Cache",
+    "slug": "lfu-cache",
+    "difficulty": "hard",
+    "description": "Design a cache that evicts the least frequently used key, breaking ties by least recently used.",
+    "constraints": "1 <= capacity <= 10^4; up to 2 x 10^5 calls.",
+    "hints": [
+     "Keep a frequency counter per key and a list of nodes per frequency.",
+     "Use linked lists per frequency so insertion and removal are O(1).",
+     "Track the minimum frequency currently in use."
+    ],
+    "approach": "Maintain frequency buckets, each a linked list, plus a key-to-node map and a running min frequency.",
+    "pattern": "Frequency buckets with linked lists",
+    "time": "O(1)",
+    "space": "O(capacity)",
+    "solution": "Each key maps to a node holding value, frequency, and a list position. A dict of frequency to doubly linked list keeps order per level. On access, bump the node to the next frequency list; on overflow, evict from the smallest non-empty frequency bucket's tail.",
+    "tags": [
+     "design",
+     "cache",
+     "linked list"
+    ]
+   },
+   {
+    "name": "Maximum Frequency Stack",
+    "slug": "maximum-frequency-stack",
+    "difficulty": "hard",
+    "description": "Design a stack that pops the most frequent element, breaking ties by most recently pushed.",
+    "constraints": "Up to 2 x 10^4 calls.",
+    "hints": [
+     "Group elements by frequency using stacks.",
+     "Pop from the highest-frequency group.",
+     "Track the current maximum frequency."
+    ],
+    "approach": "Keep a map from frequency to a stack of elements plus a per-element frequency counter.",
+    "pattern": "Frequency buckets with stacks",
+    "time": "O(1) per operation",
+    "space": "O(n)",
+    "solution": "Maintain freq dict per value and stacks dict per frequency. Push appends to the stack of the value's incremented frequency; pop removes from the highest non-empty frequency stack and decrements the counter.",
+    "tags": [
+     "design",
+     "stack",
+     "frequency"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "linked-list",
+  "name": "Linked List",
+  "difficulty": "easy",
+  "overview": "A linked list is a linear collection of nodes, each holding a value and one or more references to neighboring nodes. Unlike arrays, it has no fixed capacity, and insertions or deletions avoid shifting elements.",
+  "why": "Linked list questions dominate entry-level interviews because they test pointer intuition, recursion, and careful edge handling. Understanding the category unlocks dozens of classic problems.",
+  "when": "Consider a linked list whenever you need frequent insert or delete operations without reallocation, or when a problem statement hands you a node-based structure explicitly.",
+  "complexity": {
+   "time": "O(n) index access, O(1) insert or delete at a known node",
+   "space": "O(n) storage with one extra reference per node"
+  },
+  "concepts": [
+   {
+    "name": "Node and pointer",
+    "description": "The atomic unit: a value plus a reference to the next (and optionally previous) node."
+   },
+   {
+    "name": "Variants",
+    "description": "Singly, doubly, and circular lists differ by how many links each node carries."
+   },
+   {
+    "name": "Dummy head",
+    "description": "A sentinel that removes special handling for empty lists and head edits."
+   },
+   {
+    "name": "Traversal",
+    "description": "Following next pointers is the only way to reach a node, making access sequential."
+   },
+   {
+    "name": "In-place mutation",
+    "description": "Most problems rewire existing nodes instead of allocating fresh structures."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Dummy head",
+    "description": "Prepend a sentinel to simplify removals at the head.",
+    "code": "dummy = Node(0)\ndummy.next = head\nprev = dummy\nwhile prev.next:\n    if condition(prev.next):\n        prev.next = prev.next.next\n    else:\n        prev = prev.next\nreturn dummy.next"
+   },
+   {
+    "name": "Two pointers",
+    "description": "Keep a fast and a slow pointer to find middles, cycles, or positions from the end.",
+    "code": "slow = fast = head\nwhile fast and fast.next:\n    slow = slow.next\n    fast = fast.next.next"
+   },
+   {
+    "name": "Recursion on lists",
+    "description": "Process the tail recursively and combine with the head.",
+    "code": "def solve(head):\n    if not head or not head.next:\n        return head\n    rest = solve(head.next)\n    # combine result with head\n    return rest"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Intersection of two lists",
+    "problem": "Find the node where two singly linked lists converge, or None if they never meet.",
+    "input": "4 -> 1 -> 8 -> 4 -> 5 and 5 -> 6 -> 1 -> 8 -> 4 -> 5",
+    "output": "Node 8",
+    "explanation": "Walk both pointers and swap lists at the end of each; they align at the shared suffix.",
+    "steps": [
+     "Start a and b at both heads.",
+     "Advance both; when one hits None, restart it at the other list's head.",
+     "The pointers meet at the intersection node.",
+     "If no intersection exists, both reach None together."
+    ],
+    "complexity": {
+     "time": "O(n + m)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Assuming O(1) random access the way arrays provide.",
+    "fix": "Plan for linear scans; if random access matters, the linked list is the wrong structure."
+   },
+   {
+    "mistake": "Not using a dummy head, causing special-case branches for head edits.",
+    "fix": "Introduce a dummy node so every mutation follows one uniform path."
+   },
+   {
+    "mistake": "Overwriting a pointer before the old target is saved.",
+    "fix": "Store any needed successor (or predecessor) in a temporary variable first."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Add Two Numbers",
+    "slug": "add-two-numbers",
+    "difficulty": "medium",
+    "description": "Given two linked lists representing non-negative integers in reverse order, return their sum as a linked list.",
+    "constraints": "1 to 100 nodes per list; no leading zeros.",
+    "hints": [
+     "The lists are reversed, so adding left to right works like normal addition.",
+     "Track a carry across positions.",
+     "Handle lists of unequal length by treating missing digits as zero."
+    ],
+    "approach": "Traverse both lists simultaneously, summing digits plus carry, and build the result with a dummy head.",
+    "pattern": "Traversal with carry",
+    "time": "O(max(n, m))",
+    "space": "O(max(n, m)) for the result",
+    "solution": "Iterate while either list or the carry remains. Sum the two digits plus carry, create a node with the unit digit, carry the tens digit, and append via a tail pointer.",
+    "tags": [
+     "linked list",
+     "math",
+     "simulation"
+    ]
+   },
+   {
+    "name": "Intersection of Two Linked Lists",
+    "slug": "intersection-of-two-linked-lists",
+    "difficulty": "easy",
+    "description": "Given two singly linked lists, return the node where they intersect or null if they do not.",
+    "constraints": "Lists share no nodes before the intersection.",
+    "hints": [
+     "Compute or equalize the lengths of both lists.",
+     "Alternatively, swap pointers at list ends so they align.",
+     "The meeting node is the intersection."
+    ],
+    "approach": "Advance the longer list first, then walk both in step and compare identity.",
+    "pattern": "Two pointers",
+    "time": "O(n + m)",
+    "space": "O(1)",
+    "solution": "Measure both lengths, skip the difference on the longer list, then advance both until they reference the same node. The node where they agree is the intersection.",
+    "tags": [
+     "linked list",
+     "two pointers"
+    ]
+   },
+   {
+    "name": "Odd Even Linked List",
+    "slug": "odd-even-linked-list",
+    "difficulty": "medium",
+    "description": "Reorder a list so all odd-indexed nodes come first, followed by even-indexed nodes, preserving relative order.",
+    "constraints": "1 to 10^4 nodes; must run in O(n) time and O(1) space.",
+    "hints": [
+     "Maintain separate odd and even chains.",
+     "Append each node to the appropriate chain by index.",
+     "Join the even chain after the odd chain at the end."
+    ],
+    "approach": "Relink the list into two chains based on index parity and connect them.",
+    "pattern": "List re-partitioning",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Keep odd and even head/tail pointers. Alternate appending nodes, then link oddTail.next to evenHead and clear evenTail.next.",
+    "tags": [
+     "linked list",
+     "reordering"
+    ]
+   },
+   {
+    "name": "Convert Binary Number in a Linked List to Integer",
+    "slug": "convert-binary-number-in-a-linked-list-to-integer",
+    "difficulty": "easy",
+    "description": "Given a linked list whose values are bits of a binary number, return its decimal value.",
+    "constraints": "1 to 30 nodes; each value is 0 or 1.",
+    "hints": [
+     "Use Horner's method: result = result * 2 + bit.",
+     "Process bits from most significant (head) to least significant.",
+     "The head is the most significant bit."
+    ],
+    "approach": "Scan once, accumulating the value with each bit.",
+    "pattern": "Traversal",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Set result = 0. For each node, result = result * 2 + node.val. Return result after the traversal.",
+    "tags": [
+     "linked list",
+     "math",
+     "bit manipulation"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "stack",
+  "name": "Stack",
+  "difficulty": "easy",
+  "overview": "A stack is a LIFO (last-in-first-out) data structure supporting push, pop, and top operations in O(1) time. It models last action first, making it natural for nested structures, undo systems, and parsing.",
+  "why": "Stack problems test your ability to model order and nesting, from matching parentheses to evaluating expressions to simulating call stacks.",
+  "when": "Use a stack whenever you must reverse order, resolve nesting or balancing, keep a history of recent states, or process something inside-out.",
+  "complexity": {
+   "time": "O(1) push, pop, and top",
+   "space": "O(n) for n stored elements"
+  },
+  "concepts": [
+   {
+    "name": "LIFO order",
+    "description": "The most recently pushed element is the first one popped."
+   },
+   {
+    "name": "Push and pop",
+    "description": "Push adds to the top; pop removes from the top in O(1)."
+   },
+   {
+    "name": "Peek",
+    "description": "Inspect the top element without removing it."
+   },
+   {
+    "name": "Call-stack simulation",
+    "description": "Using an explicit stack to mimic recursion, avoiding deep recursion limits."
+   },
+   {
+    "name": "Monotonic stacks",
+    "description": "A stack that keeps values sorted as it pushes, used for next-greater style queries."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Push and pop loop",
+    "description": "Scan input and react based on the top of the stack.",
+    "code": "stack = []\nfor x in seq:\n    if should_push(x, stack):\n        stack.append(x)\n    elif stack:\n        stack.pop()\n    else:\n        return False"
+   },
+   {
+    "name": "Min stack",
+    "description": "Track the running minimum alongside each pushed value.",
+    "code": "stack = []\nfor x in values:\n    minimum = x if not stack else min(x, stack[-1][1])\n    stack.append((x, minimum))"
+   },
+   {
+    "name": "Reverse with a stack",
+    "description": "Push everything, then pop to reverse order.",
+    "code": "stack = list(seq)\nreversed_seq = []\nwhile stack:\n    reversed_seq.append(stack.pop())"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Min stack",
+    "problem": "Support push, pop, top, and getMin all in O(1) time.",
+    "input": "push(2), push(1), getMin(), push(0), getMin()",
+    "output": "getMin() = 1, then getMin() = 0",
+    "explanation": "Storing the minimum at each push keeps getMin available even after pops remove the current minimum.",
+    "steps": [
+     "Push a pair (value, current min) for every element.",
+     "After push(2): stack is [(2, 2)].",
+     "After push(1): stack is [(2, 2), (1, 1)], min is 1.",
+     "getMin returns the top pair's min; a later push of 0 makes it 0."
+    ],
+    "complexity": {
+     "time": "O(1) per operation",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Peeking or popping from an empty stack and crashing.",
+    "fix": "Guard with if stack: before accessing stack[-1] or stack.pop()."
+   },
+   {
+    "mistake": "Using a stack when FIFO order is actually required.",
+    "fix": "Confirm the processing order; use a queue if first-in must be first-out."
+   },
+   {
+    "mistake": "Only storing values in a min stack instead of the paired minimum.",
+    "fix": "Store (value, min_so_far) so getMin survives arbitrary pops."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Min Stack",
+    "slug": "min-stack",
+    "difficulty": "medium",
+    "description": "Design a stack that supports push, pop, top, and getMin, all in constant time.",
+    "constraints": "Up to 3 x 10^4 calls.",
+    "hints": [
+     "Store pairs of (value, minimum so far).",
+     "The minimum after any push is min(prev min, new value).",
+     "getMin reads the top pair's min."
+    ],
+    "approach": "Each stack entry carries the minimum of all elements below and including it.",
+    "pattern": "Min tracking stack",
+    "time": "O(1)",
+    "space": "O(n)",
+    "solution": "Push (val, min(val, top_min)). getMin returns stack[-1][1]; pop discards the top pair, restoring the previous minimum automatically.",
+    "tags": [
+     "stack",
+     "design"
+    ]
+   },
+   {
+    "name": "Evaluate Reverse Polish Notation",
+    "slug": "evaluate-reverse-polish-notation",
+    "difficulty": "medium",
+    "description": "Evaluate an arithmetic expression in reverse Polish notation using integer arithmetic.",
+    "constraints": "Operands are integers; operators are +, -, *, / (truncated toward zero).",
+    "hints": [
+     "Push numbers onto a stack.",
+     "On an operator, pop two operands and push the result.",
+     "The final stack top is the answer."
+    ],
+    "approach": "Process tokens left to right, using a stack for operands.",
+    "pattern": "Stack simulation",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "For each token, push if numeric; otherwise pop b and a, apply the operator, and push the result. Integer division must truncate toward zero using int(a / b).",
+    "tags": [
+     "stack",
+     "expression evaluation"
+    ]
+   },
+   {
+    "name": "Simplify Path",
+    "slug": "simplify-path",
+    "difficulty": "medium",
+    "description": "Return the canonical absolute path for a Unix-style path string.",
+    "constraints": "1 to 3000 characters; path starts with a slash.",
+    "hints": [
+     "Split the path on slashes.",
+     "Push meaningful directory names; pop on '..'.",
+     "Ignore empty parts and '.'."
+    ],
+    "approach": "Use a stack of directory names, popping on each '..' component.",
+    "pattern": "Stack simulation",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Split the path, and for each part: ignore '' and '.', pop on '..', otherwise push. Join the stack with '/' prefixed by a leading slash.",
+    "tags": [
+     "stack",
+     "string"
+    ]
+   },
+   {
+    "name": "Decode String",
+    "slug": "decode-string",
+    "difficulty": "medium",
+    "description": "Decode a string where k[encoded] means the content repeated k times, possibly nested.",
+    "constraints": "Input is always valid; digits only precede brackets.",
+    "hints": [
+     "Keep stacks for counts and partial results.",
+     "On ']', repeat the current string k times and merge with the parent level.",
+     "Track the number being read before '['."
+    ],
+    "approach": "Use a count stack and a string stack to process nested repeats.",
+    "pattern": "Stack simulation",
+    "time": "O(total decoded length)",
+    "space": "O(total decoded length)",
+    "solution": "Push (count, current_string) on '[' and reset. On ']', pop and repeat the current chunk k times, appending to the restored string. Digits accumulate into the next count.",
+    "tags": [
+     "stack",
+     "string",
+     "recursion"
+    ]
+   },
+   {
+    "name": "Asteroid Collision",
+    "slug": "asteroid-collision",
+    "difficulty": "medium",
+    "description": "Given asteroids moving left or right, simulate collisions where the smaller one explodes.",
+    "constraints": "Asteroids are nonzero integers; sign indicates direction.",
+    "hints": [
+     "Only a right-moving asteroid followed by a left-moving one can collide.",
+     "Use a stack to hold surviving asteroids.",
+     "On collision, keep the larger; equal sizes destroy both."
+    ],
+    "approach": "Push each asteroid, resolving collisions against the stack top when it moves right and the new one moves left.",
+    "pattern": "Stack simulation",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "For each asteroid, while the stack top is positive and the current is negative, compare magnitudes: pop if current wins, destroy current if stack wins, and break the loop on a tie. Otherwise push the current asteroid.",
+    "tags": [
+     "stack",
+     "simulation",
+     "array"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "queue",
+  "name": "Queue",
+  "difficulty": "easy",
+  "overview": "A queue is a FIFO (first-in-first-out) data structure where elements are added at the rear and removed from the front. Operations are O(1), making it ideal for processing items in arrival order.",
+  "why": "Queues underlie breadth-first search, task scheduling, streaming buffers, and rate limiting. Queue design questions verify that you can preserve order and handle capacity correctly.",
+  "when": "Use a queue whenever you must process items in the exact order they arrive, or when simulating waiting lines, BFS layers, or windowed streams.",
+  "complexity": {
+   "time": "O(1) enqueue and dequeue",
+   "space": "O(n) for n stored elements"
+  },
+  "concepts": [
+   {
+    "name": "FIFO order",
+    "description": "The earliest enqueued element is dequeued first."
+   },
+   {
+    "name": "Front and rear",
+    "description": "Enqueue adds at the rear; dequeue removes from the front."
+   },
+   {
+    "name": "BFS layer processing",
+    "description": "Dequeueing in order gives level-by-level exploration in graph searches."
+   },
+   {
+    "name": "Streaming windows",
+    "description": "A queue naturally drops the oldest element as a sliding window advances."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "BFS skeleton",
+    "description": "Enqueue the start, then process neighbors in arrival order.",
+    "code": "q = deque([start])\nwhile q:\n    node = q.popleft()\n    for nxt in neighbors(node):\n        if not visited[nxt]:\n            visited[nxt] = True\n            q.append(nxt)"
+   },
+   {
+    "name": "Sliding window queue",
+    "description": "Enqueue each new item and dequeue items leaving the window.",
+    "code": "for x in stream:\n    q.append(x)\n    if len(q) > k:\n        q.popleft()\n    process(q)"
+   },
+   {
+    "name": "Queue with two stacks",
+    "description": "Use one stack for enqueue and the other for dequeue.",
+    "code": "def push(x):\n    inbox.append(x)\ndef pop():\n    if not outbox:\n        while inbox:\n            outbox.append(inbox.pop())\n    return outbox.pop()"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Moving average",
+    "problem": "Compute the moving average of the last k elements in a data stream.",
+    "input": "window 3: 1, 10, 3, 5",
+    "output": "1, 5.5, 4.67, 6",
+    "explanation": "Keep a queue of the current window; when it exceeds k, evict the oldest before averaging.",
+    "steps": [
+     "Append each new value and add it to a running sum.",
+     "If the queue holds more than k values, pop the front and subtract it.",
+     "Return the running sum divided by the queue length."
+    ],
+    "complexity": {
+     "time": "O(1) per element",
+     "space": "O(k)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Popping from the wrong end, turning the queue into a stack.",
+    "fix": "Enqueue at the rear and dequeue from the front, never both at the same end."
+   },
+   {
+    "mistake": "Forgetting to remove elements leaving a sliding window.",
+    "fix": "Compare the queue front against the window bounds or enforce a maximum size."
+   },
+   {
+    "mistake": "Using recursion where a queue-based BFS would be simpler and safer.",
+    "fix": "For level-order and shortest-path-by-edges problems, prefer an explicit queue."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Number of Recent Calls",
+    "slug": "number-of-recent-calls",
+    "difficulty": "easy",
+    "description": "Count the number of ping calls made in the last 3000 milliseconds, inclusive.",
+    "constraints": "Timestamps are strictly increasing.",
+    "hints": [
+     "Pings arrive in increasing order, so old ones leave permanently.",
+     "Keep a queue of recent pings.",
+     "Evict from the front while they fall outside the window."
+    ],
+    "approach": "Maintain a queue of timestamps and drop any older than t - 3000 on each ping.",
+    "pattern": "Sliding window queue",
+    "time": "O(1) amortized",
+    "space": "O(window size)",
+    "solution": "Append t, then pop the front while it is less than t - 3000. Return the queue length.",
+    "tags": [
+     "queue",
+     "sliding window"
+    ]
+   },
+   {
+    "name": "Task Scheduler",
+    "slug": "task-scheduler",
+    "difficulty": "medium",
+    "description": "Given tasks and a cooldown n, return the minimum time to finish all tasks where the same task waits n units between runs.",
+    "constraints": "Tasks are letters; 1 to 10^4 tasks, 0 <= n <= 100.",
+    "hints": [
+     "The most frequent task dictates the base cycle structure.",
+     "Idle slots exist only when fewer distinct tasks remain than the cooldown width.",
+     "Compare the schedule length against the total number of tasks."
+    ],
+    "approach": "Use the frequency of the most common task to compute idle slots, or simulate with a priority queue and cooldown queue.",
+    "pattern": "Scheduling with cooldown",
+    "time": "O(n) for counts, or O(tasks * n) for simulation",
+    "space": "O(1) for frequencies",
+    "solution": "Count frequencies and let maxFreq be the largest. The minimal frame is (maxFreq - 1) * (n + 1) plus the number of tasks sharing maxFreq. The answer is the maximum of that value and the task count.",
+    "tags": [
+     "queue",
+     "greedy",
+     "heap"
+    ]
+   },
+   {
+    "name": "Implement Stack using Queues",
+    "slug": "implement-stack-using-queues",
+    "difficulty": "easy",
+    "description": "Implement a LIFO stack using only standard queue operations.",
+    "constraints": "Up to 100 calls.",
+    "hints": [
+     "Rotate elements so the newest lands at the front.",
+     "On push, enqueue then rotate the older elements behind it.",
+     "Pop simply dequeues the front."
+    ],
+    "approach": "Make push the expensive operation by rotating the queue after enqueueing.",
+    "pattern": "Queue rotation",
+    "time": "O(n) push, O(1) pop",
+    "space": "O(n)",
+    "solution": "Push: enqueue x then enqueue-dequeue every previous element so x is at the front. Pop and top read the front directly.",
+    "tags": [
+     "queue",
+     "stack",
+     "design"
+    ]
+   },
+   {
+    "name": "Implement Queue using Stacks",
+    "slug": "implement-queue-using-stacks",
+    "difficulty": "easy",
+    "description": "Implement a FIFO queue using only standard stack operations.",
+    "constraints": "Up to 100 calls.",
+    "hints": [
+     "Use two stacks: one for push, one for pop.",
+     "Transfer elements only when the pop stack is empty.",
+     "Amortized cost stays O(1)."
+    ],
+    "approach": "Push into an inbox stack; on pop, dump the inbox into the outbox if it is empty.",
+    "pattern": "Two stacks",
+    "time": "O(1) amortized per operation",
+    "space": "O(n)",
+    "solution": "push appends to inbox. pop and peek: if outbox is empty, move everything from inbox into outbox (reversing order), then operate on outbox's top.",
+    "tags": [
+     "stack",
+     "queue",
+     "design"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "circular-queue",
+  "name": "Circular queue",
+  "difficulty": "medium",
+  "overview": "A circular queue (ring buffer) is a fixed-capacity queue where the rear wraps back to the front index, reusing empty slots without shifting elements. It is implemented with an array plus front and rear indices.",
+  "why": "Circular buffers appear in networking, audio, OS scheduling, and streaming. Design questions test your grasp of modular arithmetic and capacity edge cases.",
+  "when": "Use a circular queue when you have a fixed capacity, need O(1) enqueue and dequeue, and want to avoid resizing or shifting.",
+  "complexity": {
+   "time": "O(1) enqueue, dequeue, front, and rear",
+   "space": "O(capacity)"
+  },
+  "concepts": [
+   {
+    "name": "Ring buffer",
+    "description": "An array treated as a circle so the rear index wraps to 0 after the last slot."
+   },
+   {
+    "name": "Wrap-around index",
+    "description": "Advancing past the end wraps via (index + 1) % capacity."
+   },
+   {
+    "name": "Full and empty states",
+    "description": "Both are signaled by pointer relationships, not by null slots."
+   },
+   {
+    "name": "Size counter",
+    "description": "A stored size disambiguates full from empty when pointers would coincide."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Advance with wrap",
+    "description": "Move an index around the ring.",
+    "code": "# advance an index, wrapping at capacity\ndef next_idx(i):\n    return (i + 1) % capacity"
+   },
+   {
+    "name": "Enqueue",
+    "description": "Write at rear and advance it.",
+    "code": "def enqueue(x):\n    if is_full():\n        return False\n    buf[rear] = x\n    rear = (rear + 1) % capacity\n    size += 1\n    return True"
+   },
+   {
+    "name": "Dequeue",
+    "description": "Read at front and advance it.",
+    "code": "def dequeue():\n    if is_empty():\n        return -1\n    val = buf[front]\n    front = (front + 1) % capacity\n    size -= 1\n    return val"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Ring wrap-around",
+    "problem": "In a circular queue of capacity 3, enqueue 1, 2, 3, dequeue, then enqueue 4.",
+    "input": "capacity 3: enq 1, enq 2, enq 3, deq, enq 4",
+    "output": "queue holds [2, 3, 4]",
+    "explanation": "After dequeue the front moves to slot 1; the new element wraps around and lands in the freed slot 0.",
+    "steps": [
+     "Enqueue 1, 2, 3 filling slots 0, 1, 2; size 3 and queue is full.",
+     "Dequeue reads slot 0 and moves front to 1.",
+     "Enqueue 4 writes at rear slot 0 via wrap-around.",
+     "Front points at 2 and rear at 1, reading 2, 3, 4 in order."
+    ],
+    "complexity": {
+     "time": "O(1) per operation",
+     "space": "O(capacity)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Checking for full by comparing front and rear when the ring is genuinely full.",
+    "fix": "Keep a size counter, or use the one-slot slack convention, to disambiguate full from empty."
+   },
+   {
+    "mistake": "Advancing indices without modulo, walking off the array end.",
+    "fix": "Always wrap with (index + 1) % capacity."
+   },
+   {
+    "mistake": "Overwriting unread data when the queue is full.",
+    "fix": "Refuse enqueue (or define overwrite semantics explicitly) once size reaches capacity."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Design Circular Queue",
+    "slug": "design-circular-queue",
+    "difficulty": "medium",
+    "description": "Design a circular queue supporting enQueue, deQueue, Front, Rear, isEmpty, and isFull.",
+    "constraints": "1 <= k <= 1000; up to 3000 calls.",
+    "hints": [
+     "Use an array plus front, rear, and size.",
+     "Wrap indices with modulo.",
+     "Base isFull and isEmpty on the size counter."
+    ],
+    "approach": "Store elements in a fixed array with wrapped front and rear indices and a size counter.",
+    "pattern": "Ring buffer",
+    "time": "O(1) per operation",
+    "space": "O(k)",
+    "solution": "enQueue writes at rear and advances it modulo k. deQueue reads front and advances it modulo k. Front and Rear return values from the current indices; isFull and isEmpty use size.",
+    "tags": [
+     "queue",
+     "design",
+     "circular buffer"
+    ]
+   },
+   {
+    "name": "Design Circular Deque",
+    "slug": "design-circular-deque",
+    "difficulty": "medium",
+    "description": "Design a circular deque supporting insertion and deletion at both ends.",
+    "constraints": "1 <= k <= 1000; up to 3000 calls.",
+    "hints": [
+     "Support wrap-around in both directions.",
+     "Decrement indices with (index - 1 + k) % k for front insertions.",
+     "Track size to distinguish full from empty."
+    ],
+    "approach": "Extend the circular queue with bidirectional index arithmetic.",
+    "pattern": "Ring buffer",
+    "time": "O(1) per operation",
+    "space": "O(k)",
+    "solution": "Insert front: decrement front with wrap; insert rear: increment rear with wrap. Remove reverses the moves. All methods use the size counter for emptiness and fullness checks.",
+    "tags": [
+     "deque",
+     "design",
+     "circular buffer"
+    ]
+   },
+   {
+    "name": "Moving Average from Data Stream",
+    "slug": "moving-average-from-data-stream",
+    "difficulty": "easy",
+    "description": "Compute the average of the last k elements in a stream, updating as new values arrive.",
+    "constraints": "1 <= k <= 10^5; up to 2 x 10^4 calls.",
+    "hints": [
+     "Keep a running sum to avoid re-summing the window.",
+     "Evict the oldest value once more than k accumulate.",
+     "A queue naturally tracks the oldest element."
+    ],
+    "approach": "Maintain a queue of at most k values and a running sum.",
+    "pattern": "Sliding window queue",
+    "time": "O(1) per call",
+    "space": "O(k)",
+    "solution": "Append each value and add it to the sum. If the queue exceeds k, subtract the popped front. Return the sum divided by the current queue length.",
+    "tags": [
+     "queue",
+     "sliding window",
+     "design"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "deque",
+  "name": "Deque",
+  "difficulty": "medium",
+  "overview": "A deque (double-ended queue) supports O(1) insertion and removal at both its front and back. It is more flexible than a plain queue and is the backbone of monotonic-queue window algorithms.",
+  "why": "Deques enable sliding-window maximum problems, bidirectional simulations, and monotonic queue maintenance that a plain queue cannot express cleanly.",
+  "when": "Reach for a deque when you must add and remove from both ends, or when maintaining a window with a monotonically ordered candidate list.",
+  "complexity": {
+   "time": "O(1) append, appendleft, pop, and popleft",
+   "space": "O(n) for n stored elements"
+  },
+  "concepts": [
+   {
+    "name": "Double-ended operations",
+    "description": "Push and pop available on both the left and right in constant time."
+   },
+   {
+    "name": "Monotonic maintenance",
+    "description": "Keeping values ordered while appending by evicting worse candidates from the rear."
+   },
+   {
+    "name": "Index queue",
+    "description": "Storing indices instead of values to check window bounds during sliding."
+   },
+   {
+    "name": "Simulation",
+    "description": "Modeling processes that operate at either end, such as card dealing or undo stacks."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Sliding window maximum",
+    "description": "Keep a decreasing deque of indices; pop from the front when out of window.",
+    "code": "from collections import deque\ndq = deque()\nfor i, x in enumerate(nums):\n    while dq and nums[dq[-1]] <= x:\n        dq.pop()\n    dq.append(i)\n    if dq[0] <= i - k:\n        dq.popleft()"
+   },
+   {
+    "name": "Bidirectional simulation",
+    "description": "Process from both ends as the problem demands.",
+    "code": "dq = deque(elements)\nwhile dq:\n    first = dq.popleft()\n    last = dq.pop()\n    # act on both ends"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Sliding window maximum with a deque",
+    "problem": "Given [1,3,-1,-3,5,3,6,7] and window k=3, return each window's maximum.",
+    "input": "[1,3,-1,-3,5,3,6,7], k = 3",
+    "output": "[3,3,5,5,6,7]",
+    "explanation": "The deque stores indices of candidates in decreasing value; the front is the current window's maximum.",
+    "steps": [
+     "For each index, pop rear values that are smaller than the incoming value.",
+     "Append the new index.",
+     "Pop the front if it falls outside the window.",
+     "After k elements, record the front as the window maximum."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(k)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Comparing values while storing indices, leading to stale bound checks.",
+    "fix": "Store indices in the deque and dereference through the array when comparing."
+   },
+   {
+    "mistake": "Forgetting to evict out-of-window indices from the front.",
+    "fix": "Before recording a result, pop from the front any index <= current_i - k."
+   },
+   {
+    "mistake": "Using a plain list where popleft would cost O(n).",
+    "fix": "Use collections.deque so both ends operate in O(1)."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Shortest Subarray with Sum at Least K",
+    "slug": "shortest-subarray-with-sum-at-least-k",
+    "difficulty": "hard",
+    "description": "Return the length of the shortest non-empty subarray whose sum is at least k, or -1 if none exists.",
+    "constraints": "Up to 10^5 elements; negative values allowed.",
+    "hints": [
+     "Use prefix sums and treat them as a sliding structure.",
+     "A deque of prefix indices stays increasing in value.",
+     "Pop from the front when a valid subarray is found, and from the back to keep monotonicity."
+    ],
+    "approach": "Build prefix sums and slide over them with a monotonic deque of indices.",
+    "pattern": "Monotonic deque",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "For each prefix index i, pop front candidates whose sum now reaches k, record the length, then maintain an increasing prefix-sum deque by popping the back for larger or equal sums. Return the minimum length found.",
+    "tags": [
+     "deque",
+     "prefix sum",
+     "sliding window"
+    ]
+   },
+   {
+    "name": "Minimum Number of K Consecutive Bit Flips",
+    "slug": "minimum-number-of-k-consecutive-bit-flips",
+    "difficulty": "hard",
+    "description": "Flip any k consecutive bits any number of times; return the minimum flips to make every bit 1, or -1.",
+    "constraints": "1 <= k <= nums.length <= 10^5.",
+    "hints": [
+     "A flipped bit toggles its effect for exactly k positions.",
+     "Use a deque to track the end positions of active flips.",
+     "The effective bit is the original value xor the active flip count."
+    ],
+    "approach": "Track where active flips end with a deque, computing each bit's effective state in O(1).",
+    "pattern": "Deque window tracking",
+    "time": "O(n)",
+    "space": "O(k)",
+    "solution": "Maintain a deque of flip end indices. At each bit, drop flips whose end index has passed. If the bit is 0 after considering active flips, start a flip here and push its end. Return the total flips or -1 when impossible.",
+    "tags": [
+     "deque",
+     "greedy",
+     "bit manipulation"
+    ]
+   },
+   {
+    "name": "Reveal Cards In Increasing Order",
+    "slug": "reveal-cards-in-increasing-order",
+    "difficulty": "medium",
+    "description": "Reconstruct a deck order such that the reveal process (reveal top, move next to bottom) shows cards in increasing order.",
+    "constraints": "1 <= deck.length <= 1000; values are unique.",
+    "hints": [
+     "Simulate the process in reverse with a deque.",
+     "Start from the largest card and prepend it to the front.",
+     "Before prepending, rotate the last element to the front to undo the move-to-bottom step."
+    ],
+    "approach": "Sort the deck descending and simulate the reveal process backward with a deque.",
+    "pattern": "Deque simulation",
+    "time": "O(n log n)",
+    "space": "O(n)",
+    "solution": "Sort cards descending. Maintain a deque of result positions: for each card, if the deque is non-empty move its last element to the front (undoing the skip), then append the card to the front. Convert the deque to a list as the answer.",
+    "tags": [
+     "deque",
+     "simulation",
+     "sorting"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "monotonic-stack",
+  "name": "Monotonic stack",
+  "difficulty": "hard",
+  "overview": "A monotonic stack keeps its elements in a strictly increasing or decreasing order. Before pushing a new element, all elements that break the invariant are popped, which lets each element be pushed and popped at most once.",
+  "why": "The monotonic stack solves next-greater, previous-smaller, and histogram-area problems in O(n) where brute force is O(n^2). Interviewers frequently use it as a performance differentiator.",
+  "when": "Reach for a monotonic stack when each element needs its nearest larger or smaller neighbor, or when computing spans, areas, or subarray minima and maxima contributions.",
+  "complexity": {
+   "time": "O(n) overall because each element enters and leaves once",
+   "space": "O(n) for the stack"
+  },
+  "concepts": [
+   {
+    "name": "Invariant",
+    "description": "The stack is sorted (increasing or decreasing) at all times by value or index."
+   },
+   {
+    "name": "Pop and answer",
+    "description": "When an element is popped, the new incoming element is its next greater or smaller."
+   },
+   {
+    "name": "Index vs value",
+    "description": "Storing indices preserves position information for spans and distances."
+   },
+   {
+    "name": "Amortized analysis",
+    "description": "Each element is pushed once and popped once, yielding total O(n) work."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Next greater element",
+    "description": "Pop smaller elements; the current element is their next greater.",
+    "code": "stack = []\nresult = [-1] * len(nums)\nfor i, x in enumerate(nums):\n    while stack and nums[stack[-1]] < x:\n        result[stack.pop()] = x\n    stack.append(i)"
+   },
+   {
+    "name": "Previous smaller element",
+    "description": "Pop larger elements while scanning left to right.",
+    "code": "stack = []\nprev_smaller = [-1] * len(nums)\nfor i, x in enumerate(nums):\n    while stack and nums[stack[-1]] >= x:\n        stack.pop()\n    prev_smaller[i] = stack[-1] if stack else -1\n    stack.append(i)"
+   },
+   {
+    "name": "Largest rectangle in histogram",
+    "description": "Compute width from the nearest smaller bar on each side.",
+    "code": "stack = []\nbest = 0\nfor i, h in enumerate(heights + [0]):\n    while stack and heights[stack[-1]] >= h:\n        height = heights[stack.pop()]\n        width = i if not stack else i - stack[-1] - 1\n        best = max(best, height * width)\n    stack.append(i)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Next greater element with a monotonic stack",
+    "problem": "Given [2, 1, 4, 3], find each element's next greater to the right.",
+    "input": "[2, 1, 4, 3]",
+    "output": "[4, 4, -1, -1]",
+    "explanation": "When 4 arrives it pops 2 and 1 because 4 is their next greater; 3 has no greater on its right.",
+    "steps": [
+     "Scan indices left to right with an empty stack.",
+     "At 4, pop 2 and 1, recording 4 for both.",
+     "Push 4, then push 3 without popping anything.",
+     "Any element still in the stack has no next greater, so record -1."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Forgetting that popped elements' answers are decided at pop time, not at scan time.",
+    "fix": "Fill the result for the popped index the moment it is popped."
+   },
+   {
+    "mistake": "Using strict vs non-strict comparisons inconsistently for duplicates.",
+    "fix": "Decide whether equal values pop (non-strict) and keep that choice throughout."
+   },
+   {
+    "mistake": "Assuming the answer for the remaining stack elements is the current value.",
+    "fix": "Elements left in the stack have no valid neighbor, so leave their default sentinel."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Daily Temperatures",
+    "slug": "daily-temperatures",
+    "difficulty": "medium",
+    "description": "Given daily temperatures, return the number of days until a warmer temperature for each day.",
+    "constraints": "1 to 10^5 temperatures.",
+    "hints": [
+     "The answer for a day is known when a warmer day appears.",
+     "Keep a decreasing stack of indices.",
+     "The difference in indices is the wait."
+    ],
+    "approach": "Scan with a decreasing monotonic stack of indices; pop and answer each popped day.",
+    "pattern": "Monotonic stack",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "For each day, while the stack top holds a colder day, pop it and record index difference as its answer. Push the current index. Remaining days never warm, so they stay 0.",
+    "tags": [
+     "monotonic stack",
+     "array"
+    ]
+   },
+   {
+    "name": "Largest Rectangle in Histogram",
+    "slug": "largest-rectangle-in-histogram",
+    "difficulty": "hard",
+    "description": "Given bar heights, return the area of the largest rectangle that can be formed in the histogram.",
+    "constraints": "1 to 10^5 bars; heights >= 0.",
+    "hints": [
+     "Each rectangle's height is bounded by some bar.",
+     "For each bar, find the nearest smaller bar on the left and right.",
+     "A monotonic stack computes both boundaries in one pass."
+    ],
+    "approach": "Use a monotonic stack of indices to find the width each bar can span as its height.",
+    "pattern": "Monotonic stack",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Append a sentinel height 0. When a shorter bar arrives, pop each taller bar and compute its area as height times the distance between its nearest smaller bars. Track the maximum.",
+    "tags": [
+     "monotonic stack",
+     "array"
+    ]
+   },
+   {
+    "name": "Sum of Subarray Minimums",
+    "slug": "sum-of-subarray-minimums",
+    "difficulty": "hard",
+    "description": "Return the sum of the minimum values over all contiguous subarrays of an array.",
+    "constraints": "1 to 3 x 10^4 elements; values >= 0.",
+    "hints": [
+     "Count how many subarrays have each element as their minimum.",
+     "Use the nearest smaller element on each side to count subarrays.",
+     "Multiply count by value and sum over all elements."
+    ],
+    "approach": "For each element, find the distance to the nearest smaller element on the left and right, then multiply the counts.",
+    "pattern": "Monotonic stack",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "With a monotonic stack, compute left[i] and right[i], the distances to the nearest strictly smaller element on each side. Each element contributes value * left[i] * right[i]. Sum these modulo 10^9 + 7.",
+    "tags": [
+     "monotonic stack",
+     "array",
+     "prefix counting"
+    ]
+   },
+   {
+    "name": "Remove K Digits",
+    "slug": "remove-k-digits",
+    "difficulty": "medium",
+    "description": "Remove k digits from a number string so the remaining number is the smallest possible.",
+    "constraints": "num up to 10^4 digits; k <= num length.",
+    "hints": [
+     "Build the result greedily with a monotonic stack.",
+     "Pop larger digits before a smaller incoming digit.",
+     "Trim leading zeros and leftover removals at the end."
+    ],
+    "approach": "Maintain a stack that removes larger digits whenever a smaller digit follows, up to k removals.",
+    "pattern": "Monotonic stack",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "For each digit, while k > 0 and stack top is greater, pop and decrement k, then push the digit. After the scan, drop any remaining k from the tail. Strip leading zeros and return the result or '0'.",
+    "tags": [
+     "monotonic stack",
+     "greedy",
+     "string"
+    ]
+   },
+   {
+    "name": "Online Stock Span",
+    "slug": "online-stock-span",
+    "difficulty": "medium",
+    "description": "Return the span of each day's price: consecutive days up to today with a price at most today's.",
+    "constraints": "Up to 10^4 calls with prices >= 1.",
+    "hints": [
+     "The span can be computed by summing the spans of popped smaller prices.",
+     "Keep a decreasing stack of (price, span) pairs.",
+     "Popped entries add their span to the new day's span."
+    ],
+    "approach": "Maintain a decreasing stack where each entry stores price and cumulative span.",
+    "pattern": "Monotonic stack",
+    "time": "O(1) amortized per call",
+    "space": "O(n)",
+    "solution": "For each new price, pop entries with a smaller or equal price, accumulating their spans, then push (price, span + 1). Return the accumulated span.",
+    "tags": [
+     "monotonic stack",
+     "design"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "monotonic-queue",
+  "name": "Monotonic queue",
+  "difficulty": "hard",
+  "overview": "A monotonic queue maintains its elements in a sorted order while supporting O(1) amortized append, pop-from-front, and query of the best (max or min) element. It is typically built on a deque that evicts worse candidates from the rear.",
+  "why": "Monotonic queues solve sliding-window extremum problems in O(n), which appear in high-frequency trading, stream analytics, and several hard LeetCode questions.",
+  "when": "Reach for a monotonic queue when a sliding window moves through an array and you need the maximum, minimum, or best candidate inside the window at every step.",
+  "complexity": {
+   "time": "O(n) overall; each element is enqueued and dequeued once",
+   "space": "O(k) for the window size"
+  },
+  "concepts": [
+   {
+    "name": "Candidate eviction",
+    "description": "Newer, better elements evict older worse ones from the rear, keeping the front optimal."
+   },
+   {
+    "name": "Window expiry",
+    "description": "Indices falling outside the window are removed from the front."
+   },
+   {
+    "name": "Amortized O(1)",
+    "description": "Total pushes and pops are both O(n), giving linear time over the whole scan."
+   },
+   {
+    "name": "Deque backbone",
+    "description": "The front serves results, the rear maintains order, both in O(1)."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Sliding window maximum",
+    "description": "Decreasing deque of indices; front is the current window max.",
+    "code": "from collections import deque\ndq, out = deque(), []\nfor i, x in enumerate(nums):\n    while dq and nums[dq[-1]] <= x:\n        dq.pop()\n    dq.append(i)\n    if dq[0] <= i - k:\n        dq.popleft()\n    if i >= k - 1:\n        out.append(nums[dq[0]])"
+   },
+   {
+    "name": "Sliding window minimum",
+    "description": "Increasing deque; front is the current window min.",
+    "code": "while dq and nums[dq[-1]] >= x:\n    dq.pop()\ndq.append(i)\nif dq[0] <= i - k:\n    dq.popleft()"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Sliding window maximum",
+    "problem": "Return the maximum in each window of size 3 for [1,3,-1,-3,5,3,6,7].",
+    "input": "[1,3,-1,-3,5,3,6,7], k = 3",
+    "output": "[3,3,5,5,6,7]",
+    "explanation": "The deque holds candidate indices in decreasing value; the front is always the window's maximum.",
+    "steps": [
+     "Before adding each element, pop rear candidates smaller than it.",
+     "Push the new index.",
+     "Pop the front index if it left the window.",
+     "From index k-1 onward, record nums at the front."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(k)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Forgetting to evict expired indices from the front before reading the max.",
+    "fix": "Run the expiry check (dq[0] <= i - k) before recording each window result."
+   },
+   {
+    "mistake": "Storing values instead of indices, losing window membership information.",
+    "fix": "Store indices and dereference through the array when comparing values."
+   },
+   {
+    "mistake": "Using the wrong strictness for duplicates, dropping valid candidates.",
+    "fix": "Pop with <= (or >=) so equal values keep the newest index as the representative."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Sliding Window Maximum",
+    "slug": "sliding-window-maximum",
+    "difficulty": "hard",
+    "description": "Return an array of the maximum values in every window of size k in nums.",
+    "constraints": "1 to 10^5 elements; 1 <= k <= nums.length.",
+    "hints": [
+     "Keep a decreasing deque of indices.",
+     "Evict from the rear any index with a smaller value.",
+     "Evict from the front any index outside the current window."
+    ],
+    "approach": "Slide a decreasing monotonic queue of indices over the array, reading the front as each window's max.",
+    "pattern": "Monotonic queue",
+    "time": "O(n)",
+    "space": "O(k)",
+    "solution": "For each index, pop rear candidates <= the new value, push the index, expire front indices <= i - k, and record nums[dq[0]] once the window is full.",
+    "tags": [
+     "monotonic queue",
+     "sliding window",
+     "deque"
+    ]
+   },
+   {
+    "name": "Max Value of Equation",
+    "slug": "max-value-of-equation",
+    "difficulty": "hard",
+    "description": "For points (x_i, y_i) sorted by x, maximize y_i + y_j + |x_i - x_j| where i < j and x_j - x_i <= k.",
+    "constraints": "2 to 10^5 points; 1 <= k <= 10^9.",
+    "hints": [
+     "Since x_j >= x_i, the equation is (y_i - x_i) + (y_j + x_j).",
+     "Keep a monotonic deque of candidate i points keyed by y_i - x_i.",
+     "Pop expired candidates where x_j - x_i > k."
+    ],
+    "approach": "For each j, query the best earlier i from a monotonic deque keyed by y_i - x_i, then insert point j.",
+    "pattern": "Monotonic queue",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Maintain a decreasing deque of (x, y - x). For each point j, first expire entries with x < x_j - k, then the front maximizes y_j + x_j + (y_i - x_i). Insert point j and update the answer.",
+    "tags": [
+     "monotonic queue",
+     "math",
+     "deque"
+    ]
+   },
+   {
+    "name": "Delivering Boxes from Storage to Ports",
+    "slug": "delivering-boxes-from-storage-to-ports",
+    "difficulty": "hard",
+    "description": "Minimize trips for a truck that carries at most maxBoxes boxes and maxWeight weight between storage and ports.",
+    "constraints": "Up to 10^5 boxes; port sequence given per box.",
+    "hints": [
+     "Model trips as contiguous segments of boxes.",
+     "Dynamic programming over trip boundaries with a monotonic queue for fast minima.",
+     "Each segment costs 1 for the storage trip plus port changes."
+    ],
+    "approach": "Use DP where dp[i] is the minimal cost to deliver the first i boxes, optimized with a monotonic queue.",
+    "pattern": "Monotonic queue with DP",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Precompute the running port-change cost and weight prefix sums. Maintain a monotonic deque of candidate split points so each dp[i] is the window minimum of dp[j] + trip_cost. Pop entries that exceed the box or weight limits.",
+    "tags": [
+     "monotonic queue",
+     "dynamic programming",
+     "deque"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "next-greater-element",
+  "name": "Next Greater Element",
+  "difficulty": "medium",
+  "overview": "The next greater element of an index is the nearest element to its right (or in a circular array) with a strictly larger value. A monotonic stack answers all next-greater queries for an array in linear time.",
+  "why": "Next greater element is the flagship monotonic-stack application and appears in many disguised forms: daily temperatures, stock spans, histogram rectangles, and next greater nodes.",
+  "when": "Use this technique whenever each element needs its nearest larger or smaller neighbor, especially in a single pass over the array with O(1) amortized work per element.",
+  "complexity": {
+   "time": "O(n) because each element is pushed and popped once",
+   "space": "O(n) for the stack and result"
+  },
+  "concepts": [
+   {
+    "name": "Strictly greater",
+    "description": "The next element must be larger, so equal values do not count as next greater."
+   },
+   {
+    "name": "Circular wrap",
+    "description": "In circular variants, elements after the end wrap around to the start of the array."
+   },
+   {
+    "name": "Stack of candidates",
+    "description": "Pending indices wait in a decreasing stack until a larger value arrives."
+   },
+   {
+    "name": "Mapping between arrays",
+    "description": "Two-array variants look up the next greater for one array's values inside another."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Next greater to the right",
+    "description": "Pop smaller indices; the current value is their answer.",
+    "code": "stack = []\nresult = [-1] * len(nums)\nfor i, x in enumerate(nums):\n    while stack and nums[stack[-1]] < x:\n        result[stack.pop()] = x\n    stack.append(i)"
+   },
+   {
+    "name": "Next greater in a circular array",
+    "description": "Scan twice so every index sees values that wrap around.",
+    "code": "n = len(nums)\nresult = [-1] * n\nstack = []\nfor i in range(2 * n):\n    idx = i % n\n    while stack and nums[stack[-1]] < nums[idx]:\n        result[stack.pop()] = nums[idx]\n    if i < n:\n        stack.append(idx)"
+   },
+   {
+    "name": "Next greater node in a linked list",
+    "description": "Process the list, then resolve the stack with node values.",
+    "code": "stack = []\nres = [0] * n\nfor i, v in enumerate(values):\n    while stack and values[stack[-1]] < v:\n        res[stack.pop()] = v\n    stack.append(i)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Next greater for every element",
+    "problem": "Find each element's next greater element in [4, 5, 2, 25].",
+    "input": "[4, 5, 2, 25]",
+    "output": "[5, 25, 25, -1]",
+    "explanation": "5 is greater than 4, 25 is greater than 5 and 2, and no element is greater than 25.",
+    "steps": [
+     "Scan left to right pushing indices onto a decreasing stack.",
+     "At 5, pop 4 and record 5 as its next greater.",
+     "Push 2; at 25, pop 2 and then 5, recording 25 for both.",
+     "Index of 25 remains, so its answer is -1."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Filling results when pushing instead of when popping.",
+    "fix": "Record an element's next greater at the moment a larger value pops it."
+   },
+   {
+    "mistake": "Using non-strict comparison, incorrectly treating equal values as greater.",
+    "fix": "Use < (strictly) to pop, since next greater requires a strictly larger value."
+   },
+   {
+    "mistake": "In circular variants, missing the wrap because the scan covers only one pass.",
+    "fix": "Iterate over 2n indices so early elements see later circular values."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Next Greater Element I",
+    "slug": "next-greater-element-i",
+    "difficulty": "easy",
+    "description": "For each value in nums1, find its next greater element in the larger array nums2.",
+    "constraints": "nums1 is a subset of nums2; all values unique.",
+    "hints": [
+     "Compute next greater for every element of nums2 once.",
+     "Map each value to its next greater in a dictionary.",
+     "Answer each nums1 value with a lookup."
+    ],
+    "approach": "Run a monotonic stack over nums2 to build a value-to-next-greater map, then answer lookups.",
+    "pattern": "Monotonic stack",
+    "time": "O(n + m)",
+    "space": "O(n)",
+    "solution": "Scan nums2 with a decreasing stack, and when a larger value pops an index, record that value in a dict keyed by the popped element. Map every nums1 entry through the dict, defaulting to -1.",
+    "tags": [
+     "monotonic stack",
+     "hash map"
+    ]
+   },
+   {
+    "name": "Next Greater Element II",
+    "slug": "next-greater-element-ii",
+    "difficulty": "medium",
+    "description": "Return the next greater element for every index in a circular array.",
+    "constraints": "1 to 10^4 elements.",
+    "hints": [
+     "Duplicate the array conceptually by scanning twice.",
+     "Process indices modulo n.",
+     "Only push each index once."
+    ],
+    "approach": "Scan 2n positions with a monotonic stack, using modulo indices, to cover circular wraps.",
+    "pattern": "Monotonic stack",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Iterate i from 0 to 2n - 1. At index i % n, pop smaller stack entries assigning nums[i % n] as their next greater, then push the index if i < n. Unpopped indices keep -1.",
+    "tags": [
+     "monotonic stack",
+     "circular array"
+    ]
+   },
+   {
+    "name": "Next Greater Element III",
+    "slug": "next-greater-element-iii",
+    "difficulty": "medium",
+    "description": "Given a positive integer n, return the smallest integer with the same digits that is greater than n, or -1 if it exceeds the 32-bit range.",
+    "constraints": "1 <= n <= 2^31 - 1.",
+    "hints": [
+     "Find the rightmost digit that can be increased.",
+     "Swap it with the smallest larger digit to its right.",
+     "Sort the suffix ascending."
+    ],
+    "approach": "Use next-permutation logic: locate the pivot, swap with the smallest greater suffix digit, then reverse the suffix.",
+    "pattern": "Next permutation",
+    "time": "O(d) where d is the digit count",
+    "space": "O(d)",
+    "solution": "Convert n to a digit list. Find the pivot where digits[i] < digits[i+1]. If none, return -1. Swap the pivot with the smallest greater digit on the right, reverse the suffix, and rebuild the number, returning -1 if it exceeds 2^31 - 1.",
+    "tags": [
+     "math",
+     "string",
+     "next permutation"
+    ]
+   },
+   {
+    "name": "Next Greater Node In Linked List",
+    "slug": "next-greater-node-in-linked-list",
+    "difficulty": "medium",
+    "description": "For each node in a linked list, return the value of the next node that has a strictly larger value.",
+    "constraints": "1 to 10^4 nodes; values between 0 and 10^9.",
+    "hints": [
+     "Convert the list to an array of values.",
+     "Use a decreasing stack of indices.",
+     "Fill answers at pop time."
+    ],
+    "approach": "Collect node values into an array, then apply the standard monotonic stack scan.",
+    "pattern": "Monotonic stack",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Walk the list to gather values. Scan them with a decreasing stack; when a larger value pops an index, store it as that node's next greater. Indices never popped get 0.",
+    "tags": [
+     "monotonic stack",
+     "linked list"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "valid-parentheses",
+  "name": "Valid Parentheses",
+  "difficulty": "easy",
+  "overview": "Valid-parentheses problems check whether brackets are correctly balanced and nested. A stack is the canonical tool: push openers and match them with closers, rejecting mismatches, premature closes, or leftover openers.",
+  "why": "Balancing and nesting questions are among the most common warm-ups and appear at every difficulty level, from simple matching to longest valid substring.",
+  "when": "Use the stack-based approach whenever input consists of delimiters that must be properly nested and closed, or when the problem is a direct variant of balanced strings.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(n) worst case for the stack"
+  },
+  "concepts": [
+   {
+    "name": "Opener-closer pairing",
+    "description": "Each closing bracket must match the most recent unmatched opening bracket."
+   },
+   {
+    "name": "LIFO matching",
+    "description": "The stack top is the only opener that can legally be closed right now."
+   },
+   {
+    "name": "Immediate failure",
+    "description": "A closing bracket with no matching opener, or the wrong type, invalidates the string."
+   },
+   {
+    "name": "End state",
+    "description": "The string is valid only if the stack is empty after the full scan."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Classic matching",
+    "description": "Push openers; pop and compare on closers.",
+    "code": "pairs = {')': '(', ']': '[', '}': '{'}\nstack = []\nfor ch in s:\n    if ch in pairs:\n        if not stack or stack.pop() != pairs[ch]:\n            return False\n    else:\n        stack.append(ch)\nreturn not stack"
+   },
+   {
+    "name": "Depth tracking",
+    "description": "Keep a counter or index stack for the current nesting depth.",
+    "code": "depth = 0\nfor ch in s:\n    if ch == '(':\n        depth += 1\n    else:\n        depth -= 1\n        if depth < 0:\n            return False\nreturn depth == 0"
+   },
+   {
+    "name": "Score accumulation",
+    "description": "Resolve nested groups into numeric scores with a stack.",
+    "code": "stack = [0]\nfor ch in s:\n    if ch == '(':\n        stack.append(0)\n    else:\n        v = stack.pop()\n        stack[-1] += max(2 * v, 1)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Validate nested parentheses",
+    "problem": "Determine whether the string '([{}])' is valid.",
+    "input": "'([{}])'",
+    "output": "True",
+    "explanation": "Every closer matches the most recent opener: ')' closes '(', ']' closes '[', '}' closes '{'.",
+    "steps": [
+     "Push '(' then '[' then '{'.",
+     "On '}', pop '{' and verify it matches.",
+     "On ']', pop '[' and verify it matches.",
+     "On ')', pop '(' and verify it matches; stack is empty, so valid."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using a counter for multiple bracket types, which ignores nesting order.",
+    "fix": "Use a real stack and match each closer against the current top."
+   },
+   {
+    "mistake": "Popping from an empty stack when a closer has no opener.",
+    "fix": "Check stack emptiness before popping and reject the string immediately."
+   },
+   {
+    "mistake": "Forgetting the final emptiness check and accepting unclosed openers.",
+    "fix": "Return not stack after the scan so leftover openers invalidate the string."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Valid Parentheses",
+    "slug": "valid-parentheses",
+    "difficulty": "easy",
+    "description": "Determine whether a string of '(', ')', '{', '}', '[' and ']' is valid.",
+    "constraints": "1 to 10^4 characters.",
+    "hints": [
+     "Push opening brackets onto a stack.",
+     "For each closer, verify it matches the stack top.",
+     "The string is valid only if the stack ends empty."
+    ],
+    "approach": "Single pass with a stack and a closer-to-opener map.",
+    "pattern": "Classic matching",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Map each closer to its opener. For every character, push openers; on a closer, pop and compare, returning false on mismatch or empty stack. Return whether the stack is empty at the end.",
+    "tags": [
+     "stack",
+     "string"
+    ]
+   },
+   {
+    "name": "Longest Valid Parentheses",
+    "slug": "longest-valid-parentheses",
+    "difficulty": "hard",
+    "description": "Return the length of the longest valid (well-formed) parentheses substring.",
+    "constraints": "0 to 3 x 10^4 characters; only '(' and ')'.",
+    "hints": [
+     "Use a stack holding the index of the last unmatched opener.",
+     "Push the index of every '('.",
+     "On ')', pop and compute length from the new top or the base index."
+    ],
+    "approach": "Keep a stack of indices with a base sentinel, computing valid substring lengths on each close.",
+    "pattern": "Index stack",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Initialize a stack with -1. For each '(', push its index. For each ')', pop; if the stack empties, push the current index as the new base, else update the best length as i - stack[-1].",
+    "tags": [
+     "stack",
+     "dynamic programming"
+    ]
+   },
+   {
+    "name": "Minimum Add to Make Parentheses Valid",
+    "slug": "minimum-add-to-make-parentheses-valid",
+    "difficulty": "medium",
+    "description": "Return the minimum number of insertions needed to make a parentheses string valid.",
+    "constraints": "1 to 1000 characters; only '(' and ')'.",
+    "hints": [
+     "Track an imbalance counter for open parentheses.",
+     "An unmatched ')' with no open '(' requires an insertion.",
+     "At the end, the remaining open count is also required."
+    ],
+    "approach": "Count unmatched closers and leftover openers in one pass.",
+    "pattern": "Imbalance counting",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Maintain balance and a required counter. For '(' increment balance; for ')' if balance is zero increment required, else decrement. Return required plus the final balance.",
+    "tags": [
+     "stack",
+     "greedy",
+     "string"
+    ]
+   },
+   {
+    "name": "Score of Parentheses",
+    "slug": "score-of-parentheses",
+    "difficulty": "medium",
+    "description": "Compute the score of a balanced parentheses string where '()' is 1 and nested groups double and siblings add.",
+    "constraints": "1 to 50 characters; input is always balanced.",
+    "hints": [
+     "Use a stack of running scores.",
+     "A leaf '()' adds 1 to the current level.",
+     "Nested groups double the inner score."
+    ],
+    "approach": "Push a new level per '(', and resolve scores when ')' arrives.",
+    "pattern": "Score accumulation",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Start a stack with [0]. On '(', push 0. On ')', pop the level v; the new top gains max(2*v, 1). Return the single remaining score.",
+    "tags": [
+     "stack",
+     "string"
+    ]
+   },
+   {
+    "name": "Generate Parentheses",
+    "slug": "generate-parentheses",
+    "difficulty": "medium",
+    "description": "Return all combinations of n well-formed parentheses pairs.",
+    "constraints": "1 <= n <= 8.",
+    "hints": [
+     "Build strings by adding '(' while opens remain.",
+     "Add ')' only when closes exceed opens.",
+     "Use backtracking with open and close counters."
+    ],
+    "approach": "Backtrack, choosing '(' or ')' while maintaining the balance invariant.",
+    "pattern": "Backtracking",
+    "time": "O(4^n / sqrt(n))",
+    "space": "O(n) recursion depth",
+    "solution": "Recurse with counts of open and close used. Add '(' if open < n, add ')' if close < open, and record the string when both reach n.",
+    "tags": [
+     "backtracking",
+     "stack",
+     "string"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "expression-evaluation",
+  "name": "Expression evaluation",
+  "difficulty": "hard",
+  "overview": "Expression evaluation computes the value of arithmetic strings respecting operator precedence and parentheses. Two stacks (one for values, one for operators) or converting to postfix are the standard engines for these problems.",
+  "why": "Expression problems test stack discipline, precedence handling, and state management. They range from reverse Polish notation to full calculators with parentheses and unary operators.",
+  "when": "Reach for an evaluation engine when a problem gives an arithmetic string, asks for a calculator, or needs precedence-aware parsing of operators and operands.",
+  "complexity": {
+   "time": "O(n) per pass over the expression",
+   "space": "O(n) for the stacks"
+  },
+  "concepts": [
+   {
+    "name": "Precedence",
+    "description": "Operator priority that decides whether to reduce or continue, e.g. * over +."
+   },
+   {
+    "name": "Value and operator stacks",
+    "description": "Operands accumulate in one stack while pending operators wait in another."
+   },
+   {
+    "name": "Associativity",
+    "description": "Left-to-right processing for operators of equal precedence."
+   },
+   {
+    "name": "Sign handling",
+    "description": "Unary plus or minus and negative literals need special parsing, often as value sign or an implicit zero."
+   },
+   {
+    "name": "Parenthesis scoping",
+    "description": "Parentheses create a subexpression that must fully reduce before the enclosing level continues."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Two-stack shunting-yard",
+    "description": "Push operands and operators, reducing by precedence.",
+    "code": "def apply(a, b, op):\n    if op == '+': return a + b\n    if op == '-': return a - b\n    if op == '*': return a * b\n    return a // b  # truncating division"
+   },
+   {
+    "name": "Operator-precedence calculator",
+    "description": "Reduce pending higher-or-equal operators before applying lower ones.",
+    "code": "def eval_expr(s):\n    stack, num, sign = [], 0, 1\n    for ch in s:\n        if ch.isdigit():\n            num = num * 10 + int(ch)\n        elif ch in '+-':\n            stack.append(sign * num)\n            num, sign = 0, 1 if ch == '+' else -1\n    stack.append(sign * num)\n    return sum(stack)"
+   },
+   {
+    "name": "Postfix evaluation",
+    "description": "Evaluate tokens where operators follow their operands.",
+    "code": "stack = []\nfor t in tokens:\n    if t.lstrip('-').isdigit():\n        stack.append(int(t))\n    else:\n        b, a = stack.pop(), stack.pop()\n        stack.append(apply(a, b, t))\nreturn stack[0]"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Basic calculator with precedence",
+    "problem": "Evaluate '3 + 2 * 2' respecting multiplication before addition.",
+    "input": "'3 + 2 * 2'",
+    "output": "7",
+    "explanation": "Multiplication binds tighter, so the expression reduces to 3 + 4, not 5 * 2.",
+    "steps": [
+     "Parse 3 and push it.",
+     "Parse +; since the pending stack is empty, wait.",
+     "Parse 2 * 2: reduce the product to 4.",
+     "Add 3 + 4 to get 7."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Applying operators strictly left to right and ignoring precedence.",
+    "fix": "Reduce pending operators with higher or equal precedence before applying a lower one."
+   },
+   {
+    "mistake": "Handling negative numbers as subtraction, losing the sign.",
+    "fix": "Treat a leading '-' as a unary sign by seeding an implicit 0 or attaching the sign to the number."
+   },
+   {
+    "mistake": "Forgetting that a subexpression inside parentheses must reduce before the outer level reads it.",
+    "fix": "On ')', reduce the operator stack until the matching '(' is consumed."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Basic Calculator",
+    "slug": "basic-calculator",
+    "difficulty": "hard",
+    "description": "Evaluate a string with integers, +, -, parentheses, and spaces.",
+    "constraints": "1 to 3 x 10^5 characters; input is always valid.",
+    "hints": [
+     "Use a stack for values and a running sign.",
+     "Parentheses push the current context and restore it after the close.",
+     "Treat '-' as flipping the running sign."
+    ],
+    "approach": "Single pass with a stack saving sign and accumulated value around each parenthesis group.",
+    "pattern": "Two-stack evaluation",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Keep result and sign. On '(' push (result, sign) and reset; on ')' pop and fold the group into the saved result; on digits accumulate the number; on '+' and '-' update the sign. Return the final result.",
+    "tags": [
+     "stack",
+     "expression evaluation"
+    ]
+   },
+   {
+    "name": "Basic Calculator II",
+    "slug": "basic-calculator-ii",
+    "difficulty": "medium",
+    "description": "Evaluate a string with integers and the operators +, -, *, and / without parentheses.",
+    "constraints": "1 to 3 x 10^5 characters; input is always valid.",
+    "hints": [
+     "Defer '+' and '-' while reducing '*' and '/' immediately.",
+     "Accumulate the current number before choosing the operator.",
+     "Use a stack so additions and subtractions resolve at the end."
+    ],
+    "approach": "Push numbers onto a stack, applying * and / to the stack top as they are parsed.",
+    "pattern": "Operator-precedence evaluation",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Track the last operator and current number. On '+' or '-' push signed values; on '*' or '/' replace the stack top by the computed product or quotient. Sum the stack at the end.",
+    "tags": [
+     "stack",
+     "expression evaluation"
+    ]
+   },
+   {
+    "name": "Expression Add Operators",
+    "slug": "expression-add-operators",
+    "difficulty": "hard",
+    "description": "Insert +, -, or * between digits of a number string so the expression evaluates to a target value.",
+    "constraints": "num up to 10 digits; result must fit in a 32-bit integer.",
+    "hints": [
+     "Backtrack over split points and operators.",
+     "Track the running value and the last operand for precedence.",
+     "Skip splits that produce numbers with leading zeros."
+    ],
+    "approach": "Depth-first search with the current value and last term so '*' can be undone correctly.",
+    "pattern": "Backtracking with evaluation",
+    "time": "O(4^n) worst case",
+    "space": "O(n) recursion depth",
+    "solution": "At each position try cutting a number, then branch on operators. For '+' add the term, for '-' subtract it, for '*' replace the last term by last * term. Prune numbers with a leading zero and collect expressions matching the target.",
+    "tags": [
+     "backtracking",
+     "expression evaluation",
+     "string"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "stack-queue",
+  "name": "Stack & Queue",
+  "difficulty": "easy",
+  "overview": "Stacks and queues are the two fundamental linear containers distinguished only by removal policy: LIFO for stacks and FIFO for queues. Both support O(1) insertion and removal at their access ends and O(n) search.",
+  "why": "Choosing the right container is a core interview skill. Many problems are simply about recognizing whether nesting (stack) or arrival order (queue) governs the answer.",
+  "when": "Use a stack for reverse-order, nesting, and undo-style processing; use a queue for order-preserving, arrival-based, and breadth-first processing. Convert between them to satisfy constraints.",
+  "complexity": {
+   "time": "O(1) push/pop/enqueue/dequeue, O(n) search",
+   "space": "O(n) for n stored elements"
+  },
+  "concepts": [
+   {
+    "name": "LIFO vs FIFO",
+    "description": "Stacks remove the newest element; queues remove the oldest."
+   },
+   {
+    "name": "Access ends",
+    "description": "Stack operations happen at the top; queue operations at front and rear."
+   },
+   {
+    "name": "Container conversion",
+    "description": "Two stacks simulate a queue and two queues simulate a stack."
+   },
+   {
+    "name": "Structural analogues",
+    "description": "Stacks mirror recursion and nesting; queues mirror BFS and streaming."
+   },
+   {
+    "name": "Monotonic variants",
+    "description": "Adding ordering invariants to either container enables extremum queries."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Choose by removal order",
+    "description": "Pick the container by which element must leave first.",
+    "code": "# stack: newest out first\nstack = []; stack.append(x); x = stack.pop()\n# queue: oldest out first\nfrom collections import deque\nq = deque(); q.append(x); x = q.popleft()"
+   },
+   {
+    "name": "Two stacks as a queue",
+    "description": "Reverse order by dumping one stack into another.",
+    "code": "def pop():\n    if not outbox:\n        while inbox:\n            outbox.append(inbox.pop())\n    return outbox.pop()"
+   },
+   {
+    "name": "Backspace simulation",
+    "description": "Apply edits with a stack, popping on backspaces.",
+    "code": "def resolve(s):\n    res = []\n    for ch in s:\n        if ch == '#':\n            if res:\n                res.pop()\n        else:\n            res.append(ch)\n    return res"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Validate a stack sequence",
+    "problem": "Given a push order and a pop order, determine whether the pop order is achievable.",
+    "input": "pushed = [1,2,3,4,5], popped = [4,5,3,2,1]",
+    "output": "True",
+    "explanation": "Push 1,2,3,4, pop 4, push 5, then pop 5,3,2,1 in sequence.",
+    "steps": [
+     "Push elements one at a time.",
+     "After each push, pop while the stack top matches the next target.",
+     "Advance the popped pointer on each successful pop.",
+     "The sequence is valid if all pops complete."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Choosing a stack where FIFO order is required, corrupting the output order.",
+    "fix": "Ask what must leave first; use a queue for arrival-order processing."
+   },
+   {
+    "mistake": "Using a plain list as a queue and calling pop(0), which is O(n).",
+    "fix": "Use collections.deque and popleft() for O(1) front removal."
+   },
+   {
+    "mistake": "Forgetting that both structures need emptiness checks before removal.",
+    "fix": "Guard every pop or popleft with an is-empty verification."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Backspace String Compare",
+    "slug": "backspace-string-compare",
+    "difficulty": "easy",
+    "description": "Given two strings with '#' as a backspace, determine whether they are equal after processing.",
+    "constraints": "1 to 200 characters; only lowercase letters and '#'.",
+    "hints": [
+     "Process each string with a stack.",
+     "Pop the top on every '#'.",
+     "Compare the final stacks."
+    ],
+    "approach": "Build each string's result with a stack that pops on backspaces, then compare.",
+    "pattern": "Stack simulation",
+    "time": "O(n + m)",
+    "space": "O(n + m)",
+    "solution": "For each string, iterate characters: append letters, pop when '#' and the stack is non-empty. Compare the two resulting lists.",
+    "tags": [
+     "stack",
+     "string",
+     "two pointers"
+    ]
+   },
+   {
+    "name": "Validate Stack Sequences",
+    "slug": "validate-stack-sequences",
+    "difficulty": "medium",
+    "description": "Given a push order and a candidate pop order, verify whether the pop order is achievable.",
+    "constraints": "All values unique; pushed and popped have equal length.",
+    "hints": [
+     "Push elements and pop greedily when the top matches.",
+     "Use a pointer into the popped array.",
+     "Valid if the entire popped order is consumed."
+    ],
+    "approach": "Simulate with a stack, popping whenever the top equals the next required element.",
+    "pattern": "Stack simulation",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Push each element of pushed; after each push, while the stack top equals popped[j], pop and advance j. Return true only if j reaches the end.",
+    "tags": [
+     "stack",
+     "simulation",
+     "greedy"
+    ]
+   },
+   {
+    "name": "Remove All Adjacent Duplicates In String II",
+    "slug": "remove-all-adjacent-duplicates-in-string-ii",
+    "difficulty": "medium",
+    "description": "Repeatedly remove groups of k identical adjacent letters until none remain.",
+    "constraints": "1 to 10^5 characters; k >= 2.",
+    "hints": [
+     "Store (character, count) pairs in a stack.",
+     "Increment the top count for matching letters.",
+     "Pop the pair when its count reaches k."
+    ],
+    "approach": "Keep a stack of character-count pairs, collapsing groups of size k.",
+    "pattern": "Stack simulation",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "For each character, if the stack top has the same letter increment its count, else push (char, 1). When a count reaches k, pop the pair. Rebuild the string from the stack.",
+    "tags": [
+     "stack",
+     "string"
+    ]
+   },
+   {
+    "name": "Baseball Game",
+    "slug": "baseball-game",
+    "difficulty": "easy",
+    "description": "Score a baseball game where 'C' cancels the last score, 'D' doubles it, and '+' adds the last two scores.",
+    "constraints": "1 to 1000 operations.",
+    "hints": [
+     "Keep a stack of all recorded scores.",
+     "Handle each operation by reading the stack top.",
+     "Sum the stack at the end."
+    ],
+    "approach": "Simulate the operations with a stack of scores.",
+    "pattern": "Stack simulation",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "For each op: push an integer as is; 'D' pushes 2 * top; '+' pushes top + second-top; 'C' pops the top. Return the sum of the stack.",
+    "tags": [
+     "stack",
+     "simulation",
+     "array"
+    ]
+   }
+  ]
+ }
+]

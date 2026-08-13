@@ -1,0 +1,1448 @@
+[
+  {
+    "slug": "memoization",
+    "name": "Memoization",
+    "difficulty": "easy",
+    "overview": "Memoization is a top-down dynamic programming technique that caches the results of expensive function calls and reuses them when the same inputs recur. It converts an exponential brute-force recursion into an efficient solution by storing computed subproblem answers.",
+    "why": "Memoization is the most direct way to turn a naive recursive solution into a polynomial one, making it a favorite first step in interviews. Recognizing overlapping subproblems and caching them shows strong DP fundamentals.",
+    "when": "Reach for memoization whenever you have a recursive solution that repeats work, especially one whose state can be described by a small tuple of integers. It is simplest when the state space is manageable and recursion depth is not a concern.",
+    "complexity": { "time": "O(states * work per state)", "space": "O(states) for the cache plus recursion stack" },
+    "concepts": [
+      { "name": "Overlapping Subproblems", "description": "Subproblems that are solved multiple times during recursion; caching their answers avoids redundant work." },
+      { "name": "Top-Down", "description": "Starting from the full problem and recursively breaking it down to base cases." },
+      { "name": "State Key", "description": "The tuple of function parameters that uniquely identifies a subproblem and acts as the cache key." },
+      { "name": "Base Case", "description": "The smallest input for which the answer is known directly, terminating the recursion." },
+      { "name": "Recursion Stack", "description": "The call stack overhead; deep recursion can cause stack overflow in iterative languages." }
+    ],
+    "patterns": [
+      { "name": "Standard Memoized Recursion", "description": "Check the cache, compute recursively if missing, store and return.", "code": "from functools import lru_cache\n\ndef fib(n):\n    @lru_cache(None)\n    def f(i):\n        if i <= 1:\n            return i\n        return f(i - 1) + f(i - 2)\n    return f(n)" },
+      { "name": "Manual Dictionary Cache", "description": "Use a dict or array as a cache when lru_cache is unavailable or state is multi-dimensional.", "code": "def solve(nums):\n    memo = {}\n    def dp(i):\n        if i >= len(nums):\n            return 0\n        if i in memo:\n            return memo[i]\n        memo[i] = max(dp(i + 1), nums[i] + dp(i + 2))\n        return memo[i]\n    return dp(0)" }
+    ],
+    "examples": [
+      {
+        "title": "Fibonacci with Memoization",
+        "problem": "Compute the nth Fibonacci number where fib(0)=0, fib(1)=1, and fib(n)=fib(n-1)+fib(n-2).",
+        "input": "n = 10",
+        "output": "55",
+        "explanation": "Naive recursion recomputes fib for the same n many times. Memoization stores each result once, reducing the work to O(n).",
+        "steps": [
+          "Define the recursive function with a base case for n <= 1.",
+          "Before recursing, check if f(n) is already in the cache.",
+          "If not, compute f(n-1) + f(n-2) recursively and store it.",
+          "Return the cached value."
+        ],
+        "complexity": { "time": "O(n)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Forgetting the base case, causing infinite recursion.", "fix": "Always define and return the base case before anything else." },
+      { "mistake": "Caching on only part of the state, producing wrong answers for multi-parameter problems.", "fix": "Use every parameter that affects the result in the cache key." },
+      { "mistake": "Using recursion on very deep state spaces and hitting stack overflow.", "fix": "Either increase recursion limits or switch to an iterative bottom-up approach." }
+    ],
+    "problems": [
+      {
+        "name": "Fibonacci Number",
+        "slug": "fibonacci-number",
+        "difficulty": "easy",
+        "description": "Return the nth Fibonacci number where F(0)=0, F(1)=1.",
+        "constraints": "0 <= n <= 30",
+        "hints": ["Define a base case.", "Cache results to avoid recomputation."],
+        "approach": "Memoize the recursive definition so each F(i) is computed once.",
+        "pattern": "Standard Memoized Recursion",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "Recurse with memoization: return i for i<=1, otherwise return cached sum of the two previous values.",
+        "tags": ["memoization", "recursion"]
+      },
+      {
+        "name": "Climbing Stairs",
+        "slug": "climbing-stairs",
+        "difficulty": "easy",
+        "description": "You can climb 1 or 2 steps at a time. Count the distinct ways to reach the top of n stairs.",
+        "constraints": "1 <= n <= 45",
+        "hints": ["The ways to reach step i equals ways to i-1 plus ways to i-2.", "Memoize the recurrence."],
+        "approach": "The recurrence is Fibonacci-like; memoize dp(i) = dp(i-1) + dp(i-2).",
+        "pattern": "Standard Memoized Recursion",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "dp(i) counts ways to climb i stairs with base cases dp(0)=1 and dp(1)=1, caching each state.",
+        "tags": ["memoization", "fibonacci"]
+      },
+      {
+        "name": "House Robber",
+        "slug": "house-robber",
+        "difficulty": "medium",
+        "description": "Rob houses along a street without robbing two adjacent ones; return the maximum amount you can rob.",
+        "constraints": "1 <= nums.length <= 100, 0 <= nums[i] <= 400",
+        "hints": ["At each house, decide to rob it or skip it.", "State is just the current index."],
+        "approach": "Memoize dp(i) = max(dp(i+1), nums[i] + dp(i+2)).",
+        "pattern": "Standard Memoized Recursion",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "At each house choose between skipping it or taking it plus the result two houses later; cache the answer per index.",
+        "tags": ["memoization", "decision-making"]
+      }
+    ]
+  },
+  {
+    "slug": "tabulation",
+    "name": "Tabulation",
+    "difficulty": "easy",
+    "overview": "Tabulation is the bottom-up form of dynamic programming that fills a table iteratively from base cases to the final answer. It avoids recursion overhead and often allows space optimization to a few rolling variables.",
+    "why": "Interviewers expect you to translate a memoized recursion into an iterative table to show you understand the recurrence fully. Tabulation is also the safer choice when the state space is large and recursion depth is a limit.",
+    "when": "Use tabulation when you can order subproblems so each depends only on already-computed smaller ones. It is ideal when the state space is dense (most states are used) rather than sparse.",
+    "complexity": { "time": "O(states * work per state)", "space": "O(states), often reducible to O(1) or O(n)" },
+    "concepts": [
+      { "name": "Bottom-Up", "description": "Starting from the smallest subproblems and building up to the full problem." },
+      { "name": "DP Table", "description": "An array or matrix where each cell stores the answer for a subproblem." },
+      { "name": "Base Case Initialization", "description": "Filling in the starting values of the table before iterating." },
+      { "name": "Transition Order", "description": "The loop order that guarantees dependencies are computed before use." },
+      { "name": "Space Optimization", "description": "Keeping only the last few rows instead of the whole table when only recent values matter." }
+    ],
+    "patterns": [
+      { "name": "Iterative 1D Fill", "description": "Fill a one-dimensional table in order, each cell depending on earlier cells.", "code": "def fib(n):\n    if n <= 1:\n        return n\n    dp = [0] * (n + 1)\n    dp[1] = 1\n    for i in range(2, n + 1):\n        dp[i] = dp[i - 1] + dp[i - 2]\n    return dp[n]" },
+      { "name": "Rolling Array", "description": "Replace the table with two or three variables to cut space to O(1).", "code": "def fib(n):\n    if n <= 1:\n        return n\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b" }
+    ],
+    "examples": [
+      {
+        "title": "Climbing Stairs via Tabulation",
+        "problem": "Count the number of distinct ways to climb n stairs taking 1 or 2 steps at a time.",
+        "input": "n = 5",
+        "output": "8",
+        "explanation": "The recurrence dp(i)=dp(i-1)+dp(i-2) is filled left to right starting from dp(0)=dp(1)=1.",
+        "steps": [
+          "Initialize dp[0] = 1 and dp[1] = 1.",
+          "Loop i from 2 to n.",
+          "Set dp[i] = dp[i-1] + dp[i-2].",
+          "Return dp[n]."
+        ],
+        "complexity": { "time": "O(n)", "space": "O(n), optimizable to O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Filling the table in the wrong order so dependencies are not computed yet.", "fix": "Analyze which states each cell depends on and iterate in dependency order." },
+      { "mistake": "Wrong or missing base cases, corrupting every later cell.", "fix": "Write down the base case for the smallest valid inputs and verify a couple of early cells by hand." },
+      { "mistake": "Keeping a full table when only the last two rows are needed.", "fix": "Use rolling variables to reduce memory to O(1)." }
+    ],
+    "problems": [
+      {
+        "name": "Min Cost Climbing Stairs",
+        "slug": "min-cost-climbing-stairs",
+        "difficulty": "easy",
+        "description": "Each step i has a cost; you can start at step 0 or 1 and pay cost[i] to leave. Return the minimum cost to reach the top.",
+        "constraints": "2 <= cost.length <= 1000, 0 <= cost[i] <= 999",
+        "hints": ["dp[i] is the minimum cost to reach step i.", "You come from i-1 or i-2."],
+        "approach": "Tabulate dp[i] = cost[i] + min(dp[i-1], dp[i-2]).",
+        "pattern": "Iterative 1D Fill",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Keep only the previous two minimum costs as rolling variables and return the min of the last two.",
+        "tags": ["tabulation", "minimization"]
+      },
+      {
+        "name": "Unique Paths",
+        "slug": "unique-paths",
+        "difficulty": "medium",
+        "description": "Count paths from the top-left to bottom-right of an m x n grid moving only down or right.",
+        "constraints": "1 <= m, n <= 100",
+        "hints": ["Each cell is reachable from above or the left.", "Build a 2D table."],
+        "approach": "Tabulate a grid where dp[i][j] = dp[i-1][j] + dp[i][j-1].",
+        "pattern": "Iterative Table Fill",
+        "time": "O(m * n)",
+        "space": "O(m * n), optimizable to O(n)",
+        "solution": "Fill row by row, each cell summing the cell above and the cell to the left; the answer is the bottom-right cell.",
+        "tags": ["tabulation", "grid-dp"]
+      },
+      {
+        "name": "Coin Change",
+        "slug": "coin-change",
+        "difficulty": "medium",
+        "description": "Return the fewest number of coins from denominations that sum to a given amount, or -1 if impossible.",
+        "constraints": "1 <= coins.length <= 12, 1 <= coins[i] <= 2^31-1, 0 <= amount <= 10^4",
+        "hints": ["dp[a] is the minimum coins for amount a.", "Try every coin as the last one."],
+        "approach": "Tabulate dp[a] = 1 + min over coins of dp[a - coin] for amounts 0..amount.",
+        "pattern": "Iterative 1D Fill",
+        "time": "O(amount * len(coins))",
+        "space": "O(amount)",
+        "solution": "Initialize dp[0]=0 and the rest to infinity; for each amount try every coin and keep the minimum.",
+        "tags": ["tabulation", "unbounded-knapsack"]
+      }
+    ]
+  },
+  {
+    "slug": "1d-dp",
+    "name": "1D DP",
+    "difficulty": "easy",
+    "overview": "1D DP uses a one-dimensional array where each position represents the optimal value for a subproblem defined by a single index. The state is usually a position in an array or the length of a prefix.",
+    "why": "1D DP is the most frequently tested DP category and appears in easy and medium questions in nearly every interview. Mastering it builds the intuition for recurrence design used across all DP.",
+    "when": "Reach for 1D DP when the only thing that changes between subproblems is a single integer such as an index, a length, or a target value. If the recurrence only needs the previous one or two cells, use rolling variables.",
+    "complexity": { "time": "O(n) or O(n * k)", "space": "O(n), often optimizable to O(1)" },
+    "concepts": [
+      { "name": "State", "description": "A single index i that defines the subproblem, such as the first i elements." },
+      { "name": "Recurrence", "description": "A formula expressing dp[i] in terms of earlier dp values." },
+      { "name": "Local vs Global Optimum", "description": "Tracking both the best value ending at i and the best seen so far." },
+      { "name": "Rolling Variables", "description": "Reusing a few variables to replace the full array." },
+      { "name": "Two-Pointer Style Transitions", "description": "Choosing between taking the current element or skipping it." }
+    ],
+    "patterns": [
+      { "name": "Max Subarray (Kadane)", "description": "Best sum ending at i is max of starting fresh or extending the previous segment.", "code": "def max_subarray(nums):\n    best = cur = nums[0]\n    for x in nums[1:]:\n        cur = max(x, cur + x)\n        best = max(best, cur)\n    return best" },
+      { "name": "Take or Skip", "description": "At each element decide to include it (with the constraint) or skip it.", "code": "def rob(nums):\n    a, b = 0, 0\n    for x in nums:\n        a, b = b, max(b, a + x)\n    return b" }
+    ],
+    "examples": [
+      {
+        "title": "Maximum Subarray Sum",
+        "problem": "Find the contiguous subarray with the largest sum.",
+        "input": "[-2, 1, -3, 4, -1, 2, 1, -5, 4]",
+        "output": "6 (subarray [4, -1, 2, 1])",
+        "explanation": "Kadane's algorithm keeps the best sum ending at each position and the best overall, using a rolling variable.",
+        "steps": [
+          "Initialize best and current with the first element.",
+          "For each next element, current = max(x, current + x).",
+          "Update best = max(best, current).",
+          "Return best."
+        ],
+        "complexity": { "time": "O(n)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Initializing best to 0, which fails when all numbers are negative.", "fix": "Initialize best and current to the first element, not 0." },
+      { "mistake": "Mixing up take-or-skip base cases and allowing adjacent picks.", "fix": "Rewrite the recurrence so each choice respects the constraint, then verify on a small example." },
+      { "mistake": "Using a full array when only the last one or two values are needed.", "fix": "Convert to rolling variables after deriving the recurrence." }
+    ],
+    "problems": [
+      {
+        "name": "Maximum Subarray",
+        "slug": "maximum-subarray",
+        "difficulty": "medium",
+        "description": "Find the contiguous subarray with the largest sum and return that sum.",
+        "constraints": "1 <= nums.length <= 10^5, -10^4 <= nums[i] <= 10^4",
+        "hints": ["Track the best sum ending at each position.", "A running sum reset when it goes negative works."],
+        "approach": "Use Kadane's algorithm with rolling variables.",
+        "pattern": "Max Subarray (Kadane)",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Keep current best ending at i and global best; extend or restart the subarray at each step.",
+        "tags": ["1d-dp", "kadane"]
+      },
+      {
+        "name": "Decode Ways",
+        "slug": "decode-ways",
+        "difficulty": "medium",
+        "description": "Count the number of ways to decode a digit string where A=1..Z=26.",
+        "constraints": "1 <= s.length <= 100, s contains only digits",
+        "hints": ["dp[i] depends on decoding one or two digits at the end.", "Handle leading-zero pairs."],
+        "approach": "dp[i] = dp[i-1] (if one digit valid) + dp[i-2] (if two digits valid).",
+        "pattern": "Take or Skip",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Slide two rolling values; add dp[i-1] when the last digit is non-zero and dp[i-2] when the last two form a valid 10..26.",
+        "tags": ["1d-dp", "string"]
+      },
+      {
+        "name": "Word Break",
+        "slug": "word-break",
+        "difficulty": "medium",
+        "description": "Return true if the string can be segmented into words from the dictionary.",
+        "constraints": "1 <= s.length <= 300, 1 <= wordDict.length <= 1000",
+        "hints": ["dp[i] = can s[:i] be segmented.", "Check each dictionary word ending at i."],
+        "approach": "dp[i] is true if some valid word ends at i and dp[i-len(word)] is true.",
+        "pattern": "Prefix Segmentation",
+        "time": "O(n^2)",
+        "space": "O(n)",
+        "solution": "Mark dp[0]=true; for each end position check every dictionary word that matches and is preceded by a true prefix.",
+        "tags": ["1d-dp", "strings"]
+      }
+    ]
+  },
+  {
+    "slug": "2d-dp",
+    "name": "2D DP",
+    "difficulty": "medium",
+    "overview": "2D DP keeps answers in a matrix where two dimensions describe the subproblem state, such as positions in two arrays or a position and a remaining capacity. It is the workhorse for string and grid problems.",
+    "why": "2D DP appears constantly in interviews covering grid paths, edit distance, and matching problems. Knowing how to set up the table and its boundaries separates strong candidates from average ones.",
+    "when": "Use 2D DP when two independent quantities change together, like the lengths of two prefixes, an index and a budget, or a start and end in an interval. Watch for space optimization down to a single row when transitions only look left/up.",
+    "complexity": { "time": "O(m * n) typically", "space": "O(m * n), often optimizable to O(min(m, n))" },
+    "concepts": [
+      { "name": "Two State Dimensions", "description": "Each cell (i, j) represents a subproblem parameterized by two values." },
+      { "name": "Boundary Handling", "description": "Filling row 0 and column 0 correctly since they have no earlier neighbors." },
+      { "name": "Direction of Filling", "description": "Ordering loops so dependencies (up, left, diagonal) are ready." },
+      { "name": "Row Optimization", "description": "Reusing one array because a cell only needs the current and previous rows." },
+      { "name": "Path Reconstruction", "description": "Walking back through the table from the answer to recover the actual solution." }
+    ],
+    "patterns": [
+      { "name": "Grid Accumulation", "description": "Each cell's value comes from above, left, or diagonal neighbors.", "code": "def min_path_sum(grid):\n    m, n = len(grid), len(grid[0])\n    dp = [[0] * n for _ in range(m)]\n    dp[0][0] = grid[0][0]\n    for i in range(m):\n        for j in range(n):\n            if i == 0 and j == 0:\n                continue\n            top = dp[i-1][j] if i else float('inf')\n            left = dp[i][j-1] if j else float('inf')\n            dp[i][j] = grid[i][j] + min(top, left)\n    return dp[-1][-1]" },
+      { "name": "Edit-Style Alignment", "description": "Compare two sequences and pay costs for matching, inserting, or deleting.", "code": "def lcs(a, b):\n    m, n = len(a), len(b)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if a[i-1] == b[j-1]:\n                dp[i][j] = dp[i-1][j-1] + 1\n            else:\n                dp[i][j] = max(dp[i-1][j], dp[i][j-1])\n    return dp[m][n]" }
+    ],
+    "examples": [
+      {
+        "title": "Minimum Path Sum",
+        "problem": "Find a path from top-left to bottom-right moving only down or right that minimizes the sum of cell values.",
+        "input": "grid = [[1,3,1],[1,5,1],[4,2,1]]",
+        "output": "7 (path 1->3->1->1->1)",
+        "explanation": "Each cell's minimum is its own value plus the smaller of the cell above and the cell to the left.",
+        "steps": [
+          "Create a dp table the size of the grid.",
+          "Fill the first row and first column with prefix sums.",
+          "For interior cells take the min of top and left plus the cell value.",
+          "Return the bottom-right cell."
+        ],
+        "complexity": { "time": "O(m * n)", "space": "O(m * n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Indexing out of bounds when checking the top or left neighbor in row 0 or column 0.", "fix": "Handle the first row and column as a special prefix-sum case before the main loop." },
+      { "mistake": "Using O(m*n) space when only the previous row is needed.", "fix": "Keep a single row array and update it in place, tracking the diagonal value separately." },
+      { "mistake": "Wrong loop order causing use of stale cells.", "fix": "Fill in dependency order: top-to-bottom and left-to-right." }
+    ],
+    "problems": [
+      {
+        "name": "Minimum Path Sum",
+        "slug": "minimum-path-sum",
+        "difficulty": "medium",
+        "description": "Return the minimum sum along a path from the top-left to bottom-right moving only down or right.",
+        "constraints": "1 <= m, n <= 200, 0 <= grid[i][j] <= 200",
+        "hints": ["dp[i][j] comes from above or left.", "Fill row by row."],
+        "approach": "Accumulate each cell as its value plus the min of the two predecessors.",
+        "pattern": "Grid Accumulation",
+        "time": "O(m * n)",
+        "space": "O(m * n), optimizable to O(n)",
+        "solution": "Fill the grid with prefix sums for the edges and the min recurrence for interiors.",
+        "tags": ["2d-dp", "grid"]
+      },
+      {
+        "name": "Longest Common Subsequence",
+        "slug": "longest-common-subsequence",
+        "difficulty": "medium",
+        "description": "Return the length of the longest subsequence common to two strings.",
+        "constraints": "1 <= text1.length, text2.length <= 1000",
+        "hints": ["Match characters at i and j or skip one side.", "dp[i][j] over prefixes."],
+        "approach": "LCS recurrence: if characters match take diagonal plus one, else take the max of skipping either.",
+        "pattern": "Edit-Style Alignment",
+        "time": "O(m * n)",
+        "space": "O(m * n), optimizable to O(n)",
+        "solution": "Build a prefix table where matching chars extend the diagonal and mismatches carry the larger of the two neighbors.",
+        "tags": ["2d-dp", "lcs"]
+      },
+      {
+        "name": "Edit Distance",
+        "slug": "edit-distance",
+        "difficulty": "hard",
+        "description": "Return the minimum number of insert, delete, and replace operations to convert word1 into word2.",
+        "constraints": "0 <= word1.length, word2.length <= 500",
+        "hints": ["Think in terms of prefixes.", "Replace, insert, and delete are three costs."],
+        "approach": "dp[i][j] = min of diagonal (replace/match), up (delete), left (insert) plus one where needed.",
+        "pattern": "Edit-Style Alignment",
+        "time": "O(m * n)",
+        "space": "O(m * n), optimizable to O(n)",
+        "solution": "Initialize the first row and column as costs of insertion/deletion, then apply the min-cost recurrence for each cell.",
+        "tags": ["2d-dp", "edit-distance"]
+      }
+    ]
+  },
+  {
+    "slug": "knapsack",
+    "name": "Knapsack",
+    "difficulty": "medium",
+    "overview": "Knapsack DP selects a subset of items, each with weight and value, to maximize value without exceeding a capacity. Its 0/1 and unbounded variants model a huge family of resource-allocation problems.",
+    "why": "Knapsack is one of the most commonly asked DP families and its template generalizes to partition, subset-sum, and many optimization problems. Interviewers use it to test whether you can map a word problem onto a known state definition.",
+    "when": "Reach for knapsack DP when you must choose items to fill a budget, capacity, or target, and each item is either taken (0/1) or can be repeated (unbounded). The state is (index or items processed, remaining capacity).",
+    "complexity": { "time": "O(n * capacity)", "space": "O(capacity) after optimization" },
+    "concepts": [
+      { "name": "Capacity State", "description": "The second DP dimension tracks the remaining weight or budget." },
+      { "name": "0/1 vs Unbounded", "description": "0/1 allows at most one copy per item; unbounded allows unlimited copies, changing the loop direction." },
+      { "name": "Item Processing", "description": "Processing items one by one to avoid reusing an item in the 0/1 case." },
+      { "name": "Value vs Count Objective", "description": "Maximizing total value or counting the number of ways to reach a target." },
+      { "name": "1D Space Reduction", "description": "Collapsing the 2D table into one array keyed by capacity." }
+    ],
+    "patterns": [
+      { "name": "0/1 Knapsack", "description": "Decide include or exclude each item; iterate capacity backwards to avoid reuse.", "code": "def knapsack01(values, weights, cap):\n    dp = [0] * (cap + 1)\n    for w, v in zip(weights, values):\n        for c in range(cap, w - 1, -1):\n            dp[c] = max(dp[c], dp[c - w] + v)\n    return dp[cap]" },
+      { "name": "Unbounded Knapsack", "description": "Iterate capacity forwards so each item can be reused.", "code": "def unbounded(values, weights, cap):\n    dp = [0] * (cap + 1)\n    for c in range(1, cap + 1):\n        for w, v in zip(weights, values):\n            if w <= c:\n                dp[c] = max(dp[c], dp[c - w] + v)\n    return dp[cap]" }
+    ],
+    "examples": [
+      {
+        "title": "0/1 Knapsack",
+        "problem": "Given weights [1,3,4,5] and values [1,4,5,7] with capacity 7, maximize total value.",
+        "input": "weights=[1,3,4,5], values=[1,4,5,7], capacity=7",
+        "output": "9 (items with weights 3 and 4)",
+        "explanation": "Choosing weights 3 and 4 gives value 4+5=9, the best combination under capacity 7.",
+        "steps": [
+          "Initialize dp[0..7] to 0.",
+          "Process each item and update capacities from 7 down to its weight.",
+          "For each capacity take max of not taking and taking the item.",
+          "Return dp[7]."
+        ],
+        "complexity": { "time": "O(n * capacity)", "space": "O(capacity)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Iterating capacity forwards in 0/1 knapsack, which allows using an item multiple times.", "fix": "Iterate capacity from high to low in the 0/1 case." },
+      { "mistake": "Using capacity as the outer loop in unbounded knapsack and missing item ordering.", "fix": "Loop over items outer, capacity inner, or be deliberate about which variant you implement." },
+      { "mistake": "Skipping items heavier than the capacity and forgetting they are valid choices as 'not taken'.", "fix": "dp[c] = dp[c] (unchanged) handles that automatically; just guard the inner loop bound." }
+    ],
+    "problems": [
+      {
+        "name": "Target Sum",
+        "slug": "target-sum",
+        "difficulty": "medium",
+        "description": "Assign + or - to each integer in nums so the total equals target; count the number of assignments.",
+        "constraints": "1 <= nums.length <= 20, 0 <= nums[i] <= 1000, 0 <= sum(nums[i]) <= 1000",
+        "hints": ["Transform into subset-sum with a shifted offset.", "Count ways to reach each sum."],
+        "approach": "Convert to counting subsets: find a subset with sum (total+target)/2.",
+        "pattern": "0/1 Knapsack",
+        "time": "O(n * sum)",
+        "space": "O(sum)",
+        "solution": "dp[c] counts ways to reach sum c; process each number with a backwards capacity loop.",
+        "tags": ["knapsack", "counting"]
+      },
+      {
+        "name": "Partition Equal Subset Sum",
+        "slug": "partition-equal-subset-sum",
+        "difficulty": "medium",
+        "description": "Return true if the array can be partitioned into two subsets with equal sums.",
+        "constraints": "1 <= nums.length <= 200, 1 <= nums[i] <= 100",
+        "hints": ["Equivalent to reaching sum/2.", "Boolean knapsack."],
+        "approach": "Check if any subset sums to half the total using a boolean DP over capacities.",
+        "pattern": "0/1 Knapsack",
+        "time": "O(n * target)",
+        "space": "O(target)",
+        "solution": "dp[c] is true if a subset sums to c; iterate numbers and capacities backwards.",
+        "tags": ["knapsack", "subset-sum"]
+      },
+      {
+        "name": "Coin Change 2",
+        "slug": "coin-change-2",
+        "difficulty": "medium",
+        "description": "Count the number of combinations of coins that make up a given amount (unlimited supply).",
+        "constraints": "1 <= coins.length <= 300, 1 <= coins[i] <= 5000, 0 <= amount <= 5000",
+        "hints": ["Order matters for combinations: iterate coins outer.", "Unbounded usage means forward loop."],
+        "approach": "Unbounded knapsack counting: dp[a] += dp[a-coin] with coins as the outer loop.",
+        "pattern": "Unbounded Knapsack",
+        "time": "O(amount * len(coins))",
+        "space": "O(amount)",
+        "solution": "Start dp[0]=1; for each coin, for each amount, add dp[amount-coin].",
+        "tags": ["knapsack", "counting"]
+      }
+    ]
+  },
+  {
+    "slug": "subset-sum",
+    "name": "Subset Sum",
+    "difficulty": "medium",
+    "overview": "Subset sum asks whether a subset of numbers can add up to a given target. It is a boolean 0/1 knapsack where the value of each item equals its weight, and it underpins partition and target-sum problems.",
+    "why": "Subset sum is a classic that appears directly or as a reduction in interviews and in many real-world scheduling problems. Recognizing when a problem can be reframed as subset sum is a high-value skill.",
+    "when": "Reach for subset-sum DP when the question is whether some combination of given numbers can reach an exact total, or when a counting/partition variant asks how many subsets reach a target.",
+    "complexity": { "time": "O(n * target)", "space": "O(target) after optimization" },
+    "concepts": [
+      { "name": "Boolean DP", "description": "dp[c] records reachability of sum c, not an optimal value." },
+      { "name": "Target Bound", "description": "Only capacities 0..target are tracked; sums above the target are irrelevant." },
+      { "name": "Backwards Iteration", "description": "Iterating capacity downward keeps each number usable at most once." },
+      { "name": "Count Variant", "description": "dp[c] counts subsets reaching c instead of a boolean flag." },
+      { "name": "Reduction", "description": "Many problems become subset sum after algebra, such as target sum and partition." }
+    ],
+    "patterns": [
+      { "name": "Boolean Reachability", "description": "Mark each reachable sum by updating from high to low.", "code": "def subset_sum(nums, target):\n    dp = [False] * (target + 1)\n    dp[0] = True\n    for x in nums:\n        for c in range(target, x - 1, -1):\n            dp[c] = dp[c] or dp[c - x]\n    return dp[target]" },
+      { "name": "Counting Subsets", "description": "Count the number of subsets reaching each sum.", "code": "def count_subsets(nums, target):\n    dp = [0] * (target + 1)\n    dp[0] = 1\n    for x in nums:\n        for c in range(target, x - 1, -1):\n            dp[c] += dp[c - x]\n    return dp[target]" }
+    ],
+    "examples": [
+      {
+        "title": "Subset Sum Reachability",
+        "problem": "Can a subset of [3, 34, 4, 12, 5, 2] sum to 9?",
+        "input": "nums=[3,34,4,12,5,2], target=9",
+        "output": "True (3 + 4 + 2 = 9)",
+        "explanation": "The boolean table marks 9 reachable because 3+4+2 sums exactly to it.",
+        "steps": [
+          "Initialize dp[0]=True.",
+          "Process each number and update capacities downward.",
+          "dp[c] becomes true if it was true or dp[c-x] was true.",
+          "Return dp[9]."
+        ],
+        "complexity": { "time": "O(n * target)", "space": "O(target)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Iterating capacities upward and effectively using numbers multiple times.", "fix": "Use a downward capacity loop for the 0/1 flavor." },
+      { "mistake": "Using a huge target and blowing up memory when the sum of all numbers is smaller.", "fix": "Cap the target at the sum of nums since no subset can exceed it." },
+      { "mistake": "Confusing counting subsets with counting ordered sequences.", "fix": "Outer loop over numbers (not target) prevents double-counting permutations." }
+    ],
+    "problems": [
+      {
+        "name": "Partition Equal Subset Sum",
+        "slug": "partition-equal-subset-sum-2",
+        "difficulty": "medium",
+        "description": "Return true if nums can be split into two subsets of equal sum.",
+        "constraints": "1 <= nums.length <= 200, 1 <= nums[i] <= 100",
+        "hints": ["Target is total/2.", "Reachability check."],
+        "approach": "Return true only if the total is even and sum/2 is reachable.",
+        "pattern": "Boolean Reachability",
+        "time": "O(n * target)",
+        "space": "O(target)",
+        "solution": "Early return false for odd totals, then run boolean subset-sum against total/2.",
+        "tags": ["subset-sum", "partition"]
+      },
+      {
+        "name": "Target Sum",
+        "slug": "target-sum-2",
+        "difficulty": "medium",
+        "description": "Count sign assignments (+/-) that make the numbers sum to a target.",
+        "constraints": "1 <= nums.length <= 20, 0 <= nums[i] <= 1000, 0 <= sum(nums[i]) <= 1000",
+        "hints": ["Algebra turns it into a subset sum.", "Let P be the positive subset."],
+        "approach": "Find count of subsets summing to (total + target) / 2.",
+        "pattern": "Counting Subsets",
+        "time": "O(n * target)",
+        "space": "O(target)",
+        "solution": "sum(P) - sum(N) = target implies 2*sum(P) = total + target; count subsets reaching that value.",
+        "tags": ["subset-sum", "counting"]
+      },
+      {
+        "name": "Last Stone Weight II",
+        "slug": "last-stone-weight-ii",
+        "difficulty": "medium",
+        "description": "Smash stones so the smallest possible remaining weight is left.",
+        "constraints": "1 <= stones.length <= 30, 1 <= stones[i] <= 100",
+        "hints": ["Minimize the difference between two subsets.", "Split into the closest two subset sums."],
+        "approach": "Find the largest subset sum <= total/2; answer is total - 2 * best.",
+        "pattern": "Boolean Reachability",
+        "time": "O(n * total)",
+        "space": "O(total)",
+        "solution": "Track reachable sums, take the largest one at most half of total, and compute the remaining gap.",
+        "tags": ["subset-sum", "minimization"]
+      }
+    ]
+  },
+  {
+    "slug": "partition-dp",
+    "name": "Partition DP",
+    "difficulty": "hard",
+    "overview": "Partition DP splits an array or string into contiguous segments, optimizing an objective over the way the cuts are made. The state is an interval (i, j), and the transition tries every possible cut point.",
+    "why": "Partition DP is a frequent hard-level question pattern covering palindrome partitioning, matrix chain, and burst balloons. It tests whether you can structure a recurrence around sub-intervals and choose a good cut.",
+    "when": "Reach for partition DP when the problem literally involves cutting, splitting, or partitioning a sequence into parts and optimizing a cost that depends on segment boundaries. The typical state is the start and end of a segment.",
+    "complexity": { "time": "O(n^2) or O(n^3)", "space": "O(n^2)" },
+    "concepts": [
+      { "name": "Interval State", "description": "dp[i][j] represents the optimal answer for the subarray from i to j." },
+      { "name": "Cut Point", "description": "The transition tries every k between i and j as the place to split." },
+      { "name": "Length Ordering", "description": "Processing intervals from small length to large so sub-intervals are ready." },
+      { "name": "Combining Costs", "description": "The answer for an interval combines answers of its left and right parts plus the merge cost." },
+      { "name": "Palindrome Checking", "description": "Precomputing which substrings are palindromes to make transitions cheap." }
+    ],
+    "patterns": [
+      { "name": "Min Cuts for Palindrome Partition", "description": "Cut into palindromic substrings minimizing the number of cuts.", "code": "def min_cut(s):\n    n = len(s)\n    is_pal = [[False] * n for _ in range(n)]\n    for i in range(n - 1, -1, -1):\n        for j in range(i, n):\n            is_pal[i][j] = s[i] == s[j] and (j - i < 2 or is_pal[i+1][j-1])\n    dp = [float('inf')] * n\n    for j in range(n):\n        if is_pal[0][j]:\n            dp[j] = 0\n        else:\n            for i in range(j):\n                if is_pal[i+1][j]:\n                    dp[j] = min(dp[j], dp[i] + 1)\n    return dp[-1]" },
+      { "name": "Burst Balloons / Merge Cost", "description": "Choose the order to remove or combine elements to maximize or minimize the total cost.", "code": "def max_coins(nums):\n    nums = [1] + nums + [1]\n    n = len(nums)\n    dp = [[0] * n for _ in range(n)]\n    for length in range(1, n - 1):\n        for i in range(1, n - length):\n            j = i + length - 1\n            for k in range(i, j + 1):\n                coins = nums[i-1] * nums[k] * nums[j+1]\n                dp[i][j] = max(dp[i][j], coins + dp[i][k-1] + dp[k+1][j])\n    return dp[1][n-2]" }
+    ],
+    "examples": [
+      {
+        "title": "Palindrome Partitioning II",
+        "problem": "Return the minimum number of cuts needed to split s into palindromic substrings.",
+        "input": "s = \"aab\"",
+        "output": "1 (split as \"aa\" + \"b\")",
+        "explanation": "One cut produces two palindromic pieces, which is the minimum.",
+        "steps": [
+          "Precompute is_pal for all substrings.",
+          "For each end j, if s[0..j] is a palindrome dp[j]=0.",
+          "Otherwise try every split point i and use dp[i]+1 when s[i+1..j] is a palindrome.",
+          "Return dp[n-1]."
+        ],
+        "complexity": { "time": "O(n^2)", "space": "O(n^2)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Iterating intervals in the wrong order and using uncomputed sub-intervals.", "fix": "Loop by interval length from small to large." },
+      { "mistake": "Recomputing palindrome checks inside the transition, making it O(n^3) unexpectedly.", "fix": "Precompute the palindrome table once." },
+      { "mistake": "Off-by-one in cut points when counting cuts versus partitions.", "fix": "Clarify whether the answer is the number of cuts or the number of parts and add or subtract one accordingly." }
+    ],
+    "problems": [
+      {
+        "name": "Palindrome Partitioning II",
+        "slug": "palindrome-partitioning-ii",
+        "difficulty": "hard",
+        "description": "Return the minimum number of cuts to split s into palindromic substrings.",
+        "constraints": "1 <= s.length <= 2000",
+        "hints": ["Precompute palindrome substrings.", "dp[j] = best cuts for prefix ending at j."],
+        "approach": "Prefix DP where each transition tries a new palindromic tail.",
+        "pattern": "Min Cuts for Palindrome Partition",
+        "time": "O(n^2)",
+        "space": "O(n^2)",
+        "solution": "Use a palindrome table and a prefix cut array; for each j try all palindrome tails ending at j.",
+        "tags": ["partition-dp", "strings"]
+      },
+      {
+        "name": "Burst Balloons",
+        "slug": "burst-balloons",
+        "difficulty": "hard",
+        "description": "Burst balloons for coins equal to the product of neighbors; maximize total coins.",
+        "constraints": "1 <= nums.length <= 300, 0 <= nums[i] <= 100",
+        "hints": ["Think of the last balloon burst in an interval.", "dp[i][j] over intervals."],
+        "approach": "Pick the last balloon k to burst inside each interval and combine left and right.",
+        "pattern": "Burst Balloons / Merge Cost",
+        "time": "O(n^3)",
+        "space": "O(n^2)",
+        "solution": "Pad with 1s, then for each interval choose k as the final burst, adding nums[i-1]*nums[k]*nums[j+1].",
+        "tags": ["partition-dp", "interval"]
+      },
+      {
+        "name": "Split Array Largest Sum",
+        "slug": "split-array-largest-sum",
+        "difficulty": "hard",
+        "description": "Split the array into k non-empty contiguous subarrays minimizing the largest subarray sum.",
+        "constraints": "1 <= nums.length <= 1000, 1 <= k <= nums.length, 0 <= nums[i] <= 10^6",
+        "hints": ["dp[i][j] = min max sum for first i elements in j parts.", "Binary search on the answer also works."],
+        "approach": "Try every split point and take the max of prefix sum and remaining parts.",
+        "pattern": "Interval Cut Optimization",
+        "time": "O(n^2 * k)",
+        "space": "O(n * k)",
+        "solution": "For j parts over i elements, the best is min over splits of max(prefix sum from split, dp[split][j-1]).",
+        "tags": ["partition-dp", "minimization"]
+      }
+    ]
+  },
+  {
+    "slug": "lcs",
+    "name": "LCS",
+    "difficulty": "medium",
+    "overview": "Longest Common Subsequence finds the longest subsequence present in two strings while preserving order. It is the canonical example of string DP and a template reused by edit distance, shortest common supersequence, and more.",
+    "why": "LCS is one of the most asked DP problems and its table structure transfers to many other string comparison problems. Being fluent in its recurrence lets you answer related follow-ups quickly in interviews.",
+    "when": "Reach for the LCS pattern whenever two sequences must be aligned or compared for shared order-preserving content. Adapt it when you only need the length, the actual subsequence, or a variant cost model.",
+    "complexity": { "time": "O(m * n)", "space": "O(m * n), optimizable to O(min(m, n))" },
+    "concepts": [
+      { "name": "Subsequence vs Substring", "description": "Subsequence skips characters and keeps order; substring must be contiguous." },
+      { "name": "Prefix Table", "description": "dp[i][j] is the LCS of the first i and first j characters." },
+      { "name": "Match Transition", "description": "Equal characters extend the LCS by one from the diagonal." },
+      { "name": "Mismatch Transition", "description": "Unequal characters keep the max of dropping one character from either side." },
+      { "name": "Traceback", "description": "Walking the table diagonally and across to recover the actual subsequence." }
+    ],
+    "patterns": [
+      { "name": "Classic LCS Length", "description": "Fill the prefix table with match/mismatch rules.", "code": "def lcs(a, b):\n    m, n = len(a), len(b)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if a[i-1] == b[j-1]:\n                dp[i][j] = dp[i-1][j-1] + 1\n            else:\n                dp[i][j] = max(dp[i-1][j], dp[i][j-1])\n    return dp[m][n]" },
+      { "name": "LCS as Metric for Other Problems", "description": "Derive deletions, supersequence, or similarity from LCS length.", "code": "# min deletions to make a == b from edit ops\n# = len(a) + len(b) - 2 * lcs_len(a, b)" }
+    ],
+    "examples": [
+      {
+        "title": "Longest Common Subsequence",
+        "problem": "Find the length of the longest subsequence common to 'abcde' and 'ace'.",
+        "input": "text1 = 'abcde', text2 = 'ace'",
+        "output": "3 ('ace')",
+        "explanation": "Matching a, c, and e in order yields the common subsequence 'ace' of length 3.",
+        "steps": [
+          "Build an (m+1) x (n+1) table initialized to 0.",
+          "Loop over each character pair.",
+          "On a match, take the diagonal cell plus one.",
+          "On a mismatch, take the max of the cell above and the cell to the left.",
+          "Return the bottom-right value."
+        ],
+        "complexity": { "time": "O(m * n)", "space": "O(m * n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Confusing subsequence with substring and forcing contiguity.", "fix": "Use the skip-either-side recurrence; substring DP is a different problem." },
+      { "mistake": "Off-by-one indexing between the string and the table rows.", "fix": "Make the table one larger in each dimension and map characters at i-1 and j-1." },
+      { "mistake": "Forgetting to handle empty-prefix rows correctly.", "fix": "Keep row 0 and column 0 as zeros to represent LCS with an empty string." }
+    ],
+    "problems": [
+      {
+        "name": "Longest Common Subsequence",
+        "slug": "longest-common-subsequence-2",
+        "difficulty": "medium",
+        "description": "Return the length of the longest subsequence common to two strings.",
+        "constraints": "1 <= text1.length, text2.length <= 1000",
+        "hints": ["Table over prefixes.", "Match or skip."],
+        "approach": "Apply the classic LCS recurrence over the full prefix table.",
+        "pattern": "Classic LCS Length",
+        "time": "O(m * n)",
+        "space": "O(m * n), optimizable to O(n)",
+        "solution": "Fill dp[i][j] using the diagonal on match and max of neighbors on mismatch.",
+        "tags": ["lcs", "strings"]
+      },
+      {
+        "name": "Delete Operation for Two Strings",
+        "slug": "delete-operation-for-two-strings",
+        "difficulty": "medium",
+        "description": "Return the minimum number of deletions to make two strings equal.",
+        "constraints": "1 <= word1.length, word2.length <= 500",
+        "hints": ["Keep the LCS and delete everything else.", "Total minus twice LCS."],
+        "approach": "Answer is len(a) + len(b) - 2 * LCS(a, b).",
+        "pattern": "LCS as Metric for Other Problems",
+        "time": "O(m * n)",
+        "space": "O(n)",
+        "solution": "Compute LCS length, then subtract it twice from the sum of the lengths.",
+        "tags": ["lcs", "editing"]
+      },
+      {
+        "name": "Shortest Common Supersequence",
+        "slug": "shortest-common-supersequence",
+        "difficulty": "hard",
+        "description": "Return the shortest string that has both strings as subsequences.",
+        "constraints": "1 <= str1.length, str2.length <= 1000",
+        "hints": ["Length is len1 + len2 - LCS.", "Reconstruct by walking the LCS table."],
+        "approach": "Length first, then trace back to build the merged string.",
+        "pattern": "Classic LCS Length with Traceback",
+        "time": "O(m * n)",
+        "space": "O(m * n)",
+        "solution": "Compute LCS, then build the supersequence by emitting both characters on mismatches and one shared character on matches.",
+        "tags": ["lcs", "strings"]
+      }
+    ]
+  },
+  {
+    "slug": "lis",
+    "name": "LIS",
+    "difficulty": "medium",
+    "overview": "Longest Increasing Subsequence finds the longest subsequence whose elements are strictly increasing. The O(n log n) solution uses a patience-sorting pile array and is a classic interview showcase.",
+    "why": "LIS appears directly and as a subroutine in problems like Russian doll envelopes and box stacking. Knowing both the O(n^2) and O(n log n) versions demonstrates depth beyond the basic table.",
+    "when": "Reach for LIS when a problem asks for the longest chain, sequence, or arrangement that must preserve increasing order. If elements must be both increasing in one dimension and sorted in another, use the patience approach on the sorted structure.",
+    "complexity": { "time": "O(n^2) naive, O(n log n) optimal", "space": "O(n)" },
+    "concepts": [
+      { "name": "Strict vs Non-Strict", "description": "Increasing means strictly greater; non-decreasing allows equal values." },
+      { "name": "Ends-at State", "description": "dp[i] is the LIS length that ends at index i." },
+      { "name": "Piles Array", "description": "tails[k] holds the smallest tail of an increasing subsequence of length k+1." },
+      { "name": "Binary Search Update", "description": "Finding the right pile with bisect keeps the process O(n log n)." },
+      { "name": "Follow-up Dimensions", "description": "Sorting by one dimension and taking LIS on another handles multi-attribute problems." }
+    ],
+    "patterns": [
+      { "name": "O(n^2) LIS", "description": "Extend any earlier smaller element's subsequence.", "code": "def lis(nums):\n    dp = [1] * len(nums)\n    for i in range(len(nums)):\n        for j in range(i):\n            if nums[j] < nums[i]:\n                dp[i] = max(dp[i], dp[j] + 1)\n    return max(dp)" },
+      { "name": "O(n log n) LIS", "description": "Binary search the tails array to place each number.", "code": "import bisect\n\ndef lis_fast(nums):\n    tails = []\n    for x in nums:\n        i = bisect.bisect_left(tails, x)\n        if i == len(tails):\n            tails.append(x)\n        else:\n            tails[i] = x\n    return len(tails)" }
+    ],
+    "examples": [
+      {
+        "title": "Longest Increasing Subsequence",
+        "problem": "Find the length of the longest strictly increasing subsequence.",
+        "input": "[10, 9, 2, 5, 3, 7, 101, 18]",
+        "output": "4 ([2, 3, 7, 101])",
+        "explanation": "The best increasing subsequence has length 4; the patience array tracks the smallest possible tails.",
+        "steps": [
+          "For the O(n^2) version, init dp[i]=1 and extend from earlier smaller elements.",
+          "Return the max of dp.",
+          "For the fast version, place each number with bisect_left in the tails array.",
+          "Return the length of tails."
+        ],
+        "complexity": { "time": "O(n^2) or O(n log n)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Using <= in the comparison and accepting equal elements in a strictly increasing sequence.", "fix": "Use strict < for the increasing condition, or bisect_right for non-decreasing." },
+      { "mistake": "Believing the tails array itself is the LIS; it is only a storage structure.", "fix": "Recall that tails is a scaffold; reconstruct the real sequence separately if needed." },
+      { "mistake": "Running O(n^2) on a 10^5 input and timing out.", "fix": "Switch to the O(n log n) patience approach for large inputs." }
+    ],
+    "problems": [
+      {
+        "name": "Longest Increasing Subsequence",
+        "slug": "longest-increasing-subsequence-2",
+        "difficulty": "medium",
+        "description": "Return the length of the longest strictly increasing subsequence.",
+        "constraints": "1 <= nums.length <= 2500",
+        "hints": ["dp[i] ends at i.", "Or use the tails patience array."],
+        "approach": "Use the O(n log n) patience method for the tight time limit.",
+        "pattern": "O(n log n) LIS",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Maintain tails with bisect_left and replace or append each element.",
+        "tags": ["lis", "binary-search"]
+      },
+      {
+        "name": "Russian Doll Envelopes",
+        "slug": "russian-doll-envelopes",
+        "difficulty": "hard",
+        "description": "Count the maximum number of envelopes that can be nested inside each other.",
+        "constraints": "1 <= envelopes.length <= 10^5, 1 <= w, h <= 10^5",
+        "hints": ["Sort by width.", "LIS on heights with a tie-break."],
+        "approach": "Sort by width ascending and height descending, then LIS on heights.",
+        "pattern": "O(n log n) LIS",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sorting height descending for equal widths prevents false nesting, then apply patience LIS on heights.",
+        "tags": ["lis", "sorting"]
+      },
+      {
+        "name": "Number of Longest Increasing Subsequence",
+        "slug": "number-of-longest-increasing-subsequence",
+        "difficulty": "medium",
+        "description": "Count the number of longest increasing subsequences.",
+        "constraints": "1 <= nums.length <= 2000, -10^6 <= nums[i] <= 10^6",
+        "hints": ["Track both length and count per index.", "Sum counts where length is maximal."],
+        "approach": "O(n^2) DP keeping length and count for each ending index.",
+        "pattern": "O(n^2) LIS with Counts",
+        "time": "O(n^2)",
+        "space": "O(n)",
+        "solution": "For each i accumulate counts from all earlier j with nums[j] < nums[i], merging equal-length contributions.",
+        "tags": ["lis", "counting"]
+      }
+    ]
+  },
+  {
+    "slug": "edit-distance",
+    "name": "Edit Distance",
+    "difficulty": "hard",
+    "overview": "Edit distance (Levenshtein distance) is the minimum number of insertions, deletions, and substitutions to convert one string into another. It is the archetype of cost-based string alignment DP.",
+    "why": "Edit distance is a classic hard question that frequently appears in interviews and is a gateway to autocorrect, diffing, and biological sequence alignment. Its recurrence generalizes to many string-similarity problems.",
+    "when": "Reach for edit distance when a problem asks for the minimum number of operations to transform one string into another, or for the cost of making two strings equal. Generalize it by changing per-operation costs.",
+    "complexity": { "time": "O(m * n)", "space": "O(m * n), optimizable to O(n)" },
+    "concepts": [
+      { "name": "Operations", "description": "Insert a character, delete a character, or replace a character, each costing 1." },
+      { "name": "Prefix State", "description": "dp[i][j] is the edit distance between the first i and first j characters." },
+      { "name": "Base Row and Column", "description": "Converting a prefix to empty costs its length in deletions (or insertions)." },
+      { "name": "Match Cost Zero", "description": "Equal characters cost nothing and reuse the diagonal value." },
+      { "name": "Generalization", "description": "Weighted costs and other ops like swap extend the same table structure." }
+    ],
+    "patterns": [
+      { "name": "Standard Levenshtein", "description": "Three-way min over insert, delete, and replace at each cell.", "code": "def edit_distance(a, b):\n    m, n = len(a), len(b)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(m + 1):\n        dp[i][0] = i\n    for j in range(n + 1):\n        dp[0][j] = j\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if a[i-1] == b[j-1]:\n                dp[i][j] = dp[i-1][j-1]\n            else:\n                dp[i][j] = 1 + min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1])\n    return dp[m][n]" },
+      { "name": "One-Row Optimization", "description": "Keep only the previous row and update in place with a saved diagonal.", "code": "def edit_distance_row(a, b):\n    prev = list(range(len(b) + 1))\n    for i, ca in enumerate(a, 1):\n        cur = [i] + [0] * len(b)\n        for j, cb in enumerate(b, 1):\n            cur[j] = prev[j-1] if ca == cb else 1 + min(prev[j-1], prev[j], cur[j-1])\n        prev = cur\n    return prev[-1]" }
+    ],
+    "examples": [
+      {
+        "title": "Edit Distance",
+        "problem": "Minimum operations to convert 'horse' into 'ros'.",
+        "input": "word1 = 'horse', word2 = 'ros'",
+        "output": "3",
+        "explanation": "Replace h with r, delete the second o, and keep s, for three operations.",
+        "steps": [
+          "Initialize the first row and column with prefix lengths.",
+          "Loop over all pairs of characters.",
+          "On a match, copy the diagonal; otherwise take 1 plus the min of diagonal, up, and left.",
+          "Return the bottom-right cell."
+        ],
+        "complexity": { "time": "O(m * n)", "space": "O(m * n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Initializing the table rows and columns to 0 instead of their index lengths.", "fix": "Set dp[i][0]=i and dp[0][j]=j to represent deleting or inserting entire prefixes." },
+      { "mistake": "Forgetting that a match costs zero and still adding 1.", "fix": "Handle the equality branch separately to copy the diagonal untouched." },
+      { "mistake": "Using an O(m*n) table when only the previous row is needed.", "fix": "Switch to the rolling-row implementation." }
+    ],
+    "problems": [
+      {
+        "name": "Edit Distance",
+        "slug": "edit-distance-2",
+        "difficulty": "hard",
+        "description": "Return the minimum number of insert, delete, and replace operations to convert word1 into word2.",
+        "constraints": "0 <= word1.length, word2.length <= 500",
+        "hints": ["Think about prefixes.", "Three operations map to three table neighbors."],
+        "approach": "Apply the standard Levenshtein recurrence.",
+        "pattern": "Standard Levenshtein",
+        "time": "O(m * n)",
+        "space": "O(m * n), optimizable to O(n)",
+        "solution": "Fill the prefix table with a three-way min and a free diagonal on matches.",
+        "tags": ["edit-distance", "strings"]
+      },
+      {
+        "name": "One Edit Distance",
+        "slug": "one-edit-distance",
+        "difficulty": "medium",
+        "description": "Return true if the two strings are exactly one edit apart (insert, delete, or replace).",
+        "constraints": "0 <= s.length, t.length <= 10^4",
+        "hints": ["Lengths must differ by at most 1.", "Find the first mismatch and check the rest."],
+        "approach": "A single linear scan plus a tail check avoids building a full table.",
+        "pattern": "Standard Levenshtein (decision)",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Walk both strings; on the first mismatch decide whether an edit fixes the remainder and verify the tail.",
+        "tags": ["edit-distance", "two-pointers"]
+      },
+      {
+        "name": "Delete Operation for Two Strings",
+        "slug": "delete-operation-for-two-strings-2",
+        "difficulty": "medium",
+        "description": "Return the minimum number of deletions to make two strings identical.",
+        "constraints": "1 <= word1.length, word2.length <= 500",
+        "hints": ["Deletions only; replacements are disallowed.", "LCS formulation."],
+        "approach": "Delete everything not in the LCS: len(a)+len(b)-2*LCS.",
+        "pattern": "Standard Levenshtein (deletion-only)",
+        "time": "O(m * n)",
+        "space": "O(n)",
+        "solution": "Compute the LCS length and subtract twice it from the total length.",
+        "tags": ["edit-distance", "lcs"]
+      }
+    ]
+  },
+  {
+    "slug": "matrix-chain-multiplication",
+    "name": "Matrix Chain Multiplication",
+    "difficulty": "hard",
+    "overview": "Matrix Chain Multiplication finds the parenthesization of a product of matrices that minimizes the total number of scalar multiplications. It is the canonical interval DP where the state is a range of matrices and the transition tries every split point.",
+    "why": "This problem is a textbook hard-DP question that tests interval recurrences and cost modeling. The template extends directly to problems like optimal binary search trees and burst balloons.",
+    "when": "Reach for this pattern when a problem asks to combine a sequence of items in some order and the cost depends on which adjacent groups are merged first. The state is the interval of items and the transition is the split point.",
+    "complexity": { "time": "O(n^3)", "space": "O(n^2)" },
+    "concepts": [
+      { "name": "Cost of Multiplication", "description": "Multiplying p x q by q x r costs p*q*r scalar operations." },
+      { "name": "Interval State", "description": "dp[i][j] is the minimum cost to multiply matrices i through j." },
+      { "name": "Split Point", "description": "The last multiplication splits the chain into a left product and a right product." },
+      { "name": "Length Ordering", "description": "Processing chains by increasing length keeps sub-interval answers ready." },
+      { "name": "Result Matrix Size", "description": "The product of matrices i..j has dimensions dims[i-1] x dims[j]." }
+    ],
+    "patterns": [
+      { "name": "Classic Interval Min", "description": "Minimize over all split points k in (i, j).", "code": "def mcm(dims):\n    n = len(dims) - 1\n    dp = [[0] * n for _ in range(n)]\n    for length in range(2, n + 1):\n        for i in range(n - length + 1):\n            j = i + length - 1\n            dp[i][j] = float('inf')\n            for k in range(i, j):\n                cost = (dp[i][k] + dp[k+1][j]\n                        + dims[i] * dims[k+1] * dims[j+1])\n                dp[i][j] = min(dp[i][j], cost)\n    return dp[0][n-1]" }
+    ],
+    "examples": [
+      {
+        "title": "Optimal Parenthesization",
+        "problem": "Minimize scalar multiplications for matrices of dimensions [10, 30, 5, 60] (A:10x30, B:30x5, C:5x60).",
+        "input": "dims = [10, 30, 5, 60]",
+        "output": "4500 (parenthesize as (A(B C)))",
+        "explanation": "(A(BC)) costs 30*5*60 + 10*30*5 = 9000 + 1500 = 10500? No, (BC) costs 30*5*60=9000 giving 30x60, then A*(BC) costs 10*30*60=18000; correct answer is 4500 via (AB)C: A*B costs 10*30*5=1500 giving 10x5, then times C costs 10*5*60=3000, total 4500.",
+        "steps": [
+          "Initialize single-matrix chains to cost 0.",
+          "For each chain length, compute every interval's best split.",
+          "At each split add left cost, right cost, and the final merge cost.",
+          "Return dp[0][n-1]."
+        ],
+        "complexity": { "time": "O(n^3)", "space": "O(n^2)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Off-by-one with dimensions since n matrices need n+1 dimension values.", "fix": "Store dims with one extra entry and index matrices 0..n-1." },
+      { "mistake": "Processing intervals in an order that reads uncomputed cells.", "fix": "Always iterate by increasing interval length." },
+      { "mistake": "Initializing dp[i][i] to infinity and breaking single-matrix base cases.", "fix": "Base case dp[i][i]=0 (no cost to have one matrix)." }
+    ],
+    "problems": [
+      {
+        "name": "Matrix Chain Multiplication",
+        "slug": "matrix-chain-multiplication-2",
+        "difficulty": "hard",
+        "description": "Return the minimum scalar multiplications to multiply a chain of matrices.",
+        "constraints": "2 <= n <= 300, 1 <= dims[i] <= 1000",
+        "hints": ["Interval DP over the chain.", "Try every last multiplication point."],
+        "approach": "For each interval choose the split minimizing combined costs.",
+        "pattern": "Classic Interval Min",
+        "time": "O(n^3)",
+        "space": "O(n^2)",
+        "solution": "Fill dp[i][j] for increasing lengths using dp[i][k]+dp[k+1][j]+dims[i]*dims[k+1]*dims[j+1].",
+        "tags": ["matrix-chain", "interval-dp"]
+      },
+      {
+        "name": "Minimum Score Triangulation of Polygon",
+        "slug": "minimum-score-triangulation-of-polygon",
+        "difficulty": "medium",
+        "description": "Triangulate a convex polygon minimizing the sum of vertex-value products of all triangles.",
+        "constraints": "3 <= values.length <= 50, 1 <= values[i] <= 100",
+        "hints": ["Fix a base edge and split into two polygons.", "Interval DP over vertices."],
+        "approach": "For each interval (i, j) choose a middle vertex k to form a triangle and recurse on both sides.",
+        "pattern": "Classic Interval Min",
+        "time": "O(n^3)",
+        "space": "O(n^2)",
+        "solution": "dp[i][j] = min over k of dp[i][k]+dp[k][j]+values[i]*values[k]*values[j].",
+        "tags": ["matrix-chain", "interval-dp"]
+      },
+      {
+        "name": "Burst Balloons",
+        "slug": "burst-balloons-2",
+        "difficulty": "hard",
+        "description": "Maximize coins collected by bursting balloons in any order, where each burst scores neighbor products.",
+        "constraints": "1 <= nums.length <= 300, 0 <= nums[i] <= 100",
+        "hints": ["Reverse the order: think of the last balloon.", "Interval DP."],
+        "approach": "Choose the last balloon k in an interval to burst and combine both sides.",
+        "pattern": "Classic Interval Min (maximization)",
+        "time": "O(n^3)",
+        "space": "O(n^2)",
+        "solution": "Pad with boundary 1s and set dp[i][j] = max over k of coins + dp[i][k-1] + dp[k+1][j].",
+        "tags": ["matrix-chain", "interval-dp"]
+      }
+    ]
+  },
+  {
+    "slug": "grid-dp",
+    "name": "Grid DP",
+    "difficulty": "medium",
+    "overview": "Grid DP computes optimal paths or counts on a matrix where movement follows allowed directions such as down/right. Each cell derives its answer from predecessor cells, making direction of movement the core of the transition.",
+    "why": "Grid path problems like unique paths, minimum path sum, and dungeon game are common interview questions that test 2D state setup and boundary handling. They also appear with obstacles and variable move sets.",
+    "when": "Reach for grid DP when you move through a matrix step by step and need to count paths, minimize cost, or check reachability. Determine allowed directions first because they define which neighbors feed each cell.",
+    "complexity": { "time": "O(m * n)", "space": "O(m * n), optimizable to O(n)" },
+    "concepts": [
+      { "name": "Movement Directions", "description": "Allowed moves (down, right, diagonals, or arbitrary) define the transition neighbors." },
+      { "name": "Obstacles", "description": "Blocked cells contribute zero ways or infinite cost and must be handled in initialization." },
+      { "name": "Boundary Cells", "description": "First row and column have only one predecessor and need special handling." },
+      { "name": "Grid with Walls", "description": "Walls prevent paths; the DP value for wall cells is fixed at 0 or infinity." },
+      { "name": "Space Reduction", "description": "A single row array suffices when each cell only needs the row above and the left neighbor." }
+    ],
+    "patterns": [
+      { "name": "Path Counting with Obstacles", "description": "Count paths; skip blocked cells.", "code": "def unique_paths_with_obstacles(grid):\n    m, n = len(grid), len(grid[0])\n    dp = [0] * n\n    dp[0] = 1 if grid[0][0] == 0 else 0\n    for i in range(m):\n        for j in range(n):\n            if grid[i][j] == 1:\n                dp[j] = 0\n            elif j > 0:\n                dp[j] += dp[j-1]\n    return dp[-1]" },
+      { "name": "Max Cost Path", "description": "Accumulate the maximum of the possible predecessors.", "code": "def max_path_sum(grid):\n    m, n = len(grid), len(grid[0])\n    for i in range(m):\n        for j in range(n):\n            if i == 0 and j == 0:\n                continue\n            best = -float('inf')\n            if i:\n                best = max(best, grid[i-1][j])\n            if j:\n                best = max(best, grid[i][j-1])\n            grid[i][j] += best\n    return grid[-1][-1]" }
+    ],
+    "examples": [
+      {
+        "title": "Unique Paths with Obstacles",
+        "problem": "Count paths from top-left to bottom-right in a grid with obstacles (1) and empty cells (0), moving down or right.",
+        "input": "grid = [[0,0,0],[0,1,0],[0,0,0]]",
+        "output": "2",
+        "explanation": "The obstacle in the middle row forces both valid routes around it, leaving exactly two paths.",
+        "steps": [
+          "Initialize the first cell to 1 if not blocked.",
+          "For each cell, if blocked set it to 0.",
+          "Otherwise add the path counts from above and left.",
+          "Return the bottom-right value."
+        ],
+        "complexity": { "time": "O(m * n)", "space": "O(m * n), optimizable to O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Not handling the starting cell being an obstacle.", "fix": "Check grid[0][0] before initialization and return 0 if blocked." },
+      { "mistake": "Counting paths that pass through obstacles because the blocked cell was seeded with 1.", "fix": "Force blocked cells to 0 before accumulating neighbors." },
+      { "mistake": "Using a full matrix when a rolling row is enough, wasting memory on large grids.", "fix": "Keep one row and update it left to right." }
+    ],
+    "problems": [
+      {
+        "name": "Unique Paths II",
+        "slug": "unique-paths-ii",
+        "difficulty": "medium",
+        "description": "Count paths from top-left to bottom-right avoiding obstacles, moving only down or right.",
+        "constraints": "1 <= m, n <= 100, grid[i][j] in {0, 1}",
+        "hints": ["Blocked cells are 0.", "Accumulate from above and left."],
+        "approach": "Fill row by row, zeroing blocked cells and adding predecessors otherwise.",
+        "pattern": "Path Counting with Obstacles",
+        "time": "O(m * n)",
+        "space": "O(n)",
+        "solution": "Roll a single row array, resetting blocked positions and adding the left neighbor.",
+        "tags": ["grid-dp", "counting"]
+      },
+      {
+        "name": "Minimum Path Sum",
+        "slug": "minimum-path-sum-2",
+        "difficulty": "medium",
+        "description": "Return the minimum sum along a path from top-left to bottom-right moving down or right.",
+        "constraints": "1 <= m, n <= 200, 0 <= grid[i][j] <= 200",
+        "hints": ["Add the smaller of top and left.", "First row and column are prefix sums."],
+        "approach": "Accumulate each cell as its value plus the min of the two predecessors.",
+        "pattern": "Max Cost Path (minimized)",
+        "time": "O(m * n)",
+        "space": "O(1) when mutating the input grid",
+        "solution": "Rewrite each cell in place with the min-recurrence so no extra table is needed.",
+        "tags": ["grid-dp", "minimization"]
+      },
+      {
+        "name": "Dungeon Game",
+        "slug": "dungeon-game",
+        "difficulty": "hard",
+        "description": "Find the minimum initial health a knight needs to survive a dungeon grid with demons (negative) and health potions (positive).",
+        "constraints": "1 <= dungeon.length, dungeon[i].length <= 200, -1000 <= dungeon[i][j] <= 1000",
+        "hints": ["Work backwards from the exit.", "Health must stay at least 1."],
+        "approach": "dp[i][j] is the minimum health needed entering that cell; fill from bottom-right to top-left.",
+        "pattern": "Backwards Grid DP",
+        "time": "O(m * n)",
+        "space": "O(m * n), optimizable to O(n)",
+        "solution": "From the exit, required = max(1, 1 - dungeon[i][j] + min(needed below, needed right)) rolling upward.",
+        "tags": ["grid-dp", "backwards"]
+      }
+    ]
+  },
+  {
+    "slug": "dp-on-trees",
+    "name": "DP on Trees",
+    "difficulty": "hard",
+    "overview": "DP on trees computes answers by combining results from children, using the tree's structure to define natural subproblems. States usually track information about the subtree, often distinguishing whether the current node is chosen or not.",
+    "why": "Tree DP questions such as house robber III and tree diameters test recursive thinking and memoization over structure. They show up in both medium and hard interviews and are a strong signal of DP maturity.",
+    "when": "Reach for tree DP when the optimal answer for a node depends on its subtree, or when choosing nodes under adjacency constraints. Solve the subtree bottom-up with a post-order traversal, caching per-node results.",
+    "complexity": { "time": "O(n)", "space": "O(n) for the tree and memo" },
+    "concepts": [
+      { "name": "Subtree State", "description": "dp[u] describes the optimal answer for the subtree rooted at u." },
+      { "name": "Choose or Skip", "description": "Deciding whether to include u often changes what its children may do." },
+      { "name": "Post-Order Computation", "description": "Computing children first ensures their results exist before combining." },
+      { "name": "Diameter", "description": "The longest path between two nodes, combining the two deepest child chains." },
+      { "name": "Memoization on Nodes", "description": "A dictionary keyed by node reference caches per-node answers in recursion." }
+    ],
+    "patterns": [
+      { "name": "House Robber III", "description": "Max value choosing non-adjacent nodes in a binary tree.", "code": "def rob(root):\n    def dfs(node):\n        if not node:\n            return (0, 0)\n        l0, l1 = dfs(node.left)\n        r0, r1 = dfs(node.right)\n        skip = max(l0, l1) + max(r0, r1)\n        take = node.val + l0 + r0\n        return (skip, take)\n    return max(dfs(root))" },
+      { "name": "Tree Diameter", "description": "Track the longest path through each node as the two deepest branches.", "code": "def diameter(edges):\n    g = {}\n    for a, b in edges:\n        g.setdefault(a, []).append(b)\n        g.setdefault(b, []).append(a)\n    best = 0\n    def dfs(u, parent):\n        nonlocal best\n        heights = [dfs(v, u) for v in g[u] if v != parent]\n        heights.sort(reverse=True)\n        top1 = heights[0] if heights else 0\n        top2 = heights[1] if len(heights) > 1 else 0\n        best = max(best, top1 + top2)\n        return 1 + top1\n    dfs(0, -1)\n    return best" }
+    ],
+    "examples": [
+      {
+        "title": "House Robber III",
+        "problem": "Rob a binary tree of houses so no two directly connected nodes are robbed, maximizing total value.",
+        "input": "root = [3, 2, 3, null, 3, null, 1]",
+        "output": "7 (rob 3 + 3 + 1)",
+        "explanation": "The optimal choice skips the root's children but takes the grandchildren, yielding 7.",
+        "steps": [
+          "Define dfs(node) returning (best when node skipped, best when node taken).",
+          "For skip, sum the max of each child's two options.",
+          "For take, add node.val plus the skip values of both children.",
+          "Return max of the root's pair."
+        ],
+        "complexity": { "time": "O(n)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Using a single value per node when choosing the node affects children.", "fix": "Return a pair (skip, take) and let the parent combine both." },
+      { "mistake": "Processing the parent before the children and using uncomputed values.", "fix": "Guarantee a post-order (children first) traversal." },
+      { "mistake": "Following parent pointers and creating cycles in the traversal.", "fix": "Pass the parent down and only visit non-parent neighbors." }
+    ],
+    "problems": [
+      {
+        "name": "House Robber III",
+        "slug": "house-robber-iii",
+        "difficulty": "medium",
+        "description": "Return the maximum money you can rob from a binary tree without robbing two directly linked houses.",
+        "constraints": "0 <= number of nodes <= 10^4, -10^4 <= Node.val <= 10^4",
+        "hints": ["Each node has two states.", "Post-order DFS."],
+        "approach": "Return (skip, take) from each node's dfs.",
+        "pattern": "House Robber III",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "skip = max of children pairs summed; take = val + children's skip values; return max at root.",
+        "tags": ["dp-on-trees", "robber"]
+      },
+      {
+        "name": "Binary Tree Maximum Path Sum",
+        "slug": "binary-tree-maximum-path-sum",
+        "difficulty": "hard",
+        "description": "Return the maximum path sum where a path connects any two nodes through their parent links.",
+        "constraints": "1 <= number of nodes <= 3*10^4, -1000 <= Node.val <= 1000",
+        "hints": ["A path through a node joins two child branches.", "Negative contributions can be cut."],
+        "approach": "Track the best single branch for each node and the best full path through it.",
+        "pattern": "Tree Diameter (weighted)",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "dfs returns the max downward gain (clamp negatives to 0) while a global tracks node.val + left_gain + right_gain.",
+        "tags": ["dp-on-trees", "path"]
+      },
+      {
+        "name": "Binary Tree Cameras",
+        "slug": "binary-tree-cameras",
+        "difficulty": "hard",
+        "description": "Place the minimum cameras so every node is monitored by itself or an adjacent camera.",
+        "constraints": "1 <= number of nodes <= 1000, 0 <= Node.val <= 1000",
+        "hints": ["Greedy bottom-up: cameras go above leaf parents.", "Track coverage states."],
+        "approach": "Post-order with three states: covered, uncovered, has-camera.",
+        "pattern": "Greedy Tree DP",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "Place cameras at uncovered nodes' parents via post-order recursion, counting each placement.",
+        "tags": ["dp-on-trees", "greedy"]
+      }
+    ]
+  },
+  {
+    "slug": "dp-on-strings",
+    "name": "DP on Strings",
+    "difficulty": "medium",
+    "overview": "DP on strings solves problems where subproblems are defined by prefixes or substrings of one or two strings. The state is usually the length of the prefixes involved, and transitions compare characters to decide match, skip, or edit.",
+    "why": "String DP is among the most common interview categories, covering LCS, edit distance, matching, and segmentation. Being able to frame string problems as prefix comparisons is essential for many medium and hard questions.",
+    "when": "Reach for string DP when the answer depends on comparing, aligning, or segmenting strings and the state can be expressed with prefix lengths. Precompute tables like palindrome info when substrings are queried repeatedly.",
+    "complexity": { "time": "O(m * n) typical", "space": "O(m * n), often optimizable to O(n)" },
+    "concepts": [
+      { "name": "Prefix State", "description": "dp[i][j] represents the answer for the first i characters of one string and j of the other." },
+      { "name": "Character Match", "description": "Equal characters typically reuse the diagonal state plus a payoff." },
+      { "name": "Skip Decision", "description": "Unequal characters require skipping one side and taking the better result." },
+      { "name": "Substring Queries", "description": "Problems on substrings often precompute is-palindrome or cost tables." },
+      { "name": "Reconstruction", "description": "Tracing back through the table to recover an actual string rather than just a number." }
+    ],
+    "patterns": [
+      { "name": "Wildcard / Regex Matching", "description": "Match patterns where * matches any sequence and ? matches one character.", "code": "def is_match(s, p):\n    m, n = len(s), len(p)\n    dp = [[False] * (n + 1) for _ in range(m + 1)]\n    dp[0][0] = True\n    for j in range(1, n + 1):\n        if p[j-1] == '*':\n            dp[0][j] = dp[0][j-1]\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if p[j-1] in (s[i-1], '?'):\n                dp[i][j] = dp[i-1][j-1]\n            elif p[j-1] == '*':\n                dp[i][j] = dp[i-1][j] or dp[i][j-1]\n    return dp[m][n]" },
+      { "name": "Palindromic Substring Table", "description": "Precompute which substrings are palindromes for O(1) queries.", "code": "def palindrome_table(s):\n    n = len(s)\n    pal = [[False] * n for _ in range(n)]\n    for i in range(n - 1, -1, -1):\n        for j in range(i, n):\n            pal[i][j] = s[i] == s[j] and (j - i < 2 or pal[i+1][j-1])\n    return pal" }
+    ],
+    "examples": [
+      {
+        "title": "Longest Palindromic Substring",
+        "problem": "Find the longest contiguous substring that reads the same forwards and backwards.",
+        "input": "s = 'babad'",
+        "output": "'bab' or 'aba' (length 3)",
+        "explanation": "The palindrome table marks palindromic substrings; the longest has length 3.",
+        "steps": [
+          "Build the palindrome table with single characters as true.",
+          "For each substring, check the ends and the interior.",
+          "Track the longest true substring.",
+          "Return that substring."
+        ],
+        "complexity": { "time": "O(n^2)", "space": "O(n^2)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Treating substring and subsequence the same in the recurrence.", "fix": "Substrings are contiguous: transitions only extend adjacent characters." },
+      { "mistake": "Off-by-one between character indexes and table rows.", "fix": "Use an (m+1) x (n+1) table and map characters at i-1, j-1." },
+      { "mistake": "Filling palindrome tables top-down instead of bottom-up by substring length.", "fix": "Iterate i from the end so interior palindromes are computed first." }
+    ],
+    "problems": [
+      {
+        "name": "Longest Palindromic Substring",
+        "slug": "longest-palindromic-substring",
+        "difficulty": "medium",
+        "description": "Return the longest palindromic contiguous substring of s.",
+        "constraints": "1 <= s.length <= 1000",
+        "hints": ["Expand around centers.", "Or build a palindrome table."],
+        "approach": "Either center expansion in O(n^2) or a DP palindrome table.",
+        "pattern": "Palindromic Substring Table",
+        "time": "O(n^2)",
+        "space": "O(n^2), or O(1) with center expansion",
+        "solution": "Mark single chars as palindromes, then extend by matching ends while tracking the longest.",
+        "tags": ["dp-on-strings", "palindrome"]
+      },
+      {
+        "name": "Interleaving String",
+        "slug": "interleaving-string",
+        "difficulty": "medium",
+        "description": "Return true if s3 is formed by interleaving s1 and s2 preserving each one's order.",
+        "constraints": "0 <= s1.length, s2.length <= 100, 0 <= s3.length <= 200",
+        "hints": ["State is (i, j) pointers into s1 and s2.", "Match characters against s3."],
+        "approach": "dp[i][j] is true if s3[:i+j] is an interleaving of s1[:i] and s2[:j].",
+        "pattern": "Prefix State Matching",
+        "time": "O(m * n)",
+        "space": "O(m * n), optimizable to O(n)",
+        "solution": "Seed dp[0][0], then extend by consuming a character from s1 or s2 when it matches s3.",
+        "tags": ["dp-on-strings", "interleaving"]
+      },
+      {
+        "name": "Distinct Subsequences",
+        "slug": "distinct-subsequences",
+        "difficulty": "hard",
+        "description": "Count the number of distinct ways s can form t as a subsequence.",
+        "constraints": "1 <= s.length, t.length <= 1000",
+        "hints": ["dp[i][j] over prefixes.", "On match you may skip or use the character."],
+        "approach": "dp[i][j] = dp[i-1][j] + (dp[i-1][j-1] if s[i-1] == t[j-1]).",
+        "pattern": "Prefix State Matching",
+        "time": "O(m * n)",
+        "space": "O(m * n), optimizable to O(n)",
+        "solution": "On a match add the skip case and the take case; otherwise carry the skip case.",
+        "tags": ["dp-on-strings", "counting"]
+      }
+    ]
+  },
+  {
+    "slug": "bitmask-dp",
+    "name": "Bitmask DP",
+    "difficulty": "hard",
+    "overview": "Bitmask DP uses an integer whose bits represent which elements are already used, turning subsets into states. It solves assignment, scheduling, and TSP-style problems that need to remember a set of choices, typically in O(2^n * n).",
+    "why": "Bitmask DP appears in hard interview problems and coding contests when the state must encode an entire subset. Knowing it signals fluency in advanced DP and is especially valued for onsite rounds.",
+    "when": "Reach for bitmask DP when n is small (typically <= 20) and the decision depends on which items were already chosen, such as partitioning, assignment, or shortest Hamiltonian path. Encode the used-set as the bitmask.",
+    "complexity": { "time": "O(2^n * n)", "space": "O(2^n)" },
+    "concepts": [
+      { "name": "Mask as State", "description": "An integer where bit k is set if element k has been used." },
+      { "name": "Bit Operations", "description": "Setting, clearing, and checking bits with OR, AND, and shifts." },
+      { "name": "Subset Iteration", "description": "Enumerating all submasks or all masks up to 2^n." },
+      { "name": "n Limit", "description": "Feasible only for n up to about 20 due to the 2^n state space." },
+      { "name": "Transition on One Bit", "description": "Adding an unused element by OR-ing in its bit." }
+    ],
+    "patterns": [
+      { "name": "Minimum Assignment Cost", "description": "Assign n items to n slots minimizing total cost.", "code": "def min_assignment(cost):\n    n = len(cost)\n    size = 1 << n\n    dp = [float('inf')] * size\n    dp[0] = 0\n    for mask in range(size):\n        i = bin(mask).count('1')\n        for j in range(n):\n            if not (mask >> j) & 1:\n                dp[mask | (1 << j)] = min(dp[mask | (1 << j)], dp[mask] + cost[i][j])\n    return dp[size - 1]" },
+      { "name": "Hamiltonian Path", "description": "Shortest path visiting every node exactly once, ending anywhere.", "code": "def tsp(g, n):\n    size = 1 << n\n    dp = [[float('inf')] * n for _ in range(size)]\n    dp[1][0] = 0\n    for mask in range(size):\n        for u in range(n):\n            if dp[mask][u] == float('inf'):\n                continue\n            for v in range(n):\n                if not (mask >> v) & 1:\n                    dp[mask | (1 << v)][v] = min(dp[mask | (1 << v)][v], dp[mask][u] + g[u][v])\n    return min(dp[size - 1])" }
+    ],
+    "examples": [
+      {
+        "title": "Minimum Number of Work Sessions",
+        "problem": "Assign n tasks to the fewest sessions of capacity sessionTime.",
+        "input": "tasks=[1, 2, 3], sessionTime=3",
+        "output": "2",
+        "explanation": "One session fits [3] and another fits [1, 2], so two sessions suffice.",
+        "steps": [
+          "Represent each subset of tasks as a bitmask.",
+          "Store (sessions, used_time) for each mask.",
+          "Try adding each task not yet in the mask.",
+          "Return the session count for the full mask."
+        ],
+        "complexity": { "time": "O(2^n * n)", "space": "O(2^n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Running bitmask DP when n is 30+, exceeding the 2^n limit.", "fix": "Confirm n <= 20; otherwise look for a greedy or polynomial approach." },
+      { "mistake": "Forgetting to initialize dp[0] and mis-indexing the mask size.", "fix": "Allocate arrays of size 1 << n and always seed the empty mask." },
+      { "mistake": "Iterating masks without a meaningful order, breaking transitions.", "fix": "Process masks by increasing bit count or rely on the fact that OR-ing a bit increases the mask value." }
+    ],
+    "problems": [
+      {
+        "name": "Partition to K Equal Sum Subsets",
+        "slug": "partition-to-k-equal-sum-subsets",
+        "difficulty": "medium",
+        "description": "Return true if the array can be partitioned into k subsets of equal sum.",
+        "constraints": "1 <= k <= nums.length <= 16, 1 <= nums[i] <= 10^4",
+        "hints": ["Each subset must reach target = sum / k.", "Memoize on the used-bit mask."],
+        "approach": "DFS over masks tracking which numbers are used and the current subset total.",
+        "pattern": "Mask State DFS",
+        "time": "O(k * 2^n)",
+        "space": "O(2^n)",
+        "solution": "Memoize by mask; fill subsets one at a time and count completed subsets.",
+        "tags": ["bitmask-dp", "partition"]
+      },
+      {
+        "name": "Shortest Path Visiting All Nodes",
+        "slug": "shortest-path-visiting-all-nodes",
+        "difficulty": "hard",
+        "description": "Return the shortest path length visiting every node of a graph, revisiting allowed.",
+        "constraints": "1 <= n <= 12, adjacency matrix input",
+        "hints": ["State is (mask, current node).", "BFS over states."],
+        "approach": "BFS where each state is (visited-mask, node), with Floyd-Warshall for distances.",
+        "pattern": "Hamiltonian Path (BFS)",
+        "time": "O(2^n * n^2)",
+        "space": "O(2^n * n)",
+        "solution": "Run BFS from every start node expanding to unvisited neighbors until the full mask is reached.",
+        "tags": ["bitmask-dp", "bfs"]
+      },
+      {
+        "name": "Maximum Number of Groups Getting Fresh Donuts",
+        "slug": "maximum-number-of-groups-getting-fresh-donuts",
+        "difficulty": "hard",
+        "description": "Order batches so the maximum number of groups are satisfied after a fixed-size batch cycle.",
+        "constraints": "1 <= batchSize <= 9, 1 <= groups.length <= 30",
+        "hints": ["Group sizes matter only modulo batchSize.", "Counts per remainder fit in a mask-based memo."],
+        "approach": "Bitmask DP over remainder counts with memoization.",
+        "pattern": "Mask State DFS",
+        "time": "O((batchSize-1)! * ...)",
+        "space": "O(memo states)",
+        "solution": "Memoize on the tuple of remaining counts and current total remainder to maximize satisfied groups.",
+        "tags": ["bitmask-dp", "memoization"]
+      }
+    ]
+  },
+  {
+    "slug": "digit-dp",
+    "name": "Digit DP",
+    "difficulty": "hard",
+    "overview": "Digit DP counts or sums numbers in a range by processing digits one at a time, with a tight flag tracking whether the prefix already equals the upper bound. It answers questions like how many numbers in [L, R] satisfy a digit property.",
+    "why": "Digit DP is a specialized but frequently asked hard pattern for range-counting questions involving digit properties. Mastering its tight/safe state construction lets you solve counting problems that naive iteration cannot.",
+    "when": "Reach for digit DP when the problem asks to count or sum integers within a range satisfying conditions on their digits, such as containing no repeated digits or having digits sum to a target. Convert [L, R] to f(R) - f(L-1).",
+    "complexity": { "time": "O(len * states * digits)", "space": "O(len * states)" },
+    "concepts": [
+      { "name": "Tight Flag", "description": "A boolean saying the prefix matches the limit so far, restricting upcoming digits." },
+      { "name": "Leading Zero Handling", "description": "Deciding whether to allow leading zeros that would not count as digits." },
+      { "name": "Range Decomposition", "description": "answer(L, R) = count(R) - count(L-1)." },
+      { "name": "Digit Property State", "description": "Extra parameters encoding the property, like last digit or running sum." },
+      { "name": "Memoization over Positions", "description": "Caching on (position, tight, property-state) makes the search polynomial." }
+    ],
+    "patterns": [
+      { "name": "Count with No Consecutive Digits", "description": "Classic digit DP with tight flag and previous-digit state.", "code": "def count_valid(n):\n    s = str(n)\n    from functools import lru_cache\n    @lru_cache(None)\n    def dp(pos, tight, prev):\n        if pos == len(s):\n            return 1\n        limit = int(s[pos]) if tight else 9\n        total = 0\n        for d in range(limit + 1):\n            if prev == -1 or d != prev:\n                total += dp(pos + 1, tight and d == limit, d)\n        return total\n    return dp(0, True, -1)" },
+      { "name": "Range Difference Trick", "description": "Convert inclusive range queries into two prefix counts.", "code": "def count_range(lo, hi, pred):\n    return pred(hi) - pred(lo - 1)" }
+    ],
+    "examples": [
+      {
+        "title": "Count Numbers with Unique Digits",
+        "problem": "Count integers from 0 to n that have no repeated digits.",
+        "input": "n = 1000",
+        "output": "738",
+        "explanation": "Iterating would be too slow, but digit DP counts valid numbers by position with a used-digits mask.",
+        "steps": [
+          "Convert the bound into its digit string.",
+          "Recurse position by position with a tight flag.",
+          "Track which digits have been used in a bitmask.",
+          "Memoize on (pos, tight, used) and sum valid counts."
+        ],
+        "complexity": { "time": "O(len * 2^10)", "space": "O(len * 2^10)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Forgetting the tight flag and counting numbers larger than the bound.", "fix": "Carry tight and only allow digits up to the bound digit when tight is set." },
+      { "mistake": "Not converting [L, R] into prefix counts and double-counting.", "fix": "Always compute count(R) - count(L-1)." },
+      { "mistake": "Treating leading zeros as significant digits and wrongly rejecting valid short numbers.", "fix": "Add a started flag or handle the zero prefix specially." }
+    ],
+    "problems": [
+      {
+        "name": "Numbers At Most N Given Digit Set",
+        "slug": "numbers-at-most-n-given-digit-set",
+        "difficulty": "hard",
+        "description": "Count positive integers up to n whose digits come only from a given set.",
+        "constraints": "1 <= digits.length <= 9, 1 <= n <= 10^9",
+        "hints": ["Shorter lengths are free choices.", "Equal-length numbers use a tight pass."],
+        "approach": "Count all lengths below the bound, then digit-DP the equal-length case.",
+        "pattern": "Tight Digit DP",
+        "time": "O(len(n) * len(digits))",
+        "space": "O(1)",
+        "solution": "For shorter lengths use k^len; for the full length simulate digit choices with a tight flag.",
+        "tags": ["digit-dp", "counting"]
+      },
+      {
+        "name": "Count Numbers with Unique Digits",
+        "slug": "count-numbers-with-unique-digits",
+        "difficulty": "medium",
+        "description": "Count integers in [0, n] with no repeated digits.",
+        "constraints": "0 <= n <= 2 * 10^9",
+        "hints": ["Use a used-digits bitmask.", "Memoize per position."],
+        "approach": "Digit DP tracking used digits with a tight flag.",
+        "pattern": "Digit Property State",
+        "time": "O(len * 2^10)",
+        "space": "O(len * 2^10)",
+        "solution": "Recurse over positions, forbidding reuse of digits via a mask and respecting tightness.",
+        "tags": ["digit-dp", "counting"]
+      },
+      {
+        "name": "Count of Integers",
+        "slug": "count-of-integers",
+        "difficulty": "hard",
+        "description": "Count integers between num1 and num2 whose digit sum is between min_sum and max_sum.",
+        "constraints": "1 <= num1.length, num2.length <= 100",
+        "hints": ["Digit sum state plus tight flag.", "Use prefix-difference."],
+        "approach": "Digit DP on both bounds with a digit-sum state.",
+        "pattern": "Tight Digit DP",
+        "time": "O(len * 2 * max_sum)",
+        "space": "O(len * 2 * max_sum)",
+        "solution": "Compute count(<=X) minus count(<num1) via memoized digit DP constrained by digit sum bounds.",
+        "tags": ["digit-dp", "range"]
+      }
+    ]
+  },
+  {
+    "slug": "dynamic-programming",
+    "name": "Dynamic Programming",
+    "difficulty": "medium",
+    "overview": "Dynamic programming solves problems by breaking them into overlapping subproblems, computing each once, and combining the results. It applies wherever an optimal solution can be built from optimal solutions of smaller subproblems.",
+    "why": "DP is one of the most heavily tested categories across all interview levels. Demonstrating a clear recurrence, correct base cases, and proper complexity analysis is a reliable differentiator for candidates.",
+    "when": "Reach for DP when a problem has overlapping subproblems and optimal substructure: the answer repeats smaller versions of itself, and combining optimal sub-answers yields the optimal overall answer. Start with brute force, then identify the state and recurrence.",
+    "complexity": { "time": "Varies by state count: O(n), O(n^2), or O(n^3)", "space": "Varies; often optimizable to O(1) or O(n)" },
+    "concepts": [
+      { "name": "Optimal Substructure", "description": "An optimal solution contains optimal solutions to its subproblems." },
+      { "name": "Overlapping Subproblems", "description": "The same subproblem recurs many times, motivating caching." },
+      { "name": "State Definition", "description": "The minimal parameters that uniquely identify a subproblem." },
+      { "name": "Recurrence Relation", "description": "The equation expressing a state in terms of smaller states." },
+      { "name": "Top-Down vs Bottom-Up", "description": "Memoized recursion versus iterative table filling, chosen per problem." },
+      { "name": "Space Optimization", "description": "Reducing memory by keeping only the states actually needed." }
+    ],
+    "patterns": [
+      { "name": "State + Recurrence Template", "description": "Identify the state, write the recurrence, seed base cases, then memoize or tabulate.", "code": "def solve(nums):\n    n = len(nums)\n    dp = [0] * (n + 1)\n    dp[0] = 0\n    for i in range(1, n + 1):\n        # replace with the problem's recurrence\n        dp[i] = max(dp[i - 1], nums[i - 1])\n    return dp[n]" },
+      { "name": "Brute Force to DP", "description": "Write the naive recursion, detect repeated states, then add a cache.", "code": "def fib(n):\n    memo = {}\n    def f(i):\n        if i <= 1:\n            return i\n        if i not in memo:\n            memo[i] = f(i - 1) + f(i - 2)\n        return memo[i]\n    return f(n)" }
+    ],
+    "examples": [
+      {
+        "title": "Climbing Stairs",
+        "problem": "Count distinct ways to climb n stairs taking 1 or 2 steps.",
+        "input": "n = 4",
+        "output": "5",
+        "explanation": "Ways follow the Fibonacci pattern: 1, 1, 2, 3, 5 for steps 0..4.",
+        "steps": [
+          "Define state dp[i] as ways to reach step i.",
+          "Write the recurrence dp[i] = dp[i-1] + dp[i-2].",
+          "Seed base cases dp[0] = 1 and dp[1] = 1.",
+          "Fill iteratively and return dp[n]."
+        ],
+        "complexity": { "time": "O(n)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Jumping straight to code without defining the state and recurrence.", "fix": "Write the state and recurrence in words or pseudocode first." },
+      { "mistake": "Missing base cases and letting the table drift.", "fix": "Verify the first two or three values by hand against the recurrence." },
+      { "mistake": "Choosing the wrong state so subproblems are not actually overlapping.", "fix": "Confirm that smaller states recur and that combining them preserves optimality." }
+    ],
+    "problems": [
+      {
+        "name": "House Robber",
+        "slug": "house-robber-2",
+        "difficulty": "medium",
+        "description": "Return the maximum money robbed without taking two adjacent houses.",
+        "constraints": "1 <= nums.length <= 100, 0 <= nums[i] <= 400",
+        "hints": ["State is the current index.", "Take or skip each house."],
+        "approach": "dp[i] = max(dp[i-1], dp[i-2] + nums[i]) with rolling variables.",
+        "pattern": "State + Recurrence Template",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Track two rolling values: skip the current house or take it plus the value two houses back.",
+        "tags": ["dynamic-programming", "1d-dp"]
+      },
+      {
+        "name": "Coin Change",
+        "slug": "coin-change-2",
+        "difficulty": "medium",
+        "description": "Return the fewest coins needed to make an amount, or -1 if impossible.",
+        "constraints": "1 <= coins.length <= 12, 1 <= coins[i] <= 2^31-1, 0 <= amount <= 10^4",
+        "hints": ["State is the remaining amount.", "Try every coin as the last one."],
+        "approach": "dp[a] = 1 + min over coins of dp[a - coin], iterating amounts up.",
+        "pattern": "State + Recurrence Template",
+        "time": "O(amount * len(coins))",
+        "space": "O(amount)",
+        "solution": "Fill dp from 0 to amount, taking the minimum over valid coin subtractions.",
+        "tags": ["dynamic-programming", "knapsack"]
+      },
+      {
+        "name": "Longest Increasing Subsequence",
+        "slug": "longest-increasing-subsequence-3",
+        "difficulty": "medium",
+        "description": "Return the length of the longest strictly increasing subsequence.",
+        "constraints": "1 <= nums.length <= 2500",
+        "hints": ["dp[i] is the length ending at i.", "Or use the tails array."],
+        "approach": "Use O(n log n) patience sort or O(n^2) DP.",
+        "pattern": "State + Recurrence Template",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Maintain the tails array with binary search, appending or replacing per element.",
+        "tags": ["dynamic-programming", "lis"]
+      }
+    ]
+  }
+]

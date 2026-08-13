@@ -1,0 +1,1747 @@
+[
+  {
+    "slug": "segment-tree",
+    "name": "Segment Tree",
+    "difficulty": "hard",
+    "overview": "A segment tree is a binary tree data structure that stores aggregate information (sum, min, max, gcd) about intervals of an array, allowing queries and point/range updates in logarithmic time. Each leaf holds a single array element and each internal node summarizes the segment covered by its children.",
+    "why": "Segment trees are a staple of advanced interviews and competitive programming because they handle range queries combined with updates, a combination that prefix sums and other static structures cannot support. Interviewers use them to test understanding of divide-and-conquer recursion and lazy propagation.",
+    "when": "Reach for a segment tree whenever you need range queries (sum, min, max, gcd) over an array AND the array is modified between queries. It is also the natural tool for dynamic range minimum queries, range updates with lazy tags, and kth-order statistics.",
+    "complexity": {
+      "time": "O(log n) per query and per update; O(n) build",
+      "space": "O(n)"
+    },
+    "concepts": [
+      {
+        "name": "Tree representation",
+        "description": "An array-based segment tree stores node i's children at 2*i and 2*i+1, with node 1 covering the whole array and leaves holding single elements."
+      },
+      {
+        "name": "Range query",
+        "description": "A recursive function combines the stored values of the maximal nodes that exactly partition the queried range, merging results with the associative operation."
+      },
+      {
+        "name": "Point update",
+        "description": "Updating one element requires recomputing every ancestor of the affected leaf, which is O(log n) nodes."
+      },
+      {
+        "name": "Lazy propagation",
+        "description": "For range updates, store pending operations in nodes and push them down only when children are actually visited, keeping range updates O(log n)."
+      },
+      {
+        "name": "Merge operation",
+        "description": "The operation combined at internal nodes must be associative (sum, min, max, gcd, or custom aggregates) for the tree to be correct."
+      },
+      {
+        "name": "Build",
+        "description": "The tree is built bottom-up in O(n) by filling leaves with the array and computing each internal node from its two children."
+      }
+    ],
+    "patterns": [
+      {
+        "name": "Point update + range query",
+        "description": "Classic segment tree supporting point updates and arbitrary range aggregate queries in O(log n).",
+        "code": "def build(a, idx, l, r):\n    if l == r:\n        st[idx] = a[l]; return\n    m = (l + r) // 2\n    build(a, idx*2, l, m)\n    build(a, idx*2+1, m+1, r)\n    st[idx] = st[idx*2] + st[idx*2+1]"
+      },
+      {
+        "name": "Range update with lazy propagation",
+        "description": "Adds a lazy value to a node when its whole segment is updated, pushing it down lazily so range updates stay logarithmic.",
+        "code": "def update(idx, l, r, ql, qr, val):\n    if qr < l or r < ql: return\n    if ql <= l and r <= qr:\n        st[idx] += val * (r - l + 1)\n        lazy[idx] += val; return\n    push(idx); m = (l + r) // 2\n    update(idx*2, l, m, ql, qr, val)\n    update(idx*2+1, m+1, r, ql, qr, val)\n    st[idx] = st[idx*2] + st[idx*2+1]"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Range sum with point updates",
+        "problem": "Given an array, answer 'sum of subarray [l, r]' and 'set index i to value v' queries interleaved.",
+        "input": "nums = [1, 3, 5, 7, 9, 11]; query sum(1, 3); update(1, 10); query sum(1, 3)",
+        "output": "sum(1, 3) = 15; sum(1, 3) after update = 22",
+        "explanation": "The segment tree stores partial sums; updating index 1 from 3 to 10 adds +7 to every ancestor of that leaf, then the range query for [1,3] combines nodes covering 10+5+7 = 22.",
+        "steps": [
+          "Build the tree so each internal node holds the sum of its segment.",
+          "Answer sum(1,3) by combining the nodes covering indices 1, 2, 3 to get 3+5+7 = 15.",
+          "Apply update(1,10): recompute the five ancestors of leaf 1, adding +7 to each.",
+          "Answer sum(1,3) again from the updated tree to get 10+5+7 = 22."
+        ],
+        "complexity": {
+          "time": "O(log n) per query and update",
+          "space": "O(n)"
+        }
+      }
+    ],
+    "mistakes": [
+      {
+        "mistake": "Allocating an array of size exactly n, causing out-of-bounds writes when indexing 2*i+1.",
+        "fix": "Allocate the segment tree with 4*n slots to safely cover the full binary tree."
+      },
+      {
+        "mistake": "Forgetting to push lazy values down before recursing, so children miss pending range updates.",
+        "fix": "Always call a push(idx) helper at the start of recursion when the node may carry a lazy tag."
+      },
+      {
+        "mistake": "Off-by-one errors in query ranges or mixing inclusive/exclusive bounds between build and query.",
+        "fix": "Pick one convention (inclusive [l, r]) and apply it consistently to build, update, and query."
+      }
+    ],
+    "problems": [
+      {
+        "name": "Range Sum Query - Mutable",
+        "slug": "range-sum-query-mutable",
+        "difficulty": "medium",
+        "description": "Design a data structure that supports updating one element and querying the sum of any subarray in O(log n).",
+        "constraints": "1 <= nums.length <= 3*10^4; up to 3*10^4 update and query calls.",
+        "hints": [
+          "Each leaf of the tree stores one array element.",
+          "Every internal node stores the sum of its two children.",
+          "A query recursively splits into the minimal set of nodes covering the range."
+        ],
+        "approach": "Build a segment tree over the array. Point update recomputes the O(log n) ancestors; range sum query combines the stored sums of covering nodes.",
+        "pattern": "Point update + range query",
+        "time": "O(log n)",
+        "space": "O(n)",
+        "solution": "Build the tree in O(n). For update, walk from the leaf up recomputing parent sums. For query, recurse from the root and add the stored sum of any node fully inside the range.",
+        "tags": ["segment tree", "array", "binary indexed tree"]
+      },
+      {
+        "name": "Range Minimum Query",
+        "slug": "range-minimum-query",
+        "difficulty": "medium",
+        "description": "Given a static array, answer the minimum element of any subarray quickly for many queries.",
+        "constraints": "1 <= n, q <= 10^5; array values fit in 32-bit integers.",
+        "hints": [
+          "Each node stores the minimum of its segment.",
+          "Queries split the range into disjoint nodes and take the min of their stored values.",
+          "This works for any associative, idempotent operation."
+        ],
+        "approach": "Build a segment tree storing segment minimums. Each query recursively merges covering nodes taking the minimum, giving O(log n) per query.",
+        "pattern": "Point update + range query",
+        "time": "O(log n) per query",
+        "space": "O(n)",
+        "solution": "Build stores min(a[l..r]) at every node. A query visits only nodes fully inside the range, computing the min of their values, so no element is ever covered twice.",
+        "tags": ["segment tree", "range query", "minimum"]
+      },
+      {
+        "name": "Count of Smaller Numbers After Self",
+        "slug": "count-of-smaller-numbers-after-self",
+        "difficulty": "hard",
+        "description": "For each element in an array, count how many elements to its right are strictly smaller.",
+        "constraints": "1 <= nums.length <= 10^5; values in [-10^4, 10^4].",
+        "hints": [
+          "Compress the value range to ranks 1..n.",
+          "Process from right to left and count how many ranks already seen are smaller.",
+          "A segment tree over ranks supports a point update and a range sum query."
+        ],
+        "approach": "Coordinate-compress values, then sweep right-to-left, using a segment tree over ranks to count already-visited smaller ranks before inserting the current one.",
+        "pattern": "Point update + range query",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Map each value to a compressed rank. Traverse from right to left, query the sum of ranks [1, rank-1] to get the count of smaller elements seen, then add 1 at the current rank.",
+        "tags": ["segment tree", "binary indexed tree", "coordinate compression", "inversion"]
+      },
+      {
+        "name": "Range Sum Query with Lazy Range Add",
+        "slug": "range-sum-with-lazy-add",
+        "difficulty": "hard",
+        "description": "Support both range additions and range sum queries over an array in O(log n).",
+        "constraints": "1 <= n, operations <= 10^5; each range add can cover any subarray.",
+        "hints": [
+          "A plain tree cannot update every element of a large range in log time.",
+          "Store a lazy tag on a node meaning 'add this to the whole segment'.",
+          "Only push tags down when you actually descend into children."
+        ],
+        "approach": "Augment the segment tree with lazy tags. A range update fully covered by a node updates its sum and records the tag; deeper nodes get the tag only when visited.",
+        "pattern": "Range update with lazy propagation",
+        "time": "O(log n) per operation",
+        "space": "O(n)",
+        "solution": "When a range update fully covers a node, add value*(length) to its sum and accumulate the lazy tag. Before descending into children, push the tag down so child sums stay correct.",
+        "tags": ["segment tree", "lazy propagation", "range update"]
+      }
+    ]
+  },
+  {
+    "slug": "fenwick-tree-bit",
+    "name": "Fenwick Tree / BIT",
+    "difficulty": "medium",
+    "overview": "A Fenwick tree, or binary indexed tree, is a compact array-based structure that supports prefix-sum queries and point updates in O(log n) time using clever index arithmetic. It is much smaller and faster in practice than a segment tree when prefix operations and point updates are all that is needed.",
+    "why": "The Fenwick tree appears frequently in interviews and competitive programming because it solves inversion counting, prefix sums with updates, and kth-order statistics problems that appear in many real coding questions. Its compactness and ease of implementation make it a favorite over segment trees where applicable.",
+    "when": "Use a Fenwick tree when you need prefix queries (sums, counts, frequencies) combined with point updates on a 1-based indexed array. It is the tool of choice for counting inversions, dynamic range sums, and 'how many values < x so far' style problems.",
+    "complexity": {
+      "time": "O(log n) per query and per update; O(n log n) build from scratch (or O(n) with linear build)",
+      "space": "O(n)"
+    },
+    "concepts": [
+      {
+        "name": "Lowest set bit",
+        "description": "The operation i & (-i) extracts the lowest set bit of i, which governs which tree cells an index reads from or writes to."
+      },
+      {
+        "name": "Tree array",
+        "description": "tree[i] stores the aggregate over the range [i - (i & -i) + 1, i], so every index owns a segment ending at itself."
+      },
+      {
+        "name": "Prefix query",
+        "description": "Summing indices while stripping the lowest set bit (i -= i & -i) visits the disjoint segments covering [1, i]."
+      },
+      {
+        "name": "Point update",
+        "description": "Adding a delta at index i propagates up by repeatedly adding the lowest set bit (i += i & -i), touching O(log n) cells."
+      },
+      {
+        "name": "1-based indexing",
+        "description": "Fenwick trees require 1-based indices; a 0-based array is shifted by one when mapped into the tree."
+      },
+      {
+        "name": "Inversion counting",
+        "description": "Processing elements right-to-left and querying how many smaller values have already been inserted counts inversions efficiently."
+      }
+    ],
+    "patterns": [
+      {
+        "name": "Prefix sum + point update",
+        "description": "The canonical Fenwick pattern: update one element and query prefix sums, both in O(log n).",
+        "code": "def add(i, delta):\n    while i <= n:\n        bit[i] += delta\n        i += i & -i\n\ndef sum_prefix(i):\n    s = 0\n    while i > 0:\n        s += bit[i]\n        i -= i & -i\n    return s"
+      },
+      {
+        "name": "Range sum via prefix subtraction",
+        "description": "Any range sum is the difference of two prefix queries: sum(l..r) = prefix(r) - prefix(l-1).",
+        "code": "def range_sum(l, r):\n    return sum_prefix(r) - sum_prefix(l - 1)"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Prefix sums with point updates",
+        "problem": "Maintain a frequency array and answer 'how many numbers in [1..k]' while values get added over time.",
+        "input": "add(3, 1); add(5, 1); add(3, 1); query prefix(3)",
+        "output": "prefix(3) = 2",
+        "explanation": "The tree stores cumulative segment sums. Adding 1 at index 3 touches cells 3 and 4; adding at 5 touches 5 and 6. prefix(3) reads cells 3 and 2, summing the two additions at index 3 = 2.",
+        "steps": [
+          "Start with an all-zero bit array of size n.",
+          "add(3, 1) increments tree[3] and tree[4].",
+          "add(5, 1) increments tree[5] and tree[6].",
+          "add(3, 1) increments tree[3] and tree[4] again.",
+          "sum_prefix(3) reads tree[3] + tree[2] = 2."
+        ],
+        "complexity": {
+          "time": "O(log n) per add and per prefix query",
+          "space": "O(n)"
+        }
+      }
+    ],
+    "mistakes": [
+      {
+        "mistake": "Using 0-based indices, so i & -i never works and the update loop stalls or corrupts the tree.",
+        "fix": "Always translate to 1-based indexing (index + 1) before calling add or query."
+      },
+      {
+        "mistake": "Querying with the loop condition wrong, e.g. iterating up to the full length instead of down to zero for prefix queries.",
+        "fix": "Prefix queries walk i downward with i -= i & -i until i == 0; updates walk i upward while i <= n."
+      },
+      {
+        "mistake": "Forgetting to coordinate-compress large or negative values before treating array values as indices.",
+        "fix": "Map every distinct value to a rank in [1..k] using sorting, then operate the tree over ranks."
+      }
+    ],
+    "problems": [
+      {
+        "name": "Range Sum Query - Mutable",
+        "slug": "range-sum-query-mutable-bit",
+        "difficulty": "medium",
+        "description": "Design a data structure supporting point updates and range sum queries in O(log n).",
+        "constraints": "1 <= nums.length <= 3*10^4; up to 3*10^4 calls.",
+        "hints": [
+          "Store prefix sums in a Fenwick tree using 1-based indexing.",
+          "A point update only touches O(log n) tree cells.",
+          "A range sum is prefix(r) minus prefix(l-1)."
+        ],
+        "approach": "Wrap a Fenwick tree with a 1-based mapping: update propagates a delta upward, and range queries subtract two prefix queries.",
+        "pattern": "Prefix sum + point update",
+        "time": "O(log n)",
+        "space": "O(n)",
+        "solution": "Shift each index by 1 when accessing the tree. Add applies the delta to all owning cells; sumRange returns prefix(r+1) - prefix(l).",
+        "tags": ["binary indexed tree", "prefix sum", "range query"]
+      },
+      {
+        "name": "Count of Smaller Numbers After Self",
+        "slug": "count-of-smaller-numbers-after-self-bit",
+        "difficulty": "hard",
+        "description": "For each element, count how many elements to its right are strictly smaller.",
+        "constraints": "1 <= nums.length <= 10^5; values in [-10^4, 10^4].",
+        "hints": [
+          "Compress values to ranks and process from right to left.",
+          "Query prefix(rank-1) to count already-seen smaller ranks.",
+          "Then add 1 at the current rank with a point update."
+        ],
+        "approach": "Coordinate-compress, sweep right-to-left, and answer each element with a prefix query before inserting it into the tree.",
+        "pattern": "Prefix sum + point update",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Rank the values, traverse from the right, use sum_prefix(rank-1) as the answer for the current element, then add(rank, 1) to record it.",
+        "tags": ["binary indexed tree", "inversion", "coordinate compression"]
+      },
+      {
+        "name": "Reverse Pairs",
+        "slug": "reverse-pairs",
+        "difficulty": "hard",
+        "description": "Count pairs (i, j) with i < j such that nums[i] > 2 * nums[j].",
+        "constraints": "1 <= nums.length <= 5*10^4; values up to 2^31 - 1.",
+        "hints": [
+          "Compress all values and doubled values into one rank space.",
+          "Process from left to right, querying counts of values greater than 2*nums[i].",
+          "The Fenwick tree tracks how many of each compressed value have been seen."
+        ],
+        "approach": "Compress values together with their doubled versions, then sweep left-to-right counting already-seen ranks that exceed 2*nums[i] before inserting the current value.",
+        "pattern": "Prefix sum + point update",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Build a sorted list of nums[i] and 2*nums[i], assign ranks. As you traverse, answer total-seen minus prefix(rank of 2*nums[i]) to count larger doubled values, then add the current value.",
+        "tags": ["binary indexed tree", "inversion", "coordinate compression", "divide and conquer"]
+      },
+      {
+        "name": "Kth Largest Element with Stream",
+        "slug": "kth-largest-stream-bit",
+        "difficulty": "medium",
+        "description": "Continuously add numbers and answer the kth largest element among all seen so far.",
+        "constraints": "1 <= k <= 10^4; up to 10^4 add calls.",
+        "hints": [
+          "Compress all numbers that will ever appear.",
+          "Keep a Fenwick tree of frequencies over ranks.",
+          "Binary search the smallest rank whose cumulative frequency reaches k from the top."
+        ],
+        "approach": "Store frequencies in a Fenwick tree over compressed ranks and binary search the rank whose suffix frequency equals k.",
+        "pattern": "Prefix sum + point update",
+        "time": "O(log n) per add including binary search",
+        "space": "O(n)",
+        "solution": "Insert each number with a point update. To find the kth largest, binary search the rank r where total - prefix(r-1) >= k, i.e. at least k elements are >= r, and map the rank back to its value.",
+        "tags": ["binary indexed tree", "kth order statistic", "streaming", "binary search"]
+      }
+    ]
+  },
+  {
+    "slug": "sparse-table",
+    "name": "Sparse Table",
+    "difficulty": "medium",
+    "overview": "A sparse table is a static data structure that precomputes answers for overlapping power-of-two-length ranges so that range queries like min, max, or gcd run in O(1). It requires the query operation to be idempotent and the underlying array to never change.",
+    "why": "Sparse tables give the fastest possible range queries (O(1)) and appear in interviews for static array problems such as range minimum queries and RMQ-based LCA preprocessing. Knowing when a static structure beats a dynamic one shows a strong understanding of tradeoffs.",
+    "when": "Reach for a sparse table when the array is static, queries can be answered by an idempotent operation (min, max, gcd), and you need the absolute fastest queries. If the array gets updated, switch to a segment tree or Fenwick tree instead.",
+    "complexity": {
+      "time": "O(1) per query; O(n log n) preprocessing",
+      "space": "O(n log n)"
+    },
+    "concepts": [
+      {
+        "name": "Power-of-two table",
+        "description": "st[k][i] stores the answer for the range starting at i of length 2^k, built from st[k-1][i] and st[k-1][i + 2^(k-1)]."
+      },
+      {
+        "name": "Idempotent operation",
+        "description": "An operation where f(x, x) = x (min, max, gcd, and) lets two overlapping intervals give the same answer as the union."
+      },
+      {
+        "name": "Overlapping query",
+        "description": "A query [l, r] is answered by taking the max k with 2^k <= r-l+1 and combining st[k][l] with st[k][r - 2^k + 1]."
+      },
+      {
+        "name": "Log table",
+        "description": "A precomputed floor(log2(i)) for every i avoids expensive log calls during queries."
+      },
+      {
+        "name": "Static constraint",
+        "description": "Because intervals overlap, any update invalidates the whole table, so sparse tables only work on immutable arrays."
+      },
+      {
+        "name": "Applications",
+        "description": "Range minimum queries, LCA via Euler tour + RMQ, and gcd/lcm range queries on static arrays."
+      }
+    ],
+    "patterns": [
+      {
+        "name": "Range minimum query",
+        "description": "Classic O(1) RMQ over a static array using two overlapping power-of-two intervals.",
+        "code": "k = lg[r - l + 1]\nans = min(st[k][l], st[k][r - (1 << k) + 1])"
+      },
+      {
+        "name": "Sparse table build",
+        "description": "Build the table bottom-up by doubling the interval length at each level.",
+        "code": "for k in range(1, K):\n    for i in range(n - (1 << k) + 1):\n        st[k][i] = min(st[k-1][i],\n                       st[k-1][i + (1 << (k-1))])"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Range minimum query on a static array",
+        "problem": "Given a fixed array, answer many minimum queries over arbitrary subarrays.",
+        "input": "a = [4, 6, 1, 5, 7, 3]; query min(1, 5); query min(2, 4)",
+        "output": "min(1, 5) = 1; min(2, 4) = 1",
+        "explanation": "st[2][1] covers [1,4] = min(6,1,5,7) = 1 and st[2][2] covers [2,5] = min(1,5,7,3) = 1. For [1,5], length 5 -> k=2, take min(st[2][1], st[2][5-4+1]=st[2][2]) = min(1,1) = 1.",
+        "steps": [
+          "Build st[0] as the array itself.",
+          "Build st[1] as mins of adjacent pairs, st[2] as mins of length-4 windows, and so on.",
+          "For query [1,5], compute k = floor(log2(5)) = 2.",
+          "Combine st[2][1] (covers [1,4]) with st[2][2] (covers [2,5]).",
+          "Return min(1, 1) = 1."
+        ],
+        "complexity": {
+          "time": "O(1) per query, O(n log n) build",
+          "space": "O(n log n)"
+        }
+      }
+    ],
+    "mistakes": [
+      {
+        "mistake": "Using a sparse table with a non-idempotent operation like sum, which double-counts overlapping elements.",
+        "fix": "Only use sparse tables for idempotent operations (min, max, gcd); use a segment tree or Fenwick tree for sums."
+      },
+      {
+        "mistake": "Recomputing floor(log2(x)) with the math library inside every query, slowing the 'O(1)' query.",
+        "fix": "Precompute an lg array where lg[i] = lg[i//2] + 1 once, then read it in O(1)."
+      },
+      {
+        "mistake": "Building levels only up to n but reading st[k][r - 2^k + 1] with an out-of-bounds start index on the last level.",
+        "fix": "Build each level k only while i + (1 << k) <= n and clamp the effective level with the log table."
+      },
+      {
+        "mistake": "Applying updates after the table is built, producing stale answers.",
+        "fix": "Rebuild the whole table after any change, or pick a dynamic structure from the start."
+      }
+    ],
+    "problems": [
+      {
+        "name": "Range Minimum Query",
+        "slug": "range-minimum-query-sparse",
+        "difficulty": "medium",
+        "description": "Answer minimum queries over a static array in O(1) each for a large number of queries.",
+        "constraints": "1 <= n, q <= 10^5.",
+        "hints": [
+          "Precompute answers for all power-of-two length windows.",
+          "Every range is the union of two overlapping power-of-two windows.",
+          "The min operation is idempotent, so overlap is harmless."
+        ],
+        "approach": "Build a sparse table of level-by-level window minimums, then answer each query by combining two precomputed intervals.",
+        "pattern": "Range minimum query",
+        "time": "O(n log n) build, O(1) query",
+        "space": "O(n log n)",
+        "solution": "Precompute lg values and st[k][i] for all windows of length 2^k. For each query use k = lg[r-l+1] and return min(st[k][l], st[k][r-(1<<k)+1]).",
+        "tags": ["sparse table", "range query", "minimum"]
+      },
+      {
+        "name": "Range GCD Query",
+        "slug": "range-gcd-query",
+        "difficulty": "medium",
+        "description": "Answer gcd queries over subarrays of a static array in O(1).",
+        "constraints": "1 <= n, q <= 10^5; values up to 10^9.",
+        "hints": [
+          "GCD is idempotent, so overlapping intervals are fine.",
+          "Build the sparse table combining windows with gcd instead of min.",
+          "Use a precomputed log table for O(1) queries."
+        ],
+        "approach": "Replace min with gcd in the sparse table build and query, giving O(1) gcd range queries on a static array.",
+        "pattern": "Range minimum query",
+        "time": "O(n log n) build, O(1) query",
+        "space": "O(n log n)",
+        "solution": "Store gcd of each power-of-two window at st[k][i]. Query combines st[k][l] and st[k][r-(1<<k)+1] with gcd, which is correct because gcd is idempotent.",
+        "tags": ["sparse table", "gcd", "range query"]
+      },
+      {
+        "name": "Range Maximum Query",
+        "slug": "range-maximum-query",
+        "difficulty": "easy",
+        "description": "Answer maximum queries over subarrays of a static array in O(1).",
+        "constraints": "1 <= n, q <= 10^5.",
+        "hints": [
+          "Max is the mirror of min; build the table with max.",
+          "Two overlapping windows cover any range exactly.",
+          "Answers remain correct because max(x, x) = x."
+        ],
+        "approach": "Build a sparse table storing window maximums and answer queries by combining two overlapping precomputed intervals.",
+        "pattern": "Range minimum query",
+        "time": "O(n log n) build, O(1) query",
+        "space": "O(n log n)",
+        "solution": "Build st[k][i] as max of the two length-2^(k-1) halves. Queries return max(st[k][l], st[k][r-(1<<k)+1]).",
+        "tags": ["sparse table", "range query", "maximum"]
+      },
+      {
+        "name": "LCA via Sparse Table (Euler Tour)",
+        "slug": "lca-via-sparse-table",
+        "difficulty": "hard",
+        "description": "Find the lowest common ancestor of two nodes in a static tree in O(1) per query.",
+        "constraints": "1 <= n, q <= 10^5 nodes and queries.",
+        "hints": [
+          "Run an Euler tour recording node depth at each visit.",
+          "LCA(u, v) is the node with minimum depth between u and v's first occurrences.",
+          "That is exactly an RMQ, answered with a sparse table."
+        ],
+        "approach": "Flatten the tree into an Euler tour with depths, record first occurrence of each node, and answer LCA as an RMQ over the depth array using a sparse table.",
+        "pattern": "Range minimum query",
+        "time": "O(n log n) build, O(1) query",
+        "space": "O(n log n)",
+        "solution": "DFS records each visited node and its depth in arrays of length 2n-1. LCA(u,v) is the minimum-depth node between first[u] and first[v], found by an O(1) sparse table RMQ.",
+        "tags": ["sparse table", "LCA", "euler tour", "tree"]
+      }
+    ]
+  },
+  {
+    "slug": "network-flow",
+    "name": "Network Flow",
+    "difficulty": "hard",
+    "overview": "Network flow models the movement of a commodity through a directed graph with capacities on edges, finding the maximum flow from a source to a sink. The Ford-Fulkerson method and its practical implementations (Edmonds-Karp, Dinic) solve it by repeatedly pushing flow along augmenting paths.",
+    "why": "Many interview-adjacent and competitive problems are really flow problems in disguise: matching, vertex/edge-disjoint paths, min cut, and scheduling. Recognizing a problem as max-flow or min-cut is a high-level skill that separates strong candidates.",
+    "when": "Use network flow when a problem asks for the maximum amount of stuff that can be routed, the minimum cost to satisfy demands, or a maximum bipartite matching. Also use it when the answer equals a minimum cut (max-flow min-cut theorem).",
+    "complexity": {
+      "time": "O(V*E^2) for Edmonds-Karp; O(V^2*E) for Dinic (O(E*sqrt(V)) for unit-capacity bipartite graphs)",
+      "space": "O(V + E)"
+    },
+    "concepts": [
+      {
+        "name": "Flow and capacity",
+        "description": "Each edge has a capacity; a valid flow assigns a non-negative amount to every edge not exceeding capacity, conserving flow at every node except source and sink."
+      },
+      {
+        "name": "Augmenting path",
+        "description": "A path from source to sink with positive residual capacity; pushing flow along it increases total flow until none exists, at which point the flow is maximum."
+      },
+      {
+        "name": "Residual graph",
+        "description": "Contains forward edges with remaining capacity and reverse edges representing flow that can be undone, enabling the algorithm to fix earlier bad routing decisions."
+      },
+      {
+        "name": "Max-flow min-cut theorem",
+        "description": "The maximum flow equals the capacity of the minimum cut separating source and sink, linking routing problems to partitioning problems."
+      },
+      {
+        "name": "Min cut",
+        "description": "A partition of vertices into S and T with the source in S and sink in T whose crossing edge capacities sum to the smallest value; found from the residual graph after max flow."
+      },
+      {
+        "name": "Bipartite matching",
+        "description": "A unit-capacity flow network with source to left nodes, left to right edges, and right to sink computes maximum matching in O(E*sqrt(V))."
+      }
+    ],
+    "patterns": [
+      {
+        "name": "Edmonds-Karp (BFS augmenting paths)",
+        "description": "Use BFS to find the shortest augmenting path each iteration, guaranteeing O(V*E^2) even on pathological graphs.",
+        "code": "while True:\n    path = bfs_find_path(graph, s, t)\n    if path is None: break\n    f = min(graph[u][v] for u, v in path)\n    for u, v in path:\n        graph[u][v] -= f\n        graph[v][u] += f\n    max_flow += f"
+      },
+      {
+        "name": "Dinic's algorithm with level graph",
+        "description": "Build a level graph with BFS and push all blocking flow with DFS, giving O(V^2*E) and excellent practical speed.",
+        "code": "def dinic(s, t):\n    flow = 0\n    while bfs(s, t):\n        ptr = [0]*n\n        while True:\n            pushed = dfs(s, t, INF, ptr)\n            if not pushed: break\n            flow += pushed\n    return flow"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Maximum flow on a small network",
+        "problem": "Find the maximum flow from source A to sink D given capacities on each directed edge.",
+        "input": "edges: A->B cap 3, A->C cap 2, B->C cap 1, B->D cap 2, C->D cap 4",
+        "output": "max flow = 5",
+        "explanation": "Send 3 along A->B->D. Send 2 along A->C->D. Total 5; no augmenting path remains because A's outgoing edges are saturated (3+2) and the cut {A} vs {B,C,D} has capacity exactly 5.",
+        "steps": [
+          "Start with zero flow and build the residual graph.",
+          "Find augmenting path A->B->D with residual 3 and push 3.",
+          "Find augmenting path A->C->D with residual 2 and push 2.",
+          "No source-to-sink path with positive residual remains, so 5 is maximal.",
+          "Verify with the min cut {A} vs {B,C,D} of capacity 3+2 = 5."
+        ],
+        "complexity": {
+          "time": "O(V*E^2) worst case for Edmonds-Karp",
+          "space": "O(V + E)"
+        }
+      }
+    ],
+    "mistakes": [
+      {
+        "mistake": "Forgetting to add reverse edges to the residual graph, so the algorithm cannot undo poor flow choices and returns suboptimal answers.",
+        "fix": "Always add a 0-capacity reverse edge per directed edge (or bidirectional edges for undirected graphs)."
+      },
+      {
+        "mistake": "Using DFS for augmenting paths (naive Ford-Fulkerson) with irrational or large capacities, causing exponential iterations.",
+        "fix": "Use BFS (Edmonds-Karp) or Dinic's level-graph approach for polynomial worst-case behavior."
+      },
+      {
+        "mistake": "Building the graph with adjacency matrices that blow up memory or miss parallel edges.",
+        "fix": "Use adjacency lists of (neighbor, edge-index) pairs and store capacities in separate arrays to handle parallel edges."
+      },
+      {
+        "mistake": "Misidentifying whether a problem wants min cut vs max flow, or forgetting that min cut edges are found in the residual graph after flow.",
+        "fix": "Run max flow first, then BFS from source in the residual graph; saturated edges crossing the reachable set form the min cut."
+      }
+    ],
+    "problems": [
+      {
+        "name": "Maximum Bipartite Matching",
+        "slug": "maximum-bipartite-matching",
+        "difficulty": "medium",
+        "description": "Given a bipartite graph, find the largest set of edges with no shared vertices.",
+        "constraints": "1 <= left, right <= 500; up to 10^5 edges.",
+        "hints": [
+          "Add a source connected to all left nodes and a sink from all right nodes.",
+          "Give every edge capacity 1.",
+          "The max flow value is the maximum matching size."
+        ],
+        "approach": "Build a unit-capacity flow network source -> left -> right -> sink and compute max flow with Dinic.",
+        "pattern": "Dinic's algorithm with level graph",
+        "time": "O(E*sqrt(V))",
+        "space": "O(V + E)",
+        "solution": "Connect source to every left vertex and every right vertex to sink with capacity 1, and internal edges with capacity 1. Max flow equals the size of a maximum matching.",
+        "tags": ["network flow", "bipartite matching", "dinic"]
+      },
+      {
+        "name": "Minimum Cut",
+        "slug": "minimum-cut",
+        "difficulty": "medium",
+        "description": "Find the minimum capacity set of edges whose removal disconnects the source from the sink.",
+        "constraints": "1 <= n <= 100; edge capacities up to 10^9.",
+        "hints": [
+          "By the max-flow min-cut theorem, compute max flow first.",
+          "BFS from the source in the residual graph to find reachable vertices.",
+          "Edges from reachable to unreachable vertices with zero residual are the cut."
+        ],
+        "approach": "Compute max flow, then BFS the residual graph; every saturated edge crossing the reachable boundary is a minimum cut edge.",
+        "pattern": "Edmonds-Karp (BFS augmenting paths)",
+        "time": "O(V*E^2)",
+        "space": "O(V + E)",
+        "solution": "Run max flow, then traverse from source along edges with positive residual capacity. Any original edge from a visited to an unvisited node belongs to the minimum cut.",
+        "tags": ["network flow", "min cut", "max-flow min-cut"]
+      },
+      {
+        "name": "Maximum Number of Edge-Disjoint Paths",
+        "slug": "max-edge-disjoint-paths",
+        "difficulty": "hard",
+        "description": "Count the maximum number of paths from source to sink that share no edges.",
+        "constraints": "1 <= n, m <= 1000.",
+        "hints": [
+          "Give every undirected edge capacity 1.",
+          "Edge-disjoint paths correspond to a unit flow on each edge.",
+          "The max flow value equals the number of edge-disjoint paths."
+        ],
+        "approach": "Model the graph with unit capacities and interpret the max flow value as the count of edge-disjoint paths.",
+        "pattern": "Edmonds-Karp (BFS augmenting paths)",
+        "time": "O(V*E^2)",
+        "space": "O(V + E)",
+        "solution": "Convert undirected edges into two directed arcs each of capacity 1. Every unit of flow uses an edge at most once, so the max flow equals the number of edge-disjoint paths.",
+        "tags": ["network flow", "edge-disjoint paths", "max flow"]
+      },
+      {
+        "name": "Project Selection Problem",
+        "slug": "project-selection",
+        "difficulty": "hard",
+        "description": "Choose a subset of projects maximizing profit, where some projects require prerequisite projects that must also be chosen.",
+        "constraints": "1 <= n <= 500; profits may be positive or negative.",
+        "hints": [
+          "Profit is revenue minus cost, modeled as a source-sink network.",
+          "Link source to profitable projects with their profit and sink from costly ones with their cost.",
+          "Prerequisite edges have infinite capacity; answer is total positive profit minus min cut."
+        ],
+        "approach": "Build a flow network where the answer is total positive profit minus the min cut, using infinite-capacity edges for prerequisites.",
+        "pattern": "Edmonds-Karp (BFS augmenting paths)",
+        "time": "O(V*E^2)",
+        "space": "O(V + E)",
+        "solution": "For each project with positive profit p, edge source->project capacity p; for cost c, edge project->sink capacity c. Prerequisite x->y gets infinite capacity. Max profit = sum(positive profits) - min cut.",
+        "tags": ["network flow", "min cut", "maximum closure"]
+      }
+    ]
+  },
+  {
+    "slug": "computational-geometry-basics",
+    "name": "Computational geometry basics",
+    "difficulty": "medium",
+    "overview": "This topic covers the fundamental primitives of computational geometry: points, vectors, cross and dot products, orientation tests, segment intersections, and polygon area. These small building blocks are the foundation for every harder geometry algorithm from convex hulls to point-in-polygon tests.",
+    "why": "Geometry questions appear in interviews and competitive programming because they test clean handling of floating-point edge cases and careful mathematical reasoning. Mastering the primitives lets you solve the classic problems without reinventing error-prone math.",
+    "when": "Reach for these basics whenever a problem involves points, lines, or polygons: checking if points are collinear or clockwise, whether segments intersect, computing polygon area, or testing if a point lies inside a polygon.",
+    "complexity": {
+      "time": "O(1) per primitive (cross product, orientation, dot product)",
+      "space": "O(1)"
+    },
+    "concepts": [
+      {
+        "name": "Cross product",
+        "description": "For vectors a and b, a.x*b.y - a.y*b.x gives the signed area of the parallelogram; its sign tells the turning direction."
+      },
+      {
+        "name": "Orientation test",
+        "description": "The sign of cross(b-a, c-a) tells whether going a -> b -> c turns left (positive), right (negative), or goes straight (zero)."
+      },
+      {
+        "name": "Dot product",
+        "description": "a.x*b.x + a.y*b.y measures how aligned two vectors are and detects perpendicularity (zero) and angle ranges."
+      },
+      {
+        "name": "Segment intersection",
+        "description": "Two segments intersect iff each straddles the other's line (orientation signs differ) or they share an endpoint or collinear overlap."
+      },
+      {
+        "name": "Polygon area",
+        "description": "The shoelace formula sums cross products around the polygon boundary, giving twice the signed area."
+      },
+      {
+        "name": "Point in polygon",
+        "description": "Ray casting counts crossings of a ray from the point to infinity; odd crossings means inside."
+      }
+    ],
+    "patterns": [
+      {
+        "name": "Orientation of three points",
+        "description": "Classify the turn of a->b->c using a single cross product.",
+        "code": "def orient(a, b, c):\n    v = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)\n    return 1 if v > 0 else (-1 if v < 0 else 0)"
+      },
+      {
+        "name": "Polygon area with shoelace",
+        "description": "Sum cross products of consecutive vertices, half the result is the area.",
+        "code": "def area(poly):\n    s = 0\n    n = len(poly)\n    for i in range(n):\n        j = (i + 1) % n\n        s += poly[i].x * poly[j].y - poly[j].x * poly[i].y\n    return abs(s) / 2.0"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Segment intersection test",
+        "problem": "Decide whether two segments with given endpoints intersect.",
+        "input": "segment1 = (0,0)-(4,4); segment2 = (0,4)-(4,0)",
+        "output": "intersect = true",
+        "explanation": "The orientation of (0,0),(4,4),(0,4) is positive while (0,0),(4,4),(4,0) is negative, so the endpoints of segment 2 straddle the line of segment 1; by symmetry the endpoints of segment 1 straddle segment 2's line, so they cross.",
+        "steps": [
+          "Compute orient(a1,a2,b1) and orient(a1,a2,b2).",
+          "Compute orient(b1,b2,a1) and orient(b1,b2,a2).",
+          "Check that the two pairs of orientation signs differ (straddle).",
+          "Both straddles hold, so the segments properly intersect."
+        ],
+        "complexity": {
+          "time": "O(1)",
+          "space": "O(1)"
+        }
+      }
+    ],
+    "mistakes": [
+      {
+        "mistake": "Comparing floating-point cross products to exactly 0 for collinearity, which fails on near-collinear points from rounding.",
+        "fix": "Use a small epsilon (e.g. 1e-9) and treat values within it as zero."
+      },
+      {
+        "mistake": "Forgetting the collinear-overlap and shared-endpoint cases when checking segment intersection.",
+        "fix": "Add explicit on-segment checks whenever any orientation is zero."
+      },
+      {
+        "mistake": "Taking the polygon area sum without the absolute value or without closing the loop to the first vertex.",
+        "fix": "Iterate with modulo indexing so the last vertex pairs with the first, and return abs(sum)/2."
+      }
+    ],
+    "problems": [
+      {
+        "name": "Check If Two Line Segments Intersect",
+        "slug": "check-segment-intersection",
+        "difficulty": "medium",
+        "description": "Determine whether two line segments given by their endpoints intersect, including touching at endpoints or overlapping collinearly.",
+        "constraints": "Coordinates are integers in [-10^9, 10^9].",
+        "hints": [
+          "Check that each segment straddles the other's supporting line.",
+          "Handle orientation == 0 by testing whether a point lies on the segment.",
+          "Use >= and <= rather than > and < to accept endpoint touches."
+        ],
+        "approach": "Compute the four orientation values and apply the straddle test with on-segment fallbacks for collinear cases.",
+        "pattern": "Orientation of three points",
+        "time": "O(1)",
+        "space": "O(1)",
+        "solution": "If both pairs of orientations are strict opposites the segments cross. If any orientation is zero, verify the shared point lies within the other segment's bounding box.",
+        "tags": ["geometry", "line segment", "orientation"]
+      },
+      {
+        "name": "Polygon Area",
+        "slug": "polygon-area",
+        "difficulty": "easy",
+        "description": "Compute the area of a simple polygon given its vertices in order.",
+        "constraints": "3 <= n <= 100; coordinates in [-10^9, 10^9].",
+        "hints": [
+          "Use the shoelace formula on the ordered vertices.",
+          "Sum the cross products of consecutive pairs including the last-to-first pair.",
+          "Take the absolute value and divide by two."
+        ],
+        "approach": "Apply the shoelace formula by summing cross products of consecutive vertices cyclically.",
+        "pattern": "Polygon area with shoelace",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Sum x_i * y_{i+1} - x_{i+1} * y_i over all i with indices modulo n, then return abs(sum) / 2.",
+        "tags": ["geometry", "polygon", "shoelace"]
+      },
+      {
+        "name": "Point Inside Polygon",
+        "slug": "point-in-polygon",
+        "difficulty": "medium",
+        "description": "Test whether a query point lies strictly inside, outside, or on the boundary of a simple polygon.",
+        "constraints": "3 <= n <= 1000; integer coordinates.",
+        "hints": [
+          "First check if the point is on any edge.",
+          "Cast a horizontal ray and count crossings with edges.",
+          "Count only edges whose endpoints straddle the point's y and whose crossing is to the right."
+        ],
+        "approach": "Check boundary first, then use ray casting counting edge crossings to the right of the point.",
+        "pattern": "Orientation of three points",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "For each edge, if the point is collinear and within the segment, return boundary. Otherwise count edges crossing the horizontal ray at y where one endpoint is above and one below; odd count means inside.",
+        "tags": ["geometry", "point in polygon", "ray casting"]
+      },
+      {
+        "name": "Robot Bounded In Circle",
+        "slug": "robot-bounded-in-circle",
+        "difficulty": "medium",
+        "description": "Determine whether a robot following a repeated instruction string ever stays within a bounded region.",
+        "constraints": "1 <= instructions.length <= 100; characters are 'G', 'L', 'R'.",
+        "hints": [
+          "Simulate one pass and track final position and direction.",
+          "The robot is bounded if it returns to origin or its direction changed after one pass.",
+          "Direction changes mean a rotated repeat, which closes the loop."
+        ],
+        "approach": "Simulate a single instruction pass; if position returns to origin or the final heading differs from the start, the path is bounded.",
+        "pattern": "Orientation of three points",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Move by (dx, dy) per 'G' and rotate heading on 'L'/'R'. After one pass, bounded iff at origin or facing a different direction than (0, 1).",
+        "tags": ["geometry", "simulation", "vector"]
+      }
+    ]
+  },
+  {
+    "slug": "computational-geometry",
+    "name": "Computational Geometry",
+    "difficulty": "hard",
+    "overview": "Computational geometry is the study of algorithms for geometric problems such as convex hulls, line sweeps, closest pairs, and polygon operations. It builds on the basic primitives (orientation, cross products) and adds sweeping, sorting-by-angle, and divide-and-conquer techniques.",
+    "why": "Geometry problems are common in competitive programming and appear in interviews for companies that value mathematical maturity. Solving them demonstrates clean handling of precision, edge cases, and careful case analysis.",
+    "when": "Reach for computational geometry when a problem involves points, lines, or polygons at scale: finding the convex hull, the closest pair of points, polygon triangulation, or counting intersections among many segments.",
+    "complexity": {
+      "time": "O(n log n) for convex hull and closest pair; O((n + k) log n) for line sweep intersections",
+      "space": "O(n)"
+    },
+    "concepts": [
+      {
+        "name": "Convex hull",
+        "description": "The smallest convex polygon containing all points; computed by Andrew's monotone chain in O(n log n) using orientation tests."
+      },
+      {
+        "name": "Line sweep",
+        "description": "Sweep a vertical line across the plane maintaining an active structure (usually a balanced BST) of geometric objects sorted by y."
+      },
+      {
+        "name": "Closest pair",
+        "description": "A divide-and-conquer algorithm splits points, recurses on halves, then checks a thin strip across the split line for closer cross-half pairs."
+      },
+      {
+        "name": "Sort by angle",
+        "description": "Ordering points around a pivot by polar angle is essential for hulls, rotating calipers, and visibility problems."
+      },
+      {
+        "name": "Rotating calipers",
+        "description": "A technique that rotates two parallel supporting lines around a convex polygon to compute diameter, width, and polygon distance in O(n)."
+      },
+      {
+        "name": "Precision handling",
+        "description": "All comparisons use epsilons, and exact integer arithmetic is preferred to avoid catastrophic floating-point drift."
+      }
+    ],
+    "patterns": [
+      {
+        "name": "Andrew's monotone chain convex hull",
+        "description": "Sort points lexicographically and build the lower and upper hulls with orientation tests.",
+        "code": "def cross(o, a, b):\n    return (a[0]-o[0])*(b[1]-o[1]) - (a[1]-o[1])*(b[0]-o[0])\n\ndef hull(points):\n    pts = sorted(points)\n    lo = []\n    for p in pts:\n        while len(lo) >= 2 and cross(lo[-2], lo[-1], p) <= 0:\n            lo.pop()\n        lo.append(p)\n    return lo"
+      },
+      {
+        "name": "Closest pair of points",
+        "description": "Divide and conquer with a strip check; returns the minimal Euclidean distance.",
+        "code": "def closest(points):\n    if len(points) <= 3:\n        return brute_force(points)\n    mid = len(points) // 2\n    d = min(closest(points[:mid]), closest(points[mid:]))\n    strip = [p for p in points if abs(p[0] - points[mid][0]) < d]\n    return min(d, check_strip(strip, d))"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Convex hull of a point set",
+        "problem": "Find the convex hull of a set of points on the plane.",
+        "input": "points = [(0,0), (1,1), (2,2), (0,2), (2,0), (1,0)]",
+        "output": "hull = [(0,0), (0,2), (2,2), (2,0)]",
+        "explanation": "After sorting, the lower hull builds (0,0), (1,0), (2,0) and pops (1,1) when the upper hull detects a clockwise turn, keeping only extreme points. (1,1) lies inside the triangle formed by the extremes and is discarded.",
+        "steps": [
+          "Sort points lexicographically.",
+          "Build the lower hull by keeping only counter-clockwise turns.",
+          "Build the upper hull scanning from the end back.",
+          "Concatenate the two hulls, dropping the duplicate endpoints.",
+          "Result contains the four extreme points."
+        ],
+        "complexity": {
+          "time": "O(n log n)",
+          "space": "O(n)"
+        }
+      }
+    ],
+    "mistakes": [
+      {
+        "mistake": "Using floating-point math with comparisons to exact zero, producing wrong hulls on nearly collinear points.",
+        "fix": "Use integer cross products, or apply an epsilon tolerance, and design the algorithm to be stable with collinear points."
+      },
+      {
+        "mistake": "Forgetting the strip check in closest-pair, so cross-half pairs closer than the best recursive distance are missed.",
+        "fix": "Always check points within the midline strip sorted by y, limited to the next few neighbors."
+      },
+      {
+        "mistake": "Not handling duplicate or collinear points in hull construction, causing degenerate output.",
+        "fix": "Deduplicate points first and explicitly decide whether collinear boundary points are kept or dropped."
+      },
+      {
+        "mistake": "Line-sweep implementations assuming the event queue can be processed without handling ties in x or y.",
+        "fix": "Break ties consistently (x then y) and handle simultaneous events in a fixed order."
+      }
+    ],
+    "problems": [
+      {
+        "name": "Erect the Fence (Convex Hull)",
+        "slug": "erect-the-fence",
+        "difficulty": "hard",
+        "description": "Return the vertices of the convex hull of a set of points, including points on the boundary.",
+        "constraints": "1 <= points.length <= 3000; coordinates in [-100, 100].",
+        "hints": [
+          "Use Andrew's monotone chain.",
+          "Use >= 0 in the turn test to keep collinear boundary points.",
+          "Merge the lower and upper hulls and deduplicate endpoints."
+        ],
+        "approach": "Apply Andrew's monotone chain with a <=-style turn test that retains collinear points.",
+        "pattern": "Andrew's monotone chain convex hull",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort points, build lower and upper hulls keeping points where the turn is not a strict clockwise pop (so collinear boundary points survive), concatenate and deduplicate.",
+        "tags": ["geometry", "convex hull", "monotone chain"]
+      },
+      {
+        "name": "Closest Pair of Points",
+        "slug": "closest-pair-of-points",
+        "difficulty": "hard",
+        "description": "Find the smallest distance between any two points in a plane.",
+        "constraints": "2 <= n <= 10^5; coordinates in [-10^6, 10^6].",
+        "hints": [
+          "Sort by x and recurse on two halves.",
+          "The answer is the min of the two halves or a cross-half pair in the midline strip.",
+          "In the strip, only the next handful of y-sorted points need checking."
+        ],
+        "approach": "Divide-and-conquer: recurse on halves sorted by x, then check the midline strip with a y-sorted pass.",
+        "pattern": "Closest pair of points",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Split sorted points by x, recursively compute each half's minimum, then examine points within the strip of that width; sort them by y and compare only near neighbors to find the minimum.",
+        "tags": ["geometry", "divide and conquer", "closest pair"]
+      },
+      {
+        "name": "Largest Triangle Area",
+        "slug": "largest-triangle-area",
+        "difficulty": "easy",
+        "description": "Find the largest area triangle formed by any three of the given points.",
+        "constraints": "3 <= points.length <= 50; coordinates in [-50, 50].",
+        "hints": [
+          "The area is half the magnitude of the cross product of two edge vectors.",
+          "With n <= 50 a triple loop over all triples is fine.",
+          "Track the running maximum area."
+        ],
+        "approach": "Brute-force every triple of points and compute the area from the cross product magnitude.",
+        "pattern": "Orientation of three points",
+        "time": "O(n^3)",
+        "space": "O(1)",
+        "solution": "For each triple (a, b, c), compute abs(cross(b-a, c-a)) / 2 and keep the maximum.",
+        "tags": ["geometry", "cross product", "brute force"]
+      },
+      {
+        "name": "Rectangle Area II (Intersection Overlay)",
+        "slug": "rectangle-area-ii",
+        "difficulty": "hard",
+        "description": "Compute the total area covered by several axis-aligned rectangles, counting overlap only once.",
+        "constraints": "1 <= rectangles.length <= 200; coordinates up to 10^9.",
+        "hints": [
+          "Coordinate-compress the x and y boundaries.",
+          "Mark cells covered by at least one rectangle.",
+          "Sum the area of all covered compressed cells."
+        ],
+        "approach": "Compress unique x and y coordinates, mark each covered cell with a nested loop over rectangles, then sum cell areas.",
+        "pattern": "Line sweep",
+        "time": "O(n^3)",
+        "space": "O(n^2)",
+        "solution": "Collect all distinct x and y coordinates. For each rectangle mark its cell range, then add (x[j+1]-x[j]) * (y[k+1]-y[k]) for every covered cell.",
+        "tags": ["geometry", "coordinate compression", "rectangles"]
+      }
+    ]
+  },
+  {
+    "slug": "kmp-z-algorithm-rabin-karp",
+    "name": "KMP, Z algorithm, Rabin-Karp",
+    "difficulty": "medium",
+    "overview": "This topic groups the three classic linear-time (or expected linear-time) string matching algorithms: KMP and the Z algorithm preprocess the pattern or string to scan text in O(n + m), while Rabin-Karp uses rolling hashes for fast multi-pattern search. Each trades different constants and capabilities but all beat the naive O(n*m) scan.",
+    "why": "String matching is the backbone of search, diff, and bioinformatics, and interviewers use these algorithms to test pattern-preprocessing insight. Knowing which to pick when multiple patterns or overlapping matches matter is a distinguishing skill.",
+    "when": "Use KMP or Z when you need all occurrences of a fixed pattern in a text in guaranteed linear time, or when you need the longest prefix-suffix structure. Use Rabin-Karp when you must search for many patterns at once or need rolling-hash-based string comparison.",
+    "complexity": {
+      "time": "O(n + m) for KMP and Z; O(n + m) expected for Rabin-Karp, worst case O(n*m)",
+      "space": "O(m) for KMP/Z pattern tables; O(1) extra for Rabin-Karp"
+    },
+    "concepts": [
+      {
+        "name": "Failure / prefix function",
+        "description": "For KMP, pi[i] is the length of the longest proper prefix of pattern[0..i] that is also a suffix, enabling efficient backtracking."
+      },
+      {
+        "name": "Z array",
+        "description": "Z[i] is the length of the longest substring starting at i that matches a prefix of the whole string; computed in linear time."
+      },
+      {
+        "name": "KMP scan",
+        "description": "Match the pattern against the text while maintaining the current prefix length; on mismatch fall back using the prefix function."
+      },
+      {
+        "name": "Rolling hash",
+        "description": "A polynomial hash of a substring updated in O(1) when sliding one character, using a base and modular arithmetic."
+      },
+      {
+        "name": "Hash collisions",
+        "description": "Two different strings can share a hash; double hashing or random bases reduce collision probability to negligible levels."
+      },
+      {
+        "name": "Multiple pattern search",
+        "description": "Rabin-Karp naturally supports searching k patterns simultaneously by comparing their hashes to each window's hash."
+      }
+    ],
+    "patterns": [
+      {
+        "name": "KMP prefix function and matching",
+        "description": "Compute the prefix function, then scan the text maintaining the matched length.",
+        "code": "def kmp(text, pat):\n    pi = [0]*len(pat)\n    for i in range(1, len(pat)):\n        j = pi[i-1]\n        while j and pat[i] != pat[j]: j = pi[j-1]\n        pi[i] = j + (pat[i] == pat[j])\n    j = 0; res = []\n    for i, c in enumerate(text):\n        while j and c != pat[j]: j = pi[j-1]\n        j += c == pat[j]\n        if j == len(pat): res.append(i - j + 1); j = pi[j-1]\n    return res"
+      },
+      {
+        "name": "Z array computation",
+        "description": "Build the Z array in linear time using a maintained [l, r] matching window.",
+        "code": "def z_function(s):\n    n = len(s); z = [0]*n; l = r = 0\n    for i in range(1, n):\n        if i <= r: z[i] = min(r - i + 1, z[i - l])\n        while i + z[i] < n and s[z[i]] == s[i + z[i]]: z[i] += 1\n        if i + z[i] - 1 > r: l, r = i, i + z[i] - 1\n    return z"
+      }
+    ],
+    "examples": [
+      {
+        "title": "KMP finds all pattern occurrences",
+        "problem": "Locate every occurrence of a pattern inside a text.",
+        "input": "text = 'ABABDABACDABABCABAB', pattern = 'ABABCABAB'",
+        "output": "occurrences at indices [10]",
+        "explanation": "The prefix function is built for the pattern; during the scan matches advance the state, and when the full pattern length is reached at index 10 an occurrence is recorded and the state falls back using pi, so overlapping matches are also found.",
+        "steps": [
+          "Compute the prefix function pi for 'ABABCABAB'.",
+          "Scan the text, advancing j while characters match.",
+          "On mismatch, fall back j = pi[j-1] and retry.",
+          "When j == m, record start index i - m + 1 and set j = pi[m-1].",
+          "Exactly one occurrence is found at index 10."
+        ],
+        "complexity": {
+          "time": "O(n + m)",
+          "space": "O(m)"
+        }
+      }
+    ],
+    "mistakes": [
+      {
+        "mistake": "Using a naive while loop that resets j to 0 on every mismatch, degrading KMP to O(n*m).",
+        "fix": "Always fall back via j = pi[j-1] so the total work across the scan stays O(n)."
+      },
+      {
+        "mistake": "Ignoring hash collisions and treating hash equality as string equality.",
+        "fix": "Verify matches by direct character comparison, and use 64-bit or double hashing to make collisions negligible."
+      },
+      {
+        "mistake": "Computing the rolling hash window from scratch each step, losing the O(1) sliding property.",
+        "fix": "Update the hash as hash = (hash - old*base^(m-1)) * base + new, removing the outgoing and adding the incoming character."
+      },
+      {
+        "mistake": "Off-by-one errors in Z when reusing the [l, r] window or in the KMP occurrence index.",
+        "fix": "Test against brute force on short strings and random small cases to validate indices."
+      }
+    ],
+    "problems": [
+      {
+        "name": "Implement strStr / Find the Index of the First Occurrence",
+        "slug": "find-index-first-occurrence",
+        "difficulty": "medium",
+        "description": "Return the index of the first occurrence of a pattern in a text, or -1 if absent.",
+        "constraints": "1 <= text, pattern <= 10^4.",
+        "hints": [
+          "Compute the KMP prefix function for the pattern.",
+          "Scan the text maintaining the current matched length.",
+          "Return the start index when the matched length reaches the pattern length."
+        ],
+        "approach": "Use the KMP algorithm: build the prefix function then scan the text in O(n + m).",
+        "pattern": "KMP prefix function and matching",
+        "time": "O(n + m)",
+        "space": "O(m)",
+        "solution": "Build pi for the pattern. Scan the text, on mismatch fall back with pi, and when the matched length equals m return the start index.",
+        "tags": ["string", "kmp", "pattern matching"]
+      },
+      {
+        "name": "Repeated Substring Pattern",
+        "slug": "repeated-substring-pattern",
+        "difficulty": "easy",
+        "description": "Check whether a string can be constructed by taking a substring and repeating it several times.",
+        "constraints": "1 <= s.length <= 10^4; lowercase letters.",
+        "hints": [
+          "A string repeats a unit iff it is a proper prefix-suffix of itself.",
+          "Use the KMP prefix function: n - pi[n-1] is the smallest candidate unit.",
+          "The string repeats iff n % (n - pi[n-1]) == 0."
+        ],
+        "approach": "Compute the prefix function and test whether the string's length divides the minimal period n - pi[n-1].",
+        "pattern": "KMP prefix function and matching",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "If n - pi[n-1] is a valid period dividing n and pi[n-1] > 0, the string is made of repeating copies of s[:n-pi[n-1]].",
+        "tags": ["string", "kmp", "prefix function"]
+      },
+      {
+        "name": "Shortest Palindrome",
+        "slug": "shortest-palindrome",
+        "difficulty": "hard",
+        "description": "Add characters to the front of a string to make the shortest palindrome possible.",
+        "constraints": "0 <= s.length <= 5*10^4; lowercase letters.",
+        "hints": [
+          "Find the longest palindromic prefix of s.",
+          "Concatenate s + '#' + reverse(s) and run KMP's prefix function.",
+          "The largest border equals the longest palindromic prefix length."
+        ],
+        "approach": "Build t = s + '#' + reverse(s), compute its prefix function, and use the longest border to add the remaining suffix reversed.",
+        "pattern": "KMP prefix function and matching",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "The prefix function value at the end of t gives the length L of the longest palindromic prefix. Answer = reverse(s[L:]) + s.",
+        "tags": ["string", "kmp", "palindrome", "prefix function"]
+      },
+      {
+        "name": "Find All Anagrams in a String",
+        "slug": "find-all-anagrams",
+        "difficulty": "medium",
+        "description": "Return all start indices where a substring of text is an anagram of a given pattern.",
+        "constraints": "1 <= s.length, p.length <= 3*10^4; lowercase letters.",
+        "hints": [
+          "Compare rolling hashes of equal-length windows to the pattern's hash.",
+          "Update the window hash in O(1) as you slide.",
+          "Verify anagram equality with a character counter to avoid collision issues."
+        ],
+        "approach": "Slide a window of length len(p) over s, compare a rolling hash against p's hash, and verify with a counter.",
+        "pattern": "Rolling hash",
+        "time": "O(n) expected",
+        "space": "O(1)",
+        "solution": "Hash p once. Slide the window over s updating the rolling hash; when it equals p's hash, confirm with a frequency check and record the start index.",
+        "tags": ["string", "rolling hash", "anagram", "sliding window"]
+      }
+    ]
+  },
+  {
+    "slug": "kmp",
+    "name": "KMP",
+    "difficulty": "medium",
+    "overview": "The Knuth-Morris-Pratt algorithm finds all occurrences of a pattern in a text in O(n + m) time by preprocessing the pattern into a prefix function. The prefix function lets the search skip character comparisons that are guaranteed to fail, and it never re-reads text characters.",
+    "why": "KMP is the canonical linear-time string matching algorithm and a favorite interview topic because it tests deep understanding of prefix-suffix structure. Its prefix function also solves substring-is-repetition and palindrome-construction problems.",
+    "when": "Use KMP whenever you must find occurrences of a fixed pattern in a long text in guaranteed linear time, or when the pattern's longest proper prefix-suffix structure (borders) is the key to the problem.",
+    "complexity": {
+      "time": "O(n + m) build plus scan",
+      "space": "O(m) for the prefix table"
+    },
+    "concepts": [
+      {
+        "name": "Prefix function",
+        "description": "pi[i] stores the length of the longest proper prefix of pattern[0..i] that is also a suffix of it."
+      },
+      {
+        "name": "Border",
+        "description": "A proper prefix of a string that is also a suffix; pi[i] is the longest border of the prefix ending at i."
+      },
+      {
+        "name": "Failure fallback",
+        "description": "On a mismatch, instead of restarting the pattern, jump the matched length to pi[j-1] and retry."
+      },
+      {
+        "name": "Linear scan guarantee",
+        "description": "Although fallbacks can occur, each text character advances j at most one net step, so total work is O(n + m)."
+      },
+      {
+        "name": "Overlapping matches",
+        "description": "After a full match, set j = pi[m-1] so overlapping occurrences are found naturally."
+      },
+      {
+        "name": "Applications",
+        "description": "Substring search, finding all occurrences, computing string periods, and longest palindromic prefix."
+      }
+    ],
+    "patterns": [
+      {
+        "name": "Prefix function",
+        "description": "Compute pi for the pattern with the classic two-pointer construction.",
+        "code": "def prefix_function(s):\n    pi = [0]*len(s)\n    for i in range(1, len(s)):\n        j = pi[i-1]\n        while j and s[i] != s[j]: j = pi[j-1]\n        if s[i] == s[j]: j += 1\n        pi[i] = j\n    return pi"
+      },
+      {
+        "name": "Pattern search",
+        "description": "Scan the text with the same fallback mechanics to locate all matches.",
+        "code": "def search(text, pat):\n    pi = prefix_function(pat)\n    j = 0; res = []\n    for i, c in enumerate(text):\n        while j and c != pat[j]: j = pi[j-1]\n        if c == pat[j]: j += 1\n        if j == len(pat):\n            res.append(i - len(pat) + 1)\n            j = pi[j-1]\n    return res"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Prefix function of a pattern",
+        "problem": "Compute pi for the pattern 'AABAACAABAA'.",
+        "input": "pattern = 'AABAACAABAA'",
+        "output": "pi = [0, 1, 0, 1, 2, 0, 1, 2, 3, 4, 5]",
+        "explanation": "At index 7 the prefix 'AABAACA' has longest border 'AA' of length 2; extending through 'ABAA' grows the border to 5 ('AABAA'). The fallback mechanism reuses these values to avoid rescanning the text.",
+        "steps": [
+          "Initialize pi[0] = 0.",
+          "For each position i, start from j = pi[i-1].",
+          "While characters mismatch, fall back j = pi[j-1].",
+          "If characters match, extend j by 1.",
+          "Store pi[i] = j."
+        ],
+        "complexity": {
+          "time": "O(m)",
+          "space": "O(m)"
+        }
+      }
+    ],
+    "mistakes": [
+      {
+        "mistake": "Comparing pattern characters with text chars before checking whether j is 0, causing index errors.",
+        "fix": "Guard the mismatch loop with while j and ... so pat[j] is only read when j > 0."
+      },
+      {
+        "mistake": "Resetting j to 0 after a mismatch instead of using pi[j-1], losing the linear-time guarantee.",
+        "fix": "Always fall back to pi[j-1]; amortized analysis shows total work stays O(n + m)."
+      },
+      {
+        "mistake": "Forgetting the pi[j-1] fallback after recording a full match, so overlapping occurrences are missed.",
+        "fix": "After j == m, record the index and set j = pi[m-1] to keep searching."
+      }
+    ],
+    "problems": [
+      {
+        "name": "Implement strStr",
+        "slug": "implement-strstr-kmp",
+        "difficulty": "medium",
+        "description": "Return the index of the first occurrence of a pattern in text, or -1.",
+        "constraints": "1 <= len(text), len(pattern) <= 10^5.",
+        "hints": [
+          "Preprocess the pattern into its prefix function.",
+          "Scan text maintaining matched length j.",
+          "Fall back via pi[j-1] on mismatch."
+        ],
+        "approach": "Build the prefix function, scan the text, and return the earliest start index where the matched length reaches m.",
+        "pattern": "Pattern search",
+        "time": "O(n + m)",
+        "space": "O(m)",
+        "solution": "Compute pi, walk the text with fallback mechanics, and report the first index i - m + 1 when j reaches m.",
+        "tags": ["string", "kmp", "substring search"]
+      },
+      {
+        "name": "Repeated Substring Pattern",
+        "slug": "repeated-substring-pattern-kmp",
+        "difficulty": "easy",
+        "description": "Determine whether s is made of repeating copies of a shorter substring.",
+        "constraints": "1 <= s.length <= 10^4.",
+        "hints": [
+          "The minimal period of s is n - pi[n-1].",
+          "s repeats iff n is divisible by that period.",
+          "Ensure pi[n-1] is non-zero and the division is exact."
+        ],
+        "approach": "Compute the prefix function and test period divisibility.",
+        "pattern": "Prefix function",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "Let p = n - pi[n-1]. Return True iff p < n and n % p == 0.",
+        "tags": ["string", "kmp", "period", "prefix function"]
+      },
+      {
+        "name": "Shortest Palindrome",
+        "slug": "shortest-palindrome-kmp",
+        "difficulty": "hard",
+        "description": "Add the fewest characters in front of s to make it a palindrome.",
+        "constraints": "0 <= s.length <= 5*10^4.",
+        "hints": [
+          "Combine s and its reverse with a separator.",
+          "The longest border of s + '#' + reverse(s) is the longest palindromic prefix of s.",
+          "Append the remaining suffix reversed."
+        ],
+        "approach": "Use the prefix function on the combined string to find the longest palindromic prefix.",
+        "pattern": "Prefix function",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "Compute pi for s + '#' + s[::-1]; its last value L is the longest palindromic prefix length. Answer is s[L:][::-1] + s.",
+        "tags": ["string", "kmp", "palindrome"]
+      }
+    ]
+  },
+  {
+    "slug": "rabin-karp",
+    "name": "Rabin-Karp",
+    "difficulty": "medium",
+    "overview": "Rabin-Karp is a string matching algorithm that searches for a pattern by comparing rolling polynomial hashes of equal-length windows against the pattern's hash. Window hashes update in O(1) as the window slides, giving expected O(n + m) search that is excellent for multiple patterns.",
+    "why": "Rabin-Karp shines where KMP is awkward: searching for many patterns at once or comparing many substrings via their hash. Its expected linear time and trivial implementation make it a favorite in interviews and in codebases like git and plagiarism checkers.",
+    "when": "Use Rabin-Karp when searching a text for one or more fixed-length patterns, or when many substring equality/inequality checks are needed. Prefer it when the pattern set is large, since the hash table lookup is constant time per window.",
+    "complexity": {
+      "time": "O(n + m) expected; O(n*m) worst case due to hash collisions",
+      "space": "O(1) extra besides pattern storage"
+    },
+    "concepts": [
+      {
+        "name": "Polynomial hash",
+        "description": "hash(s) = sum(s[i] * base^i) mod p; equal strings hash equal and the hash is order-sensitive."
+      },
+      {
+        "name": "Rolling window",
+        "description": "Sliding the window removes the leading character's contribution and adds the new character in O(1)."
+      },
+      {
+        "name": "Modular arithmetic",
+        "description": "A large prime modulus and precomputed base powers keep hash values small and update math exact."
+      },
+      {
+        "name": "Collisions",
+        "description": "Different strings can share a hash; a final character-by-character check (or double hashing) preserves correctness."
+      },
+      {
+        "name": "Multi-pattern search",
+        "description": "Insert all pattern hashes into a hash set; each text window is one lookup."
+      },
+      {
+        "name": "Random base",
+        "description": "Choosing a random base per run makes adversarial collision inputs essentially impossible."
+      }
+    ],
+    "patterns": [
+      {
+        "name": "Rolling hash window update",
+        "description": "Slide a length-m window updating its polynomial hash in O(1).",
+        "code": "def slide(h, out, inn, base, mod, power):\n    h = (h - out * power) % mod\n    h = (h * base + inn) % mod\n    return h"
+      },
+      {
+        "name": "Rabin-Karp search",
+        "description": "Hash the pattern, then compare each window hash against it.",
+        "code": "def rabin_karp(text, pat):\n    m = len(pat); hp = hash(pat)\n    hw = hash(text[:m]); res = []\n    for i in range(len(text) - m + 1):\n        if hw == hp and text[i:i+m] == pat:\n            res.append(i)\n        if i + m < len(text):\n            hw = slide(hw, text[i], text[i+m], B, M, P)\n    return res"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Find a pattern with Rabin-Karp",
+        "problem": "Find the first occurrence of a pattern in a text.",
+        "input": "text = 'AABAACAADAABAA', pattern = 'AABA'",
+        "output": "occurrences at indices [0, 9]",
+        "explanation": "Hash the pattern once, then slide a length-4 window over the text updating the rolling hash each step. The window at index 9 hashes to the same value and the direct comparison confirms the match.",
+        "steps": [
+          "Compute the hash of 'AABA'.",
+          "Hash the first window text[0:4].",
+          "For each step, remove text[i], shift, and add text[i+4].",
+          "When a window hash equals the pattern hash, verify characters directly.",
+          "Record matches at indices 0 and 9."
+        ],
+        "complexity": {
+          "time": "O(n + m) expected",
+          "space": "O(1)"
+        }
+      }
+    ],
+    "mistakes": [
+      {
+        "mistake": "Trusting hash equality alone and reporting false matches caused by collisions.",
+        "fix": "Always confirm candidate windows with direct string comparison, or use double hashing."
+      },
+      {
+        "mistake": "Neglecting the modulo sign: negative intermediate values in Python/other languages can produce inconsistent hashes.",
+        "fix": "Apply (h % mod + mod) % mod or rely on Python's non-negative mod results carefully."
+      },
+      {
+        "mistake": "Rebuilding the window hash from scratch per step, turning expected O(n) into O(n*m).",
+        "fix": "Update incrementally: subtract the outgoing char times base^(m-1), multiply by base, add the new char."
+      },
+      {
+        "mistake": "Using a small modulus or fixed base, making adversarial tests easy to construct.",
+        "fix": "Use a 64-bit modulus or a random 61-bit prime base chosen at runtime."
+      }
+    ],
+    "problems": [
+      {
+        "name": "Implement strStr",
+        "slug": "implement-strstr-rabin-karp",
+        "difficulty": "medium",
+        "description": "Return the index of the first occurrence of a pattern in a text.",
+        "constraints": "1 <= len(text), len(pattern) <= 10^5.",
+        "hints": [
+          "Hash the pattern and hash the first window.",
+          "Slide the window with an O(1) rolling update.",
+          "Verify any hash match with a direct character comparison."
+        ],
+        "approach": "Compute the pattern hash and slide length-m windows through the text, verifying candidates.",
+        "pattern": "Rabin-Karp search",
+        "time": "O(n + m) expected",
+        "space": "O(1)",
+        "solution": "Hash the pattern. Slide a window updating its hash each step; when hashes match, confirm the substring and return the first index.",
+        "tags": ["string", "rabin-karp", "rolling hash"]
+      },
+      {
+        "name": "Find All Anagrams in a String",
+        "slug": "find-all-anagrams-rabin-karp",
+        "difficulty": "medium",
+        "description": "Return all start indices where a window of text is an anagram of a pattern.",
+        "constraints": "1 <= len(s), len(p) <= 3*10^4.",
+        "hints": [
+          "Slide a window of length len(p) and compare a multiset/count hash.",
+          "Use a 26-slot frequency vector hashed, or a direct counter.",
+          "The counter updates O(1) per slide with two character changes."
+        ],
+        "approach": "Maintain a character counter for the window and compare it against the pattern's counter after each slide.",
+        "pattern": "Rolling hash window update",
+        "time": "O(n) expected",
+        "space": "O(1)",
+        "solution": "Track the frequency difference between window and pattern; slide by removing the outgoing and adding the incoming character, and record indices where all counts are zero.",
+        "tags": ["string", "anagram", "sliding window"]
+      },
+      {
+        "name": "Longest Duplicate Substring",
+        "slug": "longest-duplicate-substring",
+        "difficulty": "hard",
+        "description": "Find the longest substring that appears at least twice in the given string.",
+        "constraints": "1 <= s.length <= 3*10^4; lowercase letters.",
+        "hints": [
+          "Binary search the answer length.",
+          "Use rolling hashes to compare all length-k substrings in O(n).",
+          "Collisions are unacceptable, so use double hashing and verify candidates."
+        ],
+        "approach": "Binary search on the substring length; for each length, detect duplicates with a rolling-hash set and verify candidates.",
+        "pattern": "Rabin-Karp search",
+        "time": "O(n log n) expected",
+        "space": "O(n)",
+        "solution": "For a candidate length k, compute the rolling hash of every length-k window and insert into a set; a collision-confirmed repeat answers the search, and binary search finds the maximum valid k.",
+        "tags": ["string", "binary search", "rolling hash", "duplicate substring"]
+      },
+      {
+        "name": "Distinct Substrings Count",
+        "slug": "distinct-substrings-count",
+        "difficulty": "hard",
+        "description": "Count the number of distinct substrings of a string.",
+        "constraints": "1 <= s.length <= 2000; lowercase letters.",
+        "hints": [
+          "Every substring is identified by its (start, end) pair.",
+          "Insert rolling hashes of all substrings into a set.",
+          "The set size is the number of distinct substrings."
+        ],
+        "approach": "Compute rolling hashes for every substring and count unique values in a hash set.",
+        "pattern": "Rolling hash window update",
+        "time": "O(n^2) expected",
+        "space": "O(n^2)",
+        "solution": "For each start, build hashes of all extensions in O(n^2) total and add each to a set; the set size is the count of distinct substrings.",
+        "tags": ["string", "rolling hash", "hashing", "distinct substrings"]
+      }
+    ]
+  },
+  {
+    "slug": "rolling-hash",
+    "name": "Rolling hash",
+    "difficulty": "medium",
+    "overview": "A rolling hash maps a string to a numeric fingerprint such that the hash of any substring can be computed in O(1) from precomputed prefix hashes. It treats the string as a number in a chosen base, making substring equality checks constant-time with a controllable (low) collision probability.",
+    "why": "Rolling hashes enable fast substring comparisons that appear in problems like longest common substring, duplicate substring detection, and string hashing at scale. Interviewers use them to test probabilistic correctness reasoning and modular arithmetic care.",
+    "when": "Reach for rolling hashes whenever a problem repeatedly needs substring equality or ordering comparisons, or needs many substrings compared efficiently (palindrome checks, duplicate detection, pattern matching). Beware collisions and prefer double hashing for adversarial inputs.",
+    "complexity": {
+      "time": "O(n) preprocessing, O(1) per substring hash",
+      "space": "O(n) for prefix hashes and powers"
+    },
+    "concepts": [
+      {
+        "name": "Polynomial hash",
+        "description": "hash(s) = sum(code(s[i]) * base^i) mod p, treating the string as a base-'base' integer."
+      },
+      {
+        "name": "Prefix hash",
+        "description": "hash of the string s[0..i] stored at index i, so any substring's hash is a difference of two prefix hashes."
+      },
+      {
+        "name": "Substring hash formula",
+        "description": "hash(l..r) = prefix[r] - prefix[l-1] * base^(r-l+1) mod p, removing the leading contribution."
+      },
+      {
+        "name": "Base and modulus",
+        "description": "A base larger than the alphabet (e.g. 131) and a large prime modulus (e.g. 10^9+7 or 2^64) control collision probability."
+      },
+      {
+        "name": "Double hashing",
+        "description": "Compute two hashes with different (base, mod) pairs and treat them as a pair, making collisions negligible."
+      },
+      {
+        "name": "Collision probability",
+        "description": "For a random base, two distinct n-length strings collide with probability about n / mod; choosing 64-bit values makes this tiny."
+      }
+    ],
+    "patterns": [
+      {
+        "name": "Precompute prefix hashes",
+        "description": "Build prefix hashes and base powers once for O(1) substring hashes.",
+        "code": "def build_prefix(s, base, mod):\n    n = len(s); h = [0]*(n+1); pw = [1]*(n+1)\n    for i, c in enumerate(s):\n        h[i+1] = (h[i]*base + ord(c)) % mod\n        pw[i+1] = (pw[i]*base) % mod\n    return h, pw"
+      },
+      {
+        "name": "O(1) substring hash",
+        "description": "Extract any substring's hash from the prefix arrays.",
+        "code": "def sub_hash(h, pw, l, r, mod):\n    return (h[r+1] - h[l]*pw[r-l+1]) % mod"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Comparing two substrings",
+        "problem": "Check whether s[2..5] equals s[8..11] without scanning.",
+        "input": "s = 'abacabadabacaba'; compare substrings of length 4 at offsets 2 and 8",
+        "output": "equal = true",
+        "explanation": "Both offsets extract 'acab', so their rolling hashes computed from prefix arrays match. The O(1) formula removes the leading contribution so only the target window is hashed.",
+        "steps": [
+          "Precompute prefix hashes and base powers for s.",
+          "Compute hash(2..5) using prefix[6] - prefix[2]*base^4.",
+          "Compute hash(8..11) using prefix[12] - prefix[8]*base^4.",
+          "Both values are equal, confirming the substrings match."
+        ],
+        "complexity": {
+          "time": "O(n) preprocessing, O(1) per comparison",
+          "space": "O(n)"
+        }
+      }
+    ],
+    "mistakes": [
+      {
+        "mistake": "Forgetting the multiplier base^(length) when subtracting prefix hashes, producing wrong substring hashes.",
+        "fix": "Multiply prefix[l-1] by base^(r-l+1) before subtracting."
+      },
+      {
+        "mistake": "Using the character code 0 for a character, so strings like 'a' and 'aa' collide under some formulations.",
+        "fix": "Map characters to codes starting at 1 (e.g. ord(c) - ord('a') + 1) so leading zeros are impossible."
+      },
+      {
+        "mistake": "Relying on a single 32-bit modulus, which is vulnerable to birthday-paradox collisions for many substrings.",
+        "fix": "Use a 64-bit modulus or double hashing with two independent prime moduli."
+      },
+      {
+        "mistake": "Ignoring overflow/sign issues in languages with fixed-size integers.",
+        "fix": "Keep values modulo p at every arithmetic step, or use Python's arbitrary precision and mod at the end."
+      }
+    ],
+    "problems": [
+      {
+        "name": "Longest Palindromic Substring",
+        "slug": "longest-palindromic-substring-hash",
+        "difficulty": "medium",
+        "description": "Find the longest substring of s that reads the same forwards and backwards.",
+        "constraints": "1 <= s.length <= 1000.",
+        "hints": [
+          "Build prefix hashes for s and for reversed s.",
+          "A substring is a palindrome iff its hash equals the reversed counterpart's hash.",
+          "Binary search or iterate lengths, checking all centers."
+        ],
+        "approach": "Use double rolling hashes on s and reversed s to test palindrome-ness of substrings in O(1), then binary search the length.",
+        "pattern": "O(1) substring hash",
+        "time": "O(n log n) expected",
+        "space": "O(n)",
+        "solution": "Precompute hashes of s and s[::-1]. For a candidate length, check every window against its reversed image; binary search finds the longest palindromic substring.",
+        "tags": ["string", "rolling hash", "palindrome", "binary search"]
+      },
+      {
+        "name": "Distinct Substrings",
+        "slug": "distinct-substrings-hash",
+        "difficulty": "hard",
+        "description": "Count distinct substrings of a string.",
+        "constraints": "1 <= s.length <= 2000.",
+        "hints": [
+          "Hash every substring with prefix arrays.",
+          "Insert all hashes into a set.",
+          "The number of unique hashes is the answer."
+        ],
+        "approach": "Enumerate all substrings via prefix hashes and insert into a hash set.",
+        "pattern": "O(1) substring hash",
+        "time": "O(n^2) expected",
+        "space": "O(n^2)",
+        "solution": "For every (l, r) pair compute the substring hash in O(1) and add to a set; return the set size.",
+        "tags": ["string", "rolling hash", "hashing"]
+      },
+      {
+        "name": "Find the Longest Common Substring",
+        "slug": "longest-common-substring",
+        "difficulty": "hard",
+        "description": "Find the longest string that is a substring of both a and b.",
+        "constraints": "1 <= len(a), len(b) <= 10^4.",
+        "hints": [
+          "Binary search the length of the common substring.",
+          "For each length, insert hashes of a's windows into a set and check b's windows.",
+          "Verify candidate matches to avoid collisions."
+        ],
+        "approach": "Binary search on length, using rolling hashes to compare all windows of both strings via a hash set.",
+        "pattern": "O(1) substring hash",
+        "time": "O((n + m) log(min(n, m))) expected",
+        "space": "O(n + m)",
+        "solution": "For a candidate length k, insert rolling hashes of all a windows, then test whether any b window matches; binary search finds the largest valid k.",
+        "tags": ["string", "rolling hash", "binary search", "common substring"]
+      },
+      {
+        "name": "Repeat DNA Sequences",
+        "slug": "repeat-dna-sequences",
+        "difficulty": "medium",
+        "description": "Return all 10-letter-long sequences that occur more than once in a DNA string.",
+        "constraints": "1 <= s.length <= 10^5; characters are A, C, G, T.",
+        "hints": [
+          "Encode each base as a 2-bit number to use a small integer hash.",
+          "Slide a length-10 window, updating the hash in O(1).",
+          "Track seen hashes with a set and report repeats."
+        ],
+        "approach": "Map bases to 2-bit codes and slide a length-10 window with an integer rolling hash, tracking seen sequences.",
+        "pattern": "Precompute prefix hashes",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "Encode A/C/G/T as 0..3, slide a window encoding 10 bases as a 20-bit integer, add each unseen code to a seen set and each repeat to the answer.",
+        "tags": ["string", "rolling hash", "sliding window", "bitmask"]
+      }
+    ]
+  },
+  {
+    "slug": "advanced-string-algorithms",
+    "name": "Advanced string algorithms",
+    "difficulty": "hard",
+    "overview": "This overview topic covers the advanced string structures and algorithms used beyond linear-time matching: suffix arrays, suffix automata, tries and Aho-Corasick, palindromic trees, and the Z-algorithm. These tools answer hard questions about repeated substrings, pattern sets, and string comparisons that appear in competitive programming.",
+    "why": "Advanced string algorithms distinguish senior candidates and are core to search engines, DNA analysis, and text processing pipelines. Knowing which structure solves which class of problem (suffixes, patterns, palindromes) shows deep algorithmic breadth.",
+    "when": "Use these techniques for hard string problems: longest repeated substring (suffix array + LCP), many patterns in a text (Aho-Corasick on a trie), lexicographic orderings (suffix array), and palindrome-heavy queries (palindromic tree or Manacher).",
+    "complexity": {
+      "time": "O(n log n) or O(n) for most constructions; O(n + m + occurrences) for Aho-Corasick",
+      "space": "O(n) typically, O(n * alphabet) for tries in naive form"
+    },
+    "concepts": [
+      {
+        "name": "Suffix array",
+        "description": "A sorted array of all suffixes of a string, constructed in O(n log n), enabling substring search and repeated-substring analysis."
+      },
+      {
+        "name": "LCP array",
+        "description": "Longest common prefix lengths between adjacent suffixes in the suffix array; its minimums give repeated-substring answers."
+      },
+      {
+        "name": "Trie",
+        "description": "A tree of all prefixes of a set of strings, giving O(|s|) insertion and search for single patterns."
+      },
+      {
+        "name": "Aho-Corasick",
+        "description": "A trie with failure links to the longest proper suffix that is also a prefix, searching many patterns in one pass over the text."
+      },
+      {
+        "name": "Z algorithm",
+        "description": "Computes the Z array in O(n), the length of the longest prefix-match at every position."
+      },
+      {
+        "name": "Palindromic tree / Manacher",
+        "description": "Structures that enumerate all distinct palindromic substrings or find all palindromes in O(n)."
+      }
+    ],
+    "patterns": [
+      {
+        "name": "Z algorithm",
+        "description": "Linear-time computation of the longest prefix-match length at every index.",
+        "code": "def z(s):\n    n = len(s); z = [0]*n; l = r = 0\n    for i in range(1, n):\n        if i <= r: z[i] = min(r - i + 1, z[i - l])\n        while i + z[i] < n and s[z[i]] == s[i + z[i]]: z[i] += 1\n        if i + z[i] - 1 > r: l, r = i, i + z[i] - 1\n    return z"
+      },
+      {
+        "name": "Trie insertion",
+        "description": "Insert a word into a trie, creating nodes as needed.",
+        "code": "def insert(root, word):\n    node = root\n    for ch in word:\n        if ch not in node:\n            node[ch] = {}\n        node = node[ch]\n    node['#'] = True"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Suffix array and LCP of a short string",
+        "problem": "Compute the suffix array and the longest repeated substring of 'banana'.",
+        "input": "s = 'banana'",
+        "output": "longest repeated substring = 'ana'",
+        "explanation": "Suffixes sorted give array [5,3,1,0,4,2] for positions of 'a','ana','anana','banana','na','nana'. The LCP array [0,1,3,0,0,2] has maximum 3 between 'anana' and 'ana', yielding the repeated substring 'ana' of length 3.",
+        "steps": [
+          "Generate all suffixes of 'banana'.",
+          "Sort suffixes lexicographically to form the suffix array.",
+          "Compute LCPs of adjacent suffixes in the sorted order.",
+          "The maximum LCP value (3) identifies the longest repeated substring.",
+          "Extract 'ana' at the corresponding suffix."
+        ],
+        "complexity": {
+          "time": "O(n log n) for suffix array, O(n) for LCP",
+          "space": "O(n)"
+        }
+      }
+    ],
+    "mistakes": [
+      {
+        "mistake": "Confusing the Z algorithm's matching window maintenance, producing wrong values on boundary cases.",
+        "fix": "Use the standard invariant l <= i <= r with z[i] initialized from z[i - l] and recheck characters after the box."
+      },
+      {
+        "mistake": "Building tries with arrays sized by full alphabet, wasting huge memory on sparse data.",
+        "fix": "Use hash maps per node or a compact adjacency list indexed by character."
+      },
+      {
+        "mistake": "Using a naive suffix sorting, giving O(n^2 log n) instead of the expected O(n log n) or O(n).",
+        "fix": "Use a doubling or SA-IS construction and compare suffixes by rank only."
+      },
+      {
+        "mistake": "Forgetting to add a unique sentinel character when building suffix arrays, causing incorrect rank comparisons.",
+        "fix": "Append a character smaller than every input character before construction."
+      }
+    ],
+    "problems": [
+      {
+        "name": "Longest Duplicate Substring",
+        "slug": "longest-duplicate-substring-advanced",
+        "difficulty": "hard",
+        "description": "Find the longest substring appearing at least twice in a string.",
+        "constraints": "1 <= s.length <= 3*10^4; lowercase letters.",
+        "hints": [
+          "Build the suffix array and LCP array.",
+          "The longest repeated substring equals the maximum LCP value.",
+          "Recover the actual substring from the suffix with that LCP."
+        ],
+        "approach": "Construct the suffix array and LCP array, then read off the maximum LCP value and its suffix.",
+        "pattern": "Suffix array",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort suffixes with a doubling algorithm, compute LCP between consecutive suffixes, and return the substring shared by the pair with the largest LCP.",
+        "tags": ["suffix array", "lcp", "string"]
+      },
+      {
+        "name": "Word Search II (Multiple Patterns)",
+        "slug": "word-search-ii",
+        "difficulty": "hard",
+        "description": "Find all words from a dictionary that appear in a character grid by moving to adjacent cells.",
+        "constraints": "Board up to 12x12; words up to 3*10^4 total length.",
+        "hints": [
+          "Insert all words into a trie.",
+          "DFS the grid while walking the trie.",
+          "Prune when no trie child exists for a cell's letter."
+        ],
+        "approach": "Build a trie of the dictionary and DFS every grid cell, backtracking through trie nodes and collecting complete words.",
+        "pattern": "Trie insertion",
+        "time": "O(rows * cols * 4^L)",
+        "space": "O(total word length)",
+        "solution": "Insert all words into a trie with an end marker. Run DFS from each cell, descending the trie; when a node ends a word, record it and mark it found to avoid duplicates.",
+        "tags": ["trie", "backtracking", "dfs", "matrix"]
+      },
+      {
+        "name": "Search Suggestions System",
+        "slug": "search-suggestions-system",
+        "difficulty": "medium",
+        "description": "Given a product list and a search word, return three suggested products for each prefix of the search word.",
+        "constraints": "1 <= products.length <= 1000; 1 <= searchWord.length <= 1000.",
+        "hints": [
+          "Sort the products lexicographically.",
+          "For each prefix, find the first matching product with binary search.",
+          "Collect up to three matches after that position."
+        ],
+        "approach": "Sort products, then for each prefix use binary search to locate matches and collect up to three.",
+        "pattern": "Trie insertion",
+        "time": "O(n log n + m log n)",
+        "space": "O(1) extra",
+        "solution": "Sort products once. For each prefix of the search word, binary search the first product starting with it, then take the next three entries that share the prefix.",
+        "tags": ["trie", "binary search", "sorting", "string"]
+      },
+      {
+        "name": "Maximum Number of Non-Overlapping Palindromic Substrings",
+        "slug": "max-non-overlap-palindromic-substrings",
+        "difficulty": "hard",
+        "description": "Count the maximum number of disjoint palindromic substrings of length at least k into which a string can be partitioned.",
+        "constraints": "1 <= s.length <= 2000; 1 <= k <= s.length.",
+        "hints": [
+          "Find all palindromic substrings (Manacher or expand-around-center).",
+          "Use interval scheduling: greedily take the palindromic interval ending earliest.",
+          "Iterate left to right, picking the shortest feasible palindrome starting at the current index."
+        ],
+        "approach": "Find palindromic substrings, then greedily select the earliest-ending interval of length >= k to maximize the count.",
+        "pattern": "Z algorithm",
+        "time": "O(n^2)",
+        "space": "O(n)",
+        "solution": "For each start, find the shortest palindrome of length at least k beginning there, take it, and continue after its end; count the selections.",
+        "tags": ["string", "palindrome", "greedy", "dp"]
+      }
+    ]
+  }
+]

@@ -1,0 +1,3224 @@
+[
+ {
+  "slug": "time-space-complexity-big-o-omega-theta",
+  "name": "Time & space complexity (Big O, Omega, Theta)",
+  "difficulty": "easy",
+  "overview": "Asymptotic notation describes how a program's runtime or memory usage grows as the input size increases. Big O gives an upper bound, Omega gives a lower bound, and Theta gives a tight bound when both match. These tools let you reason about performance without depending on a specific machine.",
+  "why": "Every interviewer expects you to state time and space complexity for your solution, and comparing algorithms by their Big O is the core of choosing between approaches. Failing to analyze complexity signals weak fundamentals.",
+  "when": "Reach for asymptotic analysis whenever you propose a solution or need to decide between multiple approaches. Use it to reject brute-force solutions and justify optimizations before writing any code.",
+  "complexity": {
+   "time": "Analysis only, no runtime",
+   "space": "Analysis only, no runtime"
+  },
+  "concepts": [
+   {
+    "name": "Big O (worst case)",
+    "description": "Upper bound on growth; O(n) means the work scales at most linearly with input size."
+   },
+   {
+    "name": "Big Omega (best case)",
+    "description": "Lower bound on growth; Omega(n) means the work scales at least linearly."
+   },
+   {
+    "name": "Big Theta (tight bound)",
+    "description": "When upper and lower bounds match, giving a precise growth rate such as Theta(n log n)."
+   },
+   {
+    "name": "Dominant term",
+    "description": "Keep only the fastest-growing term and drop constant factors when simplifying, e.g. 3n^2 + 5n becomes O(n^2)."
+   },
+   {
+    "name": "Logarithmic growth",
+    "description": "Halving the search space each step, as in binary search, produces O(log n) work."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Loop counting",
+    "description": "Count how many times each nested loop runs in terms of input size.",
+    "code": "def count(n):\n    total = 0\n    for i in range(n):\n        total += 1\n    return total  # O(n)"
+   },
+   {
+    "name": "Nested loops",
+    "description": "Two independent loops over n inputs usually multiply to O(n^2).",
+    "code": "def pairs(n):\n    for i in range(n):\n        for j in range(n):\n            pass  # O(n^2)"
+   },
+   {
+    "name": "Halving loops",
+    "description": "A loop that divides the work each step is logarithmic.",
+    "code": "def halve(n):\n    while n > 1:\n        n //= 2\n    return n  # O(log n)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Counting loop iterations",
+    "problem": "Estimate the growth rate of a loop that runs from 1 to n in steps doubling each time.",
+    "input": "n = 1000",
+    "output": "O(log n) iterations",
+    "explanation": "The loop counter doubles each iteration, so after k steps it reaches 2^k. Setting 2^k = n gives k = log2(n), so the loop runs O(log n) times.",
+    "steps": [
+     "Recognize the counter doubles, not increments.",
+     "Model the counter after k steps as 2^k.",
+     "Solve 2^k = n for k, giving k = log2(n).",
+     "Conclude the runtime is O(log n)."
+    ],
+    "complexity": {
+     "time": "O(log n)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Reporting O(2n) or O(n + 5) instead of simplifying to O(n).",
+    "fix": "Drop constant factors and lower-order terms; only the dominant term matters."
+   },
+   {
+    "mistake": "Ignoring space used by recursion call stacks or auxiliary structures.",
+    "fix": "Count extra memory besides the input, including stack frames in recursive solutions."
+   },
+   {
+    "mistake": "Claiming a solution is O(n) because the input is sorted without justifying why.",
+    "fix": "Analyze the actual loop structure and state what assumption makes the bound hold."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Finding the largest element",
+    "slug": "find-largest-element",
+    "difficulty": "easy",
+    "description": "Given an array of integers, return the maximum value. Analyze the runtime of scanning once.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "Scan every element exactly once and keep a running maximum.",
+     "How does the work scale as n doubles?"
+    ],
+    "approach": "Iterate once over the array, updating a max variable whenever a larger value is seen.",
+    "pattern": "Loop counting",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Initialize result to negative infinity, loop through each element, update result if the current value is larger, and return result. One pass means linear work.",
+    "tags": [
+     "arrays",
+     "complexity"
+    ]
+   },
+   {
+    "name": "Nested pair sum check",
+    "slug": "nested-pair-sum-check",
+    "difficulty": "medium",
+    "description": "Given an array, count how many pairs (i, j) with i < j exist. Analyze the complexity of the brute-force double loop.",
+    "constraints": "1 <= n <= 10^4",
+    "hints": [
+     "Write the double loop that visits every ordered pair.",
+     "Count the total number of pair visits in terms of n."
+    ],
+    "approach": "Run a nested loop where the inner loop starts after the outer index, producing roughly n^2/2 iterations.",
+    "pattern": "Nested loops",
+    "time": "O(n^2)",
+    "space": "O(1)",
+    "solution": "The outer loop runs n times and the inner loop runs n-i-1 times, summing to n(n-1)/2, which is O(n^2).",
+    "tags": [
+     "arrays",
+     "complexity"
+    ]
+   },
+   {
+    "name": "Binary search complexity",
+    "slug": "binary-search-complexity",
+    "difficulty": "medium",
+    "description": "Given a sorted array and a target, explain why binary search runs in logarithmic time and not linear time.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "Each comparison eliminates half of the remaining range.",
+     "How many times can you halve n before reaching one element?"
+    ],
+    "approach": "Repeatedly halve the search interval, discarding the half that cannot contain the target.",
+    "pattern": "Halving loops",
+    "time": "O(log n)",
+    "space": "O(1)",
+    "solution": "Each step removes half the candidates, so the number of steps is the number of times n can be halved, which is log2(n).",
+    "tags": [
+     "binary-search",
+     "complexity"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "recursion",
+  "name": "Recursion",
+  "difficulty": "medium",
+  "overview": "Recursion solves a problem by breaking it into smaller copies of the same problem, calling a function on itself with a reduced input. A base case stops the calls, and a recursive case makes progress toward that base. It is the natural way to express tree, graph, and divide-and-conquer algorithms.",
+  "why": "Recursion is pervasive in interview problems: trees, backtracking, permutations, and divide-and-conquer all rely on it. Many interviewers probe whether you can reason about a recursive call stack and its base cases.",
+  "when": "Reach for recursion when a problem can be defined in terms of itself, such as traversing a tree, generating combinations, or computing values defined by a recurrence like factorials or Fibonacci.",
+  "complexity": {
+   "time": "Depends on branching factor and depth",
+   "space": "O(depth) for the call stack"
+  },
+  "concepts": [
+   {
+    "name": "Base case",
+    "description": "The smallest input that returns an answer directly without another recursive call."
+   },
+   {
+    "name": "Recursive case",
+    "description": "The branch that reduces the input and calls the function again."
+   },
+   {
+    "name": "Call stack",
+    "description": "The runtime stack that holds each pending recursive call's local variables."
+   },
+   {
+    "name": "Stack depth",
+    "description": "The number of nested calls, which bounds the extra memory recursion uses."
+   },
+   {
+    "name": "Divide and conquer",
+    "description": "Splitting the problem into independent subproblems, solving each recursively, and combining results."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Simple recursion",
+    "description": "Express a value in terms of a smaller version of itself.",
+    "code": "def fact(n):\n    if n <= 1:\n        return 1\n    return n * fact(n - 1)"
+   },
+   {
+    "name": "Divide and conquer",
+    "description": "Split input in half, solve each half recursively, merge results.",
+    "code": "def merge_sort(a):\n    if len(a) <= 1:\n        return a\n    m = len(a) // 2\n    return merge(merge_sort(a[:m]), merge_sort(a[m:]))"
+   },
+   {
+    "name": "Backtracking skeleton",
+    "description": "Build a partial solution, recurse, then undo the last choice.",
+    "code": "def bt(path, options):\n    if not options:\n        return [list(path)]\n    res = []\n    for i, x in enumerate(options):\n        res += bt(path + [x], options[:i] + options[i+1:])\n    return res"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Fibonacci via recursion",
+    "problem": "Return the n-th Fibonacci number using recursion and identify the flaw in the naive version.",
+    "input": "n = 6",
+    "output": "8",
+    "explanation": "fib(6) = fib(5) + fib(4) = 5 + 3 = 8. The naive recursion recomputes overlapping subproblems, giving exponential time, which is the key limitation to spot.",
+    "steps": [
+     "Define fib(0)=0, fib(1)=1 as base cases.",
+     "Write the recurrence fib(n) = fib(n-1) + fib(n-2).",
+     "Trace the overlapping subproblems such as fib(3) computed many times.",
+     "Note that memoization or iteration fixes the exponential blow-up."
+    ],
+    "complexity": {
+     "time": "O(2^n) naive, O(n) memoized",
+     "space": "O(n) stack depth"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Forgetting the base case and hitting infinite recursion or a stack overflow.",
+    "fix": "Always write and test the base case first; ensure every call reduces the input."
+   },
+   {
+    "mistake": "Redoing identical subproblems in naive recursion such as Fibonacci.",
+    "fix": "Add memoization with a dictionary or switch to an iterative bottom-up approach."
+   },
+   {
+    "mistake": "Ignoring stack depth, causing RecursionError on large inputs.",
+    "fix": "Convert deep recursion to iteration or an explicit stack when n is large."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Factorial",
+    "slug": "factorial",
+    "difficulty": "easy",
+    "description": "Given a non-negative integer n, return n! using recursion.",
+    "constraints": "0 <= n <= 20",
+    "hints": [
+     "What is the simplest input that returns directly?",
+     "Express n! in terms of (n-1)!."
+    ],
+    "approach": "Return 1 for n <= 1, otherwise return n times the factorial of n-1.",
+    "pattern": "Simple recursion",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "The base case returns 1, and the recursive case multiplies n by the result of calling the function on n-1, producing a chain of n calls.",
+    "tags": [
+     "recursion",
+     "math"
+    ]
+   },
+   {
+    "name": "Generate all permutations",
+    "slug": "generate-permutations",
+    "difficulty": "medium",
+    "description": "Given an array of distinct integers, return all possible permutations.",
+    "constraints": "1 <= n <= 7",
+    "hints": [
+     "Pick one element to fix, then recurse on the rest.",
+     "How many leaves does the recursion tree have?"
+    ],
+    "approach": "Choose each remaining element as the next in the permutation, recurse, and collect results when no elements remain.",
+    "pattern": "Backtracking skeleton",
+    "time": "O(n * n!)",
+    "space": "O(n)",
+    "solution": "At each step pick an unused element and recurse on the remainder. The recursion tree has n! leaves and building each permutation costs O(n) work.",
+    "tags": [
+     "backtracking",
+     "recursion"
+    ]
+   },
+   {
+    "name": "Power of four",
+    "slug": "power-of-four",
+    "difficulty": "easy",
+    "description": "Given an integer n, return true if it is a power of four, false otherwise.",
+    "constraints": "-2^31 <= n <= 2^31 - 1",
+    "hints": [
+     "What does dividing n by 4 repeatedly do?",
+     "What should the final value be if n is a power of four?"
+    ],
+    "approach": "Recursively divide n by 4 as long as it is divisible and positive, then check the remainder.",
+    "pattern": "Simple recursion",
+    "time": "O(log n)",
+    "space": "O(log n)",
+    "solution": "If n is 1 it is a power of four. If n is not divisible by 4, return false. Otherwise recurse on n // 4 until reaching 1 or failing.",
+    "tags": [
+     "recursion",
+     "math"
+    ]
+   },
+   {
+    "name": "Merge sort",
+    "slug": "merge-sort",
+    "difficulty": "medium",
+    "description": "Sort an array using the divide-and-conquer merge sort algorithm.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "What is the base case for a trivially sorted slice?",
+     "How do you combine two sorted halves?"
+    ],
+    "approach": "Split the array in half, recursively sort each half, and merge the two sorted halves in linear time.",
+    "pattern": "Divide and conquer",
+    "time": "O(n log n)",
+    "space": "O(n)",
+    "solution": "Each level of the recursion splits the input, giving log n levels, and merging at each level costs O(n) total, so the total is O(n log n).",
+    "tags": [
+     "sorting",
+     "recursion"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "basic-mathematics-for-programming",
+  "name": "Basic mathematics for programming",
+  "difficulty": "easy",
+  "overview": "This topic covers the number-theoretic and arithmetic tools used in coding problems: gcd, lcm, modular arithmetic, primality, prime factorization, and fast exponentiation. These ideas appear constantly in leetcode-style questions and combinatorics.",
+  "why": "Math problems are common interview filters, and math reasoning underlies combinatorial counting, probability, and DP problems. Knowing gcd, modular arithmetic, and prime-related algorithms lets you solve a whole class of otherwise intimidating questions.",
+  "when": "Reach for these techniques when a problem mentions divisibility, remainders, prime numbers, huge exponents, or counting combinations. Modular arithmetic is essential whenever outputs could overflow or when exact division results matter.",
+  "complexity": {
+   "time": "Varies: O(sqrt(n)) primality, O(log n) gcd/exponentiation",
+   "space": "O(1) for most, O(n) sieve"
+  },
+  "concepts": [
+   {
+    "name": "GCD and LCM",
+    "description": "Greatest common divisor and least common multiple; lcm(a,b) = a*b/gcd(a,b)."
+   },
+   {
+    "name": "Modular arithmetic",
+    "description": "Working with remainders mod m, where addition and multiplication wrap around."
+   },
+   {
+    "name": "Primality testing",
+    "description": "Determining whether a number has no divisors besides 1 and itself, tested up to sqrt(n)."
+   },
+   {
+    "name": "Prime factorization",
+    "description": "Writing a number as a product of primes, used for divisors and lcm/gcd reasoning."
+   },
+   {
+    "name": "Fast exponentiation",
+    "description": "Computing a^b in O(log b) time by squaring the base repeatedly."
+   },
+   {
+    "name": "Sieve of Eratosthenes",
+    "description": "Marking multiples to list all primes up to a limit in near-linear time."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Euclidean algorithm",
+    "description": "gcd via repeated remainder: gcd(a, b) = gcd(b, a % b).",
+    "code": "def gcd(a, b):\n    while b:\n        a, b = b, a % b\n    return a"
+   },
+   {
+    "name": "Modular exponentiation",
+    "description": "Exponentiation by squaring with a modulus applied at every step.",
+    "code": "def powmod(b, e, m):\n    r = 1\n    while e:\n        if e & 1:\n            r = r * b % m\n        b = b * b % m\n        e >>= 1\n    return r"
+   },
+   {
+    "name": "Primality by trial division",
+    "description": "Check divisors only up to the square root of the number.",
+    "code": "def is_prime(n):\n    if n < 2:\n        return False\n    i = 2\n    while i * i <= n:\n        if n % i == 0:\n            return False\n        i += 1\n    return True"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Computing GCD",
+    "problem": "Find the greatest common divisor of 48 and 18 using the Euclidean algorithm.",
+    "input": "a = 48, b = 18",
+    "output": "6",
+    "explanation": "48 % 18 = 12, then 18 % 12 = 6, then 12 % 6 = 0, so 6 divides both and is the gcd.",
+    "steps": [
+     "Replace (48, 18) with (18, 48 % 18 = 12).",
+     "Replace (18, 12) with (12, 18 % 12 = 6).",
+     "Replace (12, 6) with (6, 12 % 6 = 0).",
+     "The last nonzero remainder, 6, is the gcd."
+    ],
+    "complexity": {
+     "time": "O(log min(a, b))",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using lcm(a,b) = a*b/gcd(a,b) naively and overflowing with big inputs.",
+    "fix": "Divide one value by the gcd first, then multiply: lcm = a // gcd(a, b) * b."
+   },
+   {
+    "mistake": "Forgetting to apply the modulus after every multiplication in fast exponentiation.",
+    "fix": "Take mod at each step so intermediate values never grow huge."
+   },
+   {
+    "mistake": "Testing primality by checking every number up to n instead of sqrt(n).",
+    "fix": "Only divisors up to sqrt(n) can exist, so stop the trial loop there."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Greatest common divisor",
+    "slug": "greatest-common-divisor",
+    "difficulty": "easy",
+    "description": "Given two integers a and b, return their greatest common divisor.",
+    "constraints": "1 <= a, b <= 10^9",
+    "hints": [
+     "What happens when you replace (a, b) with (b, a % b)?",
+     "What is the base case when one number is zero?"
+    ],
+    "approach": "Repeatedly replace the larger pair by the remainder until one becomes zero.",
+    "pattern": "Euclidean algorithm",
+    "time": "O(log min(a, b))",
+    "space": "O(1)",
+    "solution": "Iteratively apply gcd(b, a % b) until b is zero, at which point a is the answer. Each step shrinks the numbers rapidly.",
+    "tags": [
+     "math",
+     "number-theory"
+    ]
+   },
+   {
+    "name": "Pow(x, n) mod m",
+    "slug": "pow-x-n-mod-m",
+    "difficulty": "medium",
+    "description": "Given base x, exponent n, and modulus m, return x^n mod m efficiently.",
+    "constraints": "1 <= m <= 10^9, 0 <= n <= 10^9",
+    "hints": [
+     "Express n in binary and square the base each step.",
+     "When is the current power multiplied into the result?"
+    ],
+    "approach": "Exponentiation by squaring: process bits of the exponent and square the base each step.",
+    "pattern": "Modular exponentiation",
+    "time": "O(log n)",
+    "space": "O(1)",
+    "solution": "Walk over the bits of n. If the bit is set, multiply the running result by the current base power, and square the base at every step while reducing mod m.",
+    "tags": [
+     "math",
+     "modular-arithmetic"
+    ]
+   },
+   {
+    "name": "Count primes",
+    "slug": "count-primes",
+    "difficulty": "easy",
+    "description": "Given an integer n, return the number of prime numbers strictly less than n.",
+    "constraints": "0 <= n <= 5 * 10^6",
+    "hints": [
+     "Start by assuming every number is prime and mark multiples.",
+     "From which number can you start marking to avoid redundant work?"
+    ],
+    "approach": "Use the sieve of Eratosthenes: iterate numbers and mark their multiples as composite.",
+    "pattern": "Sieve of Eratosthenes",
+    "time": "O(n log log n)",
+    "space": "O(n)",
+    "solution": "Build a boolean array of size n, mark every prime's multiples as composite starting from 2, then count remaining true entries.",
+    "tags": [
+     "math",
+     "sieve"
+    ]
+   },
+   {
+    "name": "Perfect number",
+    "slug": "perfect-number",
+    "difficulty": "easy",
+    "description": "Given an integer n, return true if n equals the sum of its proper positive divisors.",
+    "constraints": "1 <= n <= 10^8",
+    "hints": [
+     "Which divisors can you find without scanning to n?",
+     "How do you avoid double-counting the square root?"
+    ],
+    "approach": "Find all divisors by scanning up to sqrt(n) and add the complementary divisor for each match.",
+    "pattern": "Trial division",
+    "time": "O(sqrt(n))",
+    "space": "O(1)",
+    "solution": "For each i up to sqrt(n) that divides n, add both i and n/i to a sum, subtract n itself, and compare with n.",
+    "tags": [
+     "math",
+     "divisors"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "bit-manipulation",
+  "name": "Bit manipulation",
+  "difficulty": "medium",
+  "overview": "Bit manipulation works directly on the binary representation of integers using operators like AND, OR, XOR, shifts, and bit masks. It enables extremely fast operations for counting bits, checking powers of two, toggling flags, and solving certain parity problems.",
+  "why": "Bit tricks appear frequently as elegant one-liner solutions in interviews, such as detecting the single non-duplicate number or counting set bits. They also show comfort with low-level thinking that interviewers often reward.",
+  "when": "Reach for bit manipulation when constraints involve 32-bit integers, when a problem asks about parity, toggling, masks, or when a brute-force set-based solution can be replaced by an XOR or bit-counting trick.",
+  "complexity": {
+   "time": "O(1) to O(bits) for word-sized ops",
+   "space": "O(1)"
+  },
+  "concepts": [
+   {
+    "name": "AND / OR / XOR",
+    "description": "Per-bit logic operations; XOR is key for parity because a ^ a = 0."
+   },
+   {
+    "name": "Left shift",
+    "description": "Shifts bits left, multiplying by powers of two: x << k equals x * 2^k."
+   },
+   {
+    "name": "Right shift",
+    "description": "Shifts bits right, dividing by powers of two: x >> k equals floor(x / 2^k)."
+   },
+   {
+    "name": "Bit masks",
+    "description": "Integer patterns used with AND/OR to extract or set specific bits."
+   },
+   {
+    "name": "Power of two check",
+    "description": "n is a power of two when n > 0 and n & (n - 1) == 0."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Count set bits",
+    "description": "Clear the lowest set bit repeatedly using n &= n - 1.",
+    "code": "def popcount(n):\n    c = 0\n    while n:\n        n &= n - 1\n        c += 1\n    return c"
+   },
+   {
+    "name": "Isolate lowest set bit",
+    "description": "Extract the lowest set bit with n & -n (two's complement).",
+    "code": "def lowest(n):\n    return n & -n"
+   },
+   {
+    "name": "XOR single number",
+    "description": "XOR all elements; paired values cancel to zero.",
+    "code": "def single(nums):\n    r = 0\n    for x in nums:\n        r ^= x\n    return r"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Finding the single non-duplicate",
+    "problem": "Every element appears twice except one; find that single element using XOR.",
+    "input": "[4, 1, 2, 1, 2]",
+    "output": "4",
+    "explanation": "XOR is commutative and a ^ a = 0, so 1 ^ 1 and 2 ^ 2 cancel, leaving only 4.",
+    "steps": [
+     "Initialize result to 0.",
+     "XOR each array element into result.",
+     "Identical pairs cancel because x ^ x = 0.",
+     "The remaining value is the unique element."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Mixing up bitwise AND (&) with logical AND (and) in Python.",
+    "fix": "Use & for per-bit masks and and for boolean logic; the two are not interchangeable."
+   },
+   {
+    "mistake": "Assuming negative numbers behave like positive ones in shifts.",
+    "fix": "Remember right shifts of negatives preserve the sign bit; prefer logical thinking on the non-negative range or mask the sign."
+   },
+   {
+    "mistake": "Forgetting operator precedence in expressions like n & n - 1.",
+    "fix": "Parenthesize: (n & (n - 1)) to avoid surprising precedence rules."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Single number",
+    "slug": "single-number",
+    "difficulty": "easy",
+    "description": "Given an array where every element appears twice except one, find the single element in linear time and constant space.",
+    "constraints": "1 <= n <= 3 * 10^4",
+    "hints": [
+     "What does x ^ x equal?",
+     "Can XORing everything reveal the unique value?"
+    ],
+    "approach": "XOR all numbers; duplicates cancel, leaving the unique element.",
+    "pattern": "XOR single number",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "XOR is associative and x ^ x = 0, so pairing duplicates collapse to zero and only the unique number remains.",
+    "tags": [
+     "bit-manipulation",
+     "xor"
+    ]
+   },
+   {
+    "name": "Power of two",
+    "slug": "power-of-two",
+    "difficulty": "easy",
+    "description": "Given an integer n, return true if it is a power of two.",
+    "constraints": "-2^31 <= n <= 2^31 - 1",
+    "hints": [
+     "A power of two has exactly one set bit.",
+     "What happens to the set bits when you compute n - 1?"
+    ],
+    "approach": "A positive n is a power of two exactly when n & (n - 1) == 0.",
+    "pattern": "Bit masks",
+    "time": "O(1)",
+    "space": "O(1)",
+    "solution": "Subtracting 1 flips the lowest set bit and everything below it, so n and n - 1 share no set bits only when n had exactly one.",
+    "tags": [
+     "bit-manipulation",
+     "math"
+    ]
+   },
+   {
+    "name": "Number of 1 bits",
+    "slug": "number-of-1-bits",
+    "difficulty": "easy",
+    "description": "Given a non-negative integer, count its set bits (Hamming weight).",
+    "constraints": "0 <= n < 2^31",
+    "hints": [
+     "What does n & (n - 1) remove?",
+     "How many times can you remove a set bit?"
+    ],
+    "approach": "Repeatedly clear the lowest set bit with n &= n - 1 and count the iterations.",
+    "pattern": "Count set bits",
+    "time": "O(number of set bits)",
+    "space": "O(1)",
+    "solution": "Each iteration of n &= n - 1 clears exactly one set bit, so the loop runs exactly as many times as there are ones.",
+    "tags": [
+     "bit-manipulation"
+    ]
+   },
+   {
+    "name": "Missing number",
+    "slug": "missing-number",
+    "difficulty": "easy",
+    "description": "Given an array of n distinct numbers from 0 to n, find the missing one.",
+    "constraints": "1 <= n <= 10^4",
+    "hints": [
+     "XOR the index with the value at that index.",
+     "What cancels if a number matches its index?"
+    ],
+    "approach": "XOR all indices 0..n together with every array value; matching pairs cancel, leaving the missing number.",
+    "pattern": "XOR single number",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "XOR the complete range with the given values; each present value cancels its index, leaving the index that never appeared.",
+    "tags": [
+     "bit-manipulation",
+     "xor",
+     "arrays"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "1d-2d-arrays",
+  "name": "1D/2D arrays",
+  "difficulty": "easy",
+  "overview": "Arrays are contiguous blocks of elements accessed by index; 2D arrays are grids of rows and columns, often used for matrices, tables, and graphs on a grid. Mastering traversal, boundaries, and in-place updates is the foundation of nearly every interview algorithm.",
+  "why": "Arrays are the most common data structure in interviews, and 2D arrays appear in matrix traversal, DP, and graph problems. Almost every problem starts with correctly modeling the data as an array.",
+  "when": "Reach for arrays whenever data is indexed, ordered, or grid-shaped. Use a 2D array when a problem describes rows and columns, matrices, or coordinates.",
+  "complexity": {
+   "time": "O(n) access by index, O(n^2) grid work",
+   "space": "O(n) or O(n^2) storage"
+  },
+  "concepts": [
+   {
+    "name": "Indexing and bounds",
+    "description": "Elements are accessed in O(1) by index, but you must stay within 0..n-1."
+   },
+   {
+    "name": "Row-major order",
+    "description": "2D arrays stored row by row; element (i, j) maps to i * cols + j."
+   },
+   {
+    "name": "In-place mutation",
+    "description": "Modifying the array without allocating a new one, saving space."
+   },
+   {
+    "name": "Grid traversal",
+    "description": "Moving up, down, left, right via direction arrays with bounds checks."
+   },
+   {
+    "name": "Slicing and copying",
+    "description": "Extracting subarrays or cloning arrays; beware shallow copies of nested rows."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Directional traversal",
+    "description": "Move on a grid using a delta array of steps.",
+    "code": "def neighbors(r, c, grid):\n    for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:\n        nr, nc = r + dr, c + dc\n        if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]):\n            yield nr, nc"
+   },
+   {
+    "name": "Reverse in place",
+    "description": "Swap elements from both ends toward the middle.",
+    "code": "def reverse(a):\n    i, j = 0, len(a) - 1\n    while i < j:\n        a[i], a[j] = a[j], a[i]\n        i, j = i + 1, j - 1"
+   },
+   {
+    "name": "Transpose a matrix",
+    "description": "Swap rows and columns using symmetric index swaps.",
+    "code": "def transpose(m):\n    n = len(m)\n    for i in range(n):\n        for j in range(i + 1, n):\n            m[i][j], m[j][i] = m[j][i], m[i][j]"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Reverse an array in place",
+    "problem": "Reverse the order of elements in an array without allocating extra memory.",
+    "input": "[1, 2, 3, 4, 5]",
+    "output": "[5, 4, 3, 2, 1]",
+    "explanation": "Swap the first and last elements, then move inward. The middle element stays put when the length is odd.",
+    "steps": [
+     "Set pointers at both ends of the array.",
+     "Swap the values at the two pointers.",
+     "Move the left pointer right and the right pointer left.",
+     "Stop when the pointers cross."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Indexing out of bounds, especially in 2D loops where the inner bound uses the wrong dimension.",
+    "fix": "Use len(grid) for rows and len(grid[0]) for columns and verify bounds in every loop."
+   },
+   {
+    "mistake": "Assuming a slice of a 2D array copies the inner rows.",
+    "fix": "Copy explicitly with [row[:] for row in grid] when mutation must not leak."
+   },
+   {
+    "mistake": "Mutating an array while iterating over it, causing skipped or shifted elements.",
+    "fix": "Iterate over a copy or collect changes first, then apply them."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Rotate array",
+    "slug": "rotate-array",
+    "difficulty": "medium",
+    "description": "Rotate an array to the right by k steps in place.",
+    "constraints": "1 <= n <= 10^5, 0 <= k <= 2 * 10^5",
+    "hints": [
+     "What happens if k is larger than the array length?",
+     "How many reversals does it take to rotate an array?"
+    ],
+    "approach": "Reverse the whole array, then reverse the first k elements and the remaining n - k elements.",
+    "pattern": "Reverse in place",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Normalize k modulo n. Reverse everything, reverse the first k, reverse the rest; the three reversals rotate the array in constant extra space.",
+    "tags": [
+     "arrays",
+     "two-pointers"
+    ]
+   },
+   {
+    "name": "Transpose matrix",
+    "slug": "transpose-matrix",
+    "difficulty": "medium",
+    "description": "Given a square matrix, transpose it in place by swapping rows and columns.",
+    "constraints": "1 <= n <= 20",
+    "hints": [
+     "Which pairs of cells must be swapped?",
+     "Why does the inner loop start at i + 1?"
+    ],
+    "approach": "For each row i, swap cell (i, j) with (j, i) for j > i.",
+    "pattern": "Transpose a matrix",
+    "time": "O(n^2)",
+    "space": "O(1)",
+    "solution": "Each element above the main diagonal is swapped with its mirror below the diagonal, transposing the square matrix in place.",
+    "tags": [
+     "arrays",
+     "matrix"
+    ]
+   },
+   {
+    "name": "Move zeroes",
+    "slug": "move-zeroes",
+    "difficulty": "easy",
+    "description": "Move all zeros in an array to the end while preserving the relative order of non-zero elements.",
+    "constraints": "1 <= n <= 10^4",
+    "hints": [
+     "Keep a write pointer for the next non-zero position.",
+     "What should happen to the cells after the last non-zero element?"
+    ],
+    "approach": "Use a write pointer; copy each non-zero element forward, then fill the tail with zeros.",
+    "pattern": "Two pointers",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Walk the array with a write pointer, placing each non-zero at the pointer and advancing it. Afterwards, zero out all remaining positions.",
+    "tags": [
+     "arrays",
+     "two-pointers"
+    ]
+   },
+   {
+    "name": "Matrix diagonal sum",
+    "slug": "matrix-diagonal-sum",
+    "difficulty": "easy",
+    "description": "Given a square matrix, return the sum of the matrix diagonals without double-counting the center.",
+    "constraints": "1 <= n <= 100",
+    "hints": [
+     "What are the indices of the primary diagonal?",
+     "What about the secondary diagonal, and when does it overlap?"
+    ],
+    "approach": "Sum cells where i == j for the main diagonal and i + j == n - 1 for the anti-diagonal, subtracting the center once for odd n.",
+    "pattern": "Grid traversal",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Iterate rows once, adding the main diagonal element and the anti-diagonal element unless the same cell is counted twice when n is odd.",
+    "tags": [
+     "arrays",
+     "matrix"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "prefix-sum",
+  "name": "Prefix sum",
+  "difficulty": "medium",
+  "overview": "A prefix sum array stores the cumulative sum up to each index, so the sum of any subarray can be answered in constant time. Precompute once in O(n), then each range sum query is O(1).",
+  "why": "Range-sum queries are a frequent sub-problem in interviews, and prefix sums underpin many medium problems on subarray sums. Demonstrating that subarray sums do not require re-scanning is a strong optimization signal.",
+  "when": "Reach for prefix sums when you need many range sums over the same array, or when a problem asks whether some subarray equals a target sum. Extend to 2D prefix sums for rectangle sums on grids.",
+  "complexity": {
+   "time": "O(n) precompute, O(1) per query",
+   "space": "O(n)"
+  },
+  "concepts": [
+   {
+    "name": "Prefix array",
+    "description": "pref[i] holds the sum of the first i elements, making pref[j+1] - pref[i] the sum of a[i..j]."
+   },
+   {
+    "name": "Subarray sum formula",
+    "description": "sum(i..j) = pref[j+1] - pref[i], a single subtraction."
+   },
+   {
+    "name": "2D prefix sum",
+    "description": "A grid of cumulative sums that answers rectangle sums with inclusion-exclusion."
+   },
+   {
+    "name": "Zero-based vs one-based",
+    "description": "Padding with a leading zero simplifies the difference formula and avoids index branches."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Build prefix sums",
+    "description": "Accumulate running totals into an array.",
+    "code": "def prefix(nums):\n    pref = [0]\n    for x in nums:\n        pref.append(pref[-1] + x)\n    return pref"
+   },
+   {
+    "name": "Range sum query",
+    "description": "Answer sum over a[i..j] with two array reads.",
+    "code": "def range_sum(pref, i, j):\n    return pref[j + 1] - pref[i]"
+   },
+   {
+    "name": "2D prefix sum",
+    "description": "Cumulative rectangle sums via inclusion-exclusion.",
+    "code": "def pref2d(grid):\n    p = [[0] * (len(grid[0]) + 1) for _ in range(len(grid) + 1)]\n    for i in range(len(grid)):\n        for j in range(len(grid[0])):\n            p[i+1][j+1] = grid[i][j] + p[i][j+1] + p[i+1][j] - p[i][j]\n    return p"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Range sum query",
+    "problem": "Answer the sum of elements from index 1 to 3 of [2, 4, 1, 7, 3].",
+    "input": "array = [2, 4, 1, 7, 3], query = (1, 3)",
+    "output": "12",
+    "explanation": "Prefix sums are [0, 2, 6, 7, 14, 17]. The range sum is pref[4] - pref[1] = 14 - 2 = 12, matching 4 + 1 + 7.",
+    "steps": [
+     "Build the prefix array [0, 2, 6, 7, 14, 17].",
+     "Use the formula sum(i..j) = pref[j+1] - pref[i].",
+     "Substitute i = 1 and j = 3 to get 14 - 2.",
+     "Return 12 in constant time."
+    ],
+    "complexity": {
+     "time": "O(1) per query after O(n) build",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Off-by-one errors between pref indices and array indices.",
+    "fix": "Store prefix of length n + 1 with pref[0] = 0 so range i..j maps to pref[j+1] - pref[i]."
+   },
+   {
+    "mistake": "Forgetting to handle empty subarrays or negative sums in formulas.",
+    "fix": "Define the answer in terms of a difference of prefix values and let the leading zero absorb empty cases."
+   },
+   {
+    "mistake": "Rebuilding the prefix array inside each query instead of once.",
+    "fix": "Precompute once up front; queries should only read the array."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Range sum query - immutable",
+    "slug": "range-sum-query-immutable",
+    "difficulty": "easy",
+    "description": "Design a structure that answers sum(i..j) queries on an immutable array in constant time.",
+    "constraints": "1 <= n <= 3 * 10^4, many queries",
+    "hints": [
+     "What should the constructor precompute?",
+     "How do you turn two prefix values into a range sum?"
+    ],
+    "approach": "Precompute a prefix sum array in the constructor and answer each query with one subtraction.",
+    "pattern": "Build prefix sums",
+    "time": "O(1) per query",
+    "space": "O(n)",
+    "solution": "The constructor builds pref where pref[i] is the sum of the first i elements. Each query returns pref[right+1] - pref[left].",
+    "tags": [
+     "prefix-sum",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Subarray sum equals K",
+    "slug": "subarray-sum-equals-k",
+    "difficulty": "medium",
+    "description": "Given an integer array and an integer k, count subarrays whose sum equals k.",
+    "constraints": "1 <= n <= 2 * 10^4, -1000 <= nums[i] <= 1000",
+    "hints": [
+     "How can prefix sums express a subarray sum?",
+     "What should you look up in a hash map as you scan?"
+    ],
+    "approach": "Track running prefix sums in a hash map; a subarray ending at i sums to k when a previous prefix equals current - k.",
+    "pattern": "Prefix-sum + hashing",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "As you build running sums, record counts of each prefix. For each new prefix, add the count of prefixes equal to prefix - k to the answer.",
+    "tags": [
+     "prefix-sum",
+     "hashing"
+    ]
+   },
+   {
+    "name": "Range sum query 2D - immutable",
+    "slug": "range-sum-query-2d-immutable",
+    "difficulty": "medium",
+    "description": "Design a structure that answers sums of rectangular submatrices in constant time.",
+    "constraints": "1 <= rows, cols <= 200",
+    "hints": [
+     "Build cumulative sums for the whole grid.",
+     "Which three rectangles must be subtracted from the big one?"
+    ],
+    "approach": "Precompute a 2D prefix array and answer each rectangle query with inclusion-exclusion.",
+    "pattern": "2D prefix sum",
+    "time": "O(1) per query",
+    "space": "O(rows * cols)",
+    "solution": "Rectangle sum from (r1,c1) to (r2,c2) is p[r2+1][c2+1] - p[r1][c2+1] - p[r2+1][c1] + p[r1][c1].",
+    "tags": [
+     "prefix-sum",
+     "matrix"
+    ]
+   },
+   {
+    "name": "Contiguous array",
+    "slug": "contiguous-array",
+    "difficulty": "medium",
+    "description": "Given a binary array, find the longest contiguous subarray with an equal number of zeros and ones.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "Treat zeros as -1 and find the longest subarray summing to zero.",
+     "When do two equal prefix sums imply a zero-sum subarray?"
+    ],
+    "approach": "Map zeros to -1, record the first occurrence of each prefix sum, and find the farthest repeat.",
+    "pattern": "Prefix-sum + hashing",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "A subarray has equal zeros and ones iff its sum is zero. Track the first index where each prefix sum appeared; equal prefixes bracket a zero-sum subarray.",
+    "tags": [
+     "prefix-sum",
+     "hashing"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "difference-arrays",
+  "name": "Difference arrays",
+  "difficulty": "medium",
+  "overview": "A difference array stores the change between consecutive elements, so adding a constant to a contiguous range becomes just two updates. It is the dual of the prefix sum and converts range-add operations from O(n) per query to O(1) per query with one final prefix pass.",
+  "why": "Range-update problems appear in interviews as sweep-line or calendar-style questions, and difference arrays turn otherwise quadratic solutions into linear ones. Recognizing the pattern shows strong command of array techniques.",
+  "when": "Reach for a difference array when you apply many range additions to an array and then read the final values. It is also used in interval overlap counting such as booking schedules.",
+  "complexity": {
+   "time": "O(1) per range update, O(n) finalize",
+   "space": "O(n)"
+  },
+  "concepts": [
+   {
+    "name": "Difference array",
+    "description": "diff[i] = arr[i] - arr[i-1]; summing diff recovers arr."
+   },
+   {
+    "name": "Range add",
+    "description": "Adding v to arr[l..r] is diff[l] += v and diff[r+1] -= v."
+   },
+   {
+    "name": "Reconstruction",
+    "description": "One prefix-sum pass over diff recovers the final array."
+   },
+   {
+    "name": "Interval overlap",
+    "description": "Adding +1 over an interval and reading the running total counts how many intervals cover each point."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Range add",
+    "description": "Encode a range increment as two diff updates.",
+    "code": "def add(diff, l, r, v):\n    diff[l] += v\n    if r + 1 < len(diff):\n        diff[r + 1] -= v"
+   },
+   {
+    "name": "Reconstruct array",
+    "description": "Prefix-sum the diff array to recover final values.",
+    "code": "def build(diff):\n    cur = 0\n    res = []\n    for d in diff:\n        cur += d\n        res.append(cur)\n    return res"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Range additions",
+    "problem": "Start with an array of five zeros and add 3 to indices 1..3 and 2 to indices 2..4.",
+    "input": "length = 5, adds = [(1, 3, 3), (2, 4, 2)]",
+    "output": "[0, 3, 5, 5, 2]",
+    "explanation": "First add bumps diff[1] and diff[4]; second bumps diff[2] and diff[5]. Prefix-summing yields the final values: 0, 3, 5, 5, 2.",
+    "steps": [
+     "Initialize diff of length 6 to zeros.",
+     "Apply (1,3,3): diff[1] += 3, diff[4] -= 3.",
+     "Apply (2,4,2): diff[2] += 2, diff[5] -= 2.",
+     "Prefix-sum diff over the first 5 entries to get the result."
+    ],
+    "complexity": {
+     "time": "O(n + updates)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Applying the subtract at diff[r] instead of diff[r+1], corrupting every later element.",
+    "fix": "The range add l..r must subtract at index r+1 so the increment stops after r."
+   },
+   {
+    "mistake": "Forgetting to allocate an extra slot for the r+1 update.",
+    "fix": "Size the diff array as n + 1 (or longer) so the closing update never goes out of bounds."
+   },
+   {
+    "mistake": "Treating diff values as the final array without the prefix pass.",
+    "fix": "Always reconstruct by accumulating; diff only stores deltas, not values."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Range addition",
+    "slug": "range-addition",
+    "difficulty": "medium",
+    "description": "Given length n and a list of updates (start, end, inc), return the final array after all updates.",
+    "constraints": "1 <= n <= 10^5, up to 10^5 updates",
+    "hints": [
+     "What two positions change per update?",
+     "How do you rebuild the array from the deltas?"
+    ],
+    "approach": "Apply each range update to a difference array, then prefix-sum to get the result.",
+    "pattern": "Range add",
+    "time": "O(n + updates)",
+    "space": "O(n)",
+    "solution": "For each update add inc at diff[start] and subtract it at diff[end+1]. A single prefix pass over diff produces the final array.",
+    "tags": [
+     "difference-array",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Corporate flight bookings",
+    "slug": "corporate-flight-bookings",
+    "difficulty": "medium",
+    "description": "Given n flights and bookings in (first, last, seats), return how many seats are booked per flight.",
+    "constraints": "1 <= n <= 2 * 10^4, 1 <= len(bookings) <= 2 * 10^4",
+    "hints": [
+     "Each booking is a range addition over flight indices.",
+     "Can you use a difference array over the n flights?"
+    ],
+    "approach": "Treat each booking as a range add and apply all bookings to a difference array over the flights.",
+    "pattern": "Range add",
+    "time": "O(n + bookings)",
+    "space": "O(n)",
+    "solution": "For each booking, add seats at diff[first-1] and subtract at diff[last]. Prefix-summing yields the seat counts per flight.",
+    "tags": [
+     "difference-array",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Meeting rooms",
+    "slug": "meeting-rooms",
+    "difficulty": "medium",
+    "description": "Given a list of time intervals [start, end], find the maximum number of overlapping meetings at any moment.",
+    "constraints": "1 <= n <= 10^4, times fit in 32-bit ints",
+    "hints": [
+     "How can a difference array count active meetings over time?",
+     "What is the answer after reconstructing the running totals?"
+    ],
+    "approach": "Use a difference array over time points, adding +1 at each start and -1 at each end, then take the max running total.",
+    "pattern": "Interval overlap",
+    "time": "O(T + n) where T is the time span",
+    "space": "O(T)",
+    "solution": "Increment at every start and decrement at every end in a diff array sized to the max time. Prefix-sum and track the maximum active count.",
+    "tags": [
+     "difference-array",
+     "intervals"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "two-pointers",
+  "name": "Two pointers",
+  "difficulty": "medium",
+  "overview": "The two-pointer technique uses two indices moving through an array, usually from both ends or at different speeds, to solve problems in a single pass. It exploits monotonicity or ordering to avoid nested loops and is a key linear-time tool for sorted arrays.",
+  "why": "Two pointers is one of the most frequently tested patterns and often converts an O(n^2) brute force into O(n). Interviewers expect it for problems on sorted arrays, palindrome checks, and sum targets.",
+  "when": "Reach for two pointers when the input is sorted, when you need to find pairs that satisfy a condition, or when a naive double loop feels wasteful. The pattern works whenever moving one pointer preserves the answer's feasibility region.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(1)"
+  },
+  "concepts": [
+   {
+    "name": "Opposite-direction pointers",
+    "description": "One pointer at each end moving inward toward a meeting point, as in two-sum on a sorted array."
+   },
+   {
+    "name": "Same-direction pointers",
+    "description": "A slow and fast pointer, or left/right both advancing forward, as in removing duplicates."
+   },
+   {
+    "name": "Monotonic window",
+    "description": "Since the array is ordered, moving a pointer only ever enlarges or shrinks the candidate set."
+   },
+   {
+    "name": "Termination",
+    "description": "The loop ends when the pointers meet or the fast pointer exhausts the array."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Two sum sorted",
+    "description": "Shrink from both ends to find a target sum.",
+    "code": "def two_sum(a, target):\n    i, j = 0, len(a) - 1\n    while i < j:\n        s = a[i] + a[j]\n        if s == target:\n            return (i, j)\n        if s < target:\n            i += 1\n        else:\n            j -= 1\n    return None"
+   },
+   {
+    "name": "Remove duplicates in place",
+    "description": "Write unique values forward with a write pointer.",
+    "code": "def dedupe(a):\n    w = 0\n    for x in a:\n        if w == 0 or a[w - 1] != x:\n            a[w] = x\n            w += 1\n    return w"
+   },
+   {
+    "name": "Two-pointer palindrome",
+    "description": "Compare characters from both ends toward the center.",
+    "code": "def is_pal(s):\n    i, j = 0, len(s) - 1\n    while i < j:\n        if s[i] != s[j]:\n            return False\n        i, j = i + 1, j - 1\n    return True"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Two sum in a sorted array",
+    "problem": "Given a sorted array, find two numbers that add up to a target.",
+    "input": "a = [1, 2, 3, 6, 8], target = 9",
+    "output": "indices (2, 3), values 3 and 6",
+    "explanation": "Start with 1 + 8 = 9 which already matches. Moving inward with the left pointer increases the sum and the right pointer decreases it, so the correct pair is found in one pass.",
+    "steps": [
+     "Place left at 0 and right at the last index.",
+     "If the sum equals the target, return the pair.",
+     "If the sum is too small, move left right.",
+     "If the sum is too large, move right left."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using two pointers on an unsorted array and expecting the monotonic logic to hold.",
+    "fix": "Sort the array first, or use a hash map if order must be preserved."
+   },
+   {
+    "mistake": "Letting the loop run past the pointers crossing and double-counting pairs.",
+    "fix": "Use strict i < j as the loop condition so each pair is considered once."
+   },
+   {
+    "mistake": "Moving the wrong pointer when sums are equal to the target.",
+    "fix": "Return immediately on equality; only advance when the sum is strictly below or above."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Two Sum II - Input Array Is Sorted",
+    "slug": "two-sum-ii-input-array-is-sorted",
+    "difficulty": "medium",
+    "description": "Given a 1-indexed sorted array, find two numbers that sum to the target and return their 1-based indices.",
+    "constraints": "2 <= n <= 3 * 10^4",
+    "hints": [
+     "Why is the sorted property essential for this approach?",
+     "When should each pointer move?"
+    ],
+    "approach": "Place pointers at both ends and adjust based on the current sum relative to the target.",
+    "pattern": "Two sum sorted",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "If the sum is below the target the left pointer moves right; if above, the right pointer moves left; equal sums are returned.",
+    "tags": [
+     "two-pointers",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Remove Duplicates from Sorted Array",
+    "slug": "remove-duplicates-from-sorted-array",
+    "difficulty": "easy",
+    "description": "Remove duplicates in place from a sorted array and return the new length.",
+    "constraints": "1 <= n <= 3 * 10^4",
+    "hints": [
+     "Where does each unique value belong?",
+     "When should the write pointer advance?"
+    ],
+    "approach": "Walk with a read pointer and a write pointer that only advances when a new distinct value appears.",
+    "pattern": "Remove duplicates in place",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Each element different from the last written value is copied forward and the write pointer advances; the final write pointer is the new length.",
+    "tags": [
+     "two-pointers",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Valid Palindrome",
+    "slug": "valid-palindrome",
+    "difficulty": "easy",
+    "description": "Check if a string is a palindrome, ignoring case and non-alphanumeric characters.",
+    "constraints": "1 <= len(s) <= 2 * 10^5",
+    "hints": [
+     "Which characters should be skipped?",
+     "What happens when both pointers land on letters?"
+    ],
+    "approach": "Use two pointers from both ends, skipping non-alphanumerics, and compare the remaining letters case-insensitively.",
+    "pattern": "Two-pointer palindrome",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Advance each pointer past invalid characters, then compare the letters in lowercase; any mismatch means it is not a palindrome.",
+    "tags": [
+     "two-pointers",
+     "strings"
+    ]
+   },
+   {
+    "name": "Container With Most Water",
+    "slug": "container-with-most-water",
+    "difficulty": "medium",
+    "description": "Given heights, find two lines that form a container holding the most water.",
+    "constraints": "2 <= n <= 10^5",
+    "hints": [
+     "Which pointer determines the water level?",
+     "Can a shorter outer line ever be the better boundary?"
+    ],
+    "approach": "Start pointers at both ends, compute the area, and always move the pointer with the shorter height inward.",
+    "pattern": "Two sum sorted",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "The area is limited by the shorter line. Moving the taller pointer can only shrink the width without raising the limit, so always move the shorter side and track the max area.",
+    "tags": [
+     "two-pointers",
+     "greedy"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "sliding-window",
+  "name": "Sliding window",
+  "difficulty": "medium",
+  "overview": "A sliding window maintains a contiguous subarray or substring whose boundaries move as you scan, keeping a running value that is updated when elements enter and leave the window. It converts many nested-loop substring problems into a single linear pass.",
+  "why": "Sliding window is one of the highest-frequency patterns for substring and subarray problems in interviews. It is the standard tool for longest/substring constraints and for finding subarrays meeting sum or product bounds.",
+  "when": "Reach for a sliding window when a problem asks for a contiguous subarray or substring satisfying a condition, especially with keywords like longest, shortest, or maximum under a constraint.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(1) or O(distinct chars)"
+  },
+  "concepts": [
+   {
+    "name": "Window boundaries",
+    "description": "Left and right pointers define the current contiguous segment; right expands, left shrinks."
+   },
+   {
+    "name": "Window invariant",
+    "description": "A condition the window must satisfy, such as all characters distinct or sum at most k."
+   },
+   {
+    "name": "Expand and shrink",
+    "description": "Extend right until the invariant breaks, then advance left until it holds again."
+   },
+   {
+    "name": "Fixed vs variable size",
+    "description": "Fixed windows move in lockstep; variable windows grow and shrink to satisfy a condition."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Longest substring no repeats",
+    "description": "Shrink from the left until repeated chars are removed.",
+    "code": "def length_of_longest(s):\n    seen = {}\n    left = 0\n    best = 0\n    for right, c in enumerate(s):\n        if c in seen and seen[c] >= left:\n            left = seen[c] + 1\n        seen[c] = right\n        best = max(best, right - left + 1)\n    return best"
+   },
+   {
+    "name": "Fixed window sum",
+    "description": "Slide a window of size k and update the sum incrementally.",
+    "code": "def max_sum(a, k):\n    cur = sum(a[:k])\n    best = cur\n    for i in range(k, len(a)):\n        cur += a[i] - a[i - k]\n        best = max(best, cur)\n    return best"
+   },
+   {
+    "name": "Variable window with condition",
+    "description": "Shrink the left pointer until the condition holds again.",
+    "code": "def longest_with_sum_at_most(a, k):\n    left = 0\n    cur = 0\n    best = 0\n    for right, x in enumerate(a):\n        cur += x\n        while cur > k:\n            cur -= a[left]\n            left += 1\n        best = max(best, right - left + 1)\n    return best"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Maximum sum of a fixed window",
+    "problem": "Find the maximum sum of any contiguous subarray of size k.",
+    "input": "a = [2, 1, 5, 1, 3, 2], k = 3",
+    "output": "9",
+    "explanation": "Windows are [2,1,5]=8, [1,5,1]=7, [5,1,3]=9, [1,3,2]=6; the max is 9. Each new window only adds one element and removes one.",
+    "steps": [
+     "Sum the first k elements as the initial window.",
+     "Slide right one step, adding the new element.",
+     "Subtract the element that left the window.",
+     "Track the maximum window sum seen."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using a while loop that re-scans the window instead of updating incrementally.",
+    "fix": "Add the incoming element and subtract the outgoing one so each step is O(1)."
+   },
+   {
+    "mistake": "Shrinking the window too far or not far enough when the invariant breaks.",
+    "fix": "Advance left exactly until the invariant is restored, then continue expanding right."
+   },
+   {
+    "mistake": "Applying the technique when the condition is not monotonic in the window.",
+    "fix": "Verify that growing the window always worsens the condition, or use a different approach."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Longest Substring Without Repeating Characters",
+    "slug": "longest-substring-without-repeating-characters",
+    "difficulty": "medium",
+    "description": "Given a string, find the length of the longest substring without repeating characters.",
+    "constraints": "0 <= len(s) <= 5 * 10^4",
+    "hints": [
+     "When you see a repeated character, where should the window restart?",
+     "How do you remember the last position of each character?"
+    ],
+    "approach": "Slide a window and keep the last seen index of each character; on a repeat, jump the left boundary past the duplicate.",
+    "pattern": "Longest substring no repeats",
+    "time": "O(n)",
+    "space": "O(distinct chars)",
+    "solution": "Maintain a map of the last position of each char. When a char repeats within the window, move left to just after its previous occurrence, and update the max length.",
+    "tags": [
+     "sliding-window",
+     "hashing"
+    ]
+   },
+   {
+    "name": "Maximum Average Subarray I",
+    "slug": "maximum-average-subarray-i",
+    "difficulty": "easy",
+    "description": "Find a contiguous subarray of size k with the maximum average value.",
+    "constraints": "1 <= k <= n <= 10^5",
+    "hints": [
+     "Which subarray of fixed size maximizes the average?",
+     "How do you update the sum as the window slides?"
+    ],
+    "approach": "Slide a fixed-size window and track the maximum sum, then divide by k.",
+    "pattern": "Fixed window sum",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Compute the sum of the first k elements, then for each slide add the new element and subtract the one leaving, keeping the maximum sum.",
+    "tags": [
+     "sliding-window",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Minimum Size Subarray Sum",
+    "slug": "minimum-size-subarray-sum",
+    "difficulty": "medium",
+    "description": "Find the minimal length of a contiguous subarray whose sum is at least the target.",
+    "constraints": "1 <= n <= 10^5, positive integers",
+    "hints": [
+     "When the sum exceeds the target, what should you do?",
+     "Can shrinking the left side produce a shorter valid window?"
+    ],
+    "approach": "Expand the right pointer until the sum reaches the target, then shrink from the left while the sum stays valid.",
+    "pattern": "Variable window with condition",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Grow the window until the sum is at least target, then shrink left while it remains at least target, tracking the shortest window length.",
+    "tags": [
+     "sliding-window",
+     "two-pointers"
+    ]
+   },
+   {
+    "name": "Permutation in String",
+    "slug": "permutation-in-string",
+    "difficulty": "medium",
+    "description": "Check whether one string contains a permutation of another as a substring.",
+    "constraints": "1 <= len(s1) <= len(s2) <= 10^4",
+    "hints": [
+     "What does a permutation window look like in character counts?",
+     "How can a fixed-size sliding window validate the counts?"
+    ],
+    "approach": "Compare character frequency counts of a fixed-size window in s2 against the counts of s1.",
+    "pattern": "Fixed window sum",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Count characters of s1, slide a window of that length over s2, updating counts and checking equality against the target counts.",
+    "tags": [
+     "sliding-window",
+     "frequency-counting"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "kadane-s-algorithm",
+  "name": "Kadane's algorithm",
+  "difficulty": "medium",
+  "overview": "Kadane's algorithm finds the maximum sum of a contiguous subarray in a single linear pass. It keeps a running best sum ending at the current element and resets it to zero (or the element itself) whenever the running sum becomes negative.",
+  "why": "Maximum subarray is one of the most classic interview problems, and Kadane's algorithm is the canonical O(n) solution every interviewer expects you to know cold. Its greedy reset idea generalizes to many DP-style subarray problems.",
+  "when": "Reach for Kadane when a problem asks for the maximum-sum contiguous subarray, or maximum product with a twist, and the array can contain negative numbers.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(1)"
+  },
+  "concepts": [
+   {
+    "name": "Running best ending here",
+    "description": "The maximum sum of a subarray ending exactly at the current index."
+   },
+   {
+    "name": "Reset on negative",
+    "description": "If the running sum drops below the current element, a fresh subarray from here is better."
+   },
+   {
+    "name": "Global best",
+    "description": "The maximum over all running bests seen so far, which is the final answer."
+   },
+   {
+    "name": "Extension to 2D",
+    "description": "Combining prefix columns with Kadane solves maximum rectangle sum in O(n^2 * m)."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Classic Kadane",
+    "description": "Linear scan keeping the best subarray sum ending here.",
+    "code": "def max_subarray(a):\n    best = cur = a[0]\n    for x in a[1:]:\n        cur = max(x, cur + x)\n        best = max(best, cur)\n    return best"
+   },
+   {
+    "name": "Kadane with reset to zero",
+    "description": "Reset the running sum to zero whenever it is negative.",
+    "code": "def max_subarray2(a):\n    best = cur = 0\n    for x in a:\n        cur = max(0, cur + x)\n        best = max(best, cur)\n    return best"
+   },
+   {
+    "name": "Maximum circular subarray",
+    "description": "Handle wrap-around using total minus minimum subarray sum.",
+    "code": "def max_circular(a):\n    def kad(neg):\n        best = cur = a[0] * neg\n        for x in a[1:]:\n            cur = max(x * neg, cur + x * neg)\n            best = max(best, cur)\n        return best\n    straight = kad(1)\n    wrapped = sum(a) + kad(-1)\n    return max(straight, wrapped) if straight > 0 else straight"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Maximum subarray",
+    "problem": "Find the maximum sum of a contiguous subarray.",
+    "input": "[-2, 1, -3, 4, -1, 2, 1, -5, 4]",
+    "output": "6",
+    "explanation": "The subarray [4, -1, 2, 1] sums to 6. Kadane finds it because starting fresh at 4 beats carrying the negative prefix -2 + 1 - 3 = -4.",
+    "steps": [
+     "Initialize best and cur to the first element.",
+     "For each next element, set cur = max(x, cur + x).",
+     "Update best = max(best, cur).",
+     "Return best, which is 6 for this input."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Initializing best to 0, which fails when all elements are negative.",
+    "fix": "Initialize best and cur to the first element so a single negative value is still a valid answer."
+   },
+   {
+    "mistake": "Resetting cur to 0 unconditionally instead of comparing with cur + x.",
+    "fix": "Use cur = max(x, cur + x) so an element larger than the running sum starts a fresh subarray."
+   },
+   {
+    "mistake": "Forgetting that the subarray must be contiguous when reading the problem.",
+    "fix": "If elements may be skipped, this is subset-sum, not Kadane; confirm contiguity first."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Maximum Subarray",
+    "slug": "maximum-subarray",
+    "difficulty": "medium",
+    "description": "Given an integer array, find the contiguous subarray with the largest sum.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "What is the best subarray ending at the current element?",
+     "When should you discard the running sum and start fresh?"
+    ],
+    "approach": "Scan once, keeping the best sum ending at the current element as either the element alone or the element plus the previous best.",
+    "pattern": "Classic Kadane",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "cur = max(x, cur + x) tracks the best subarray ending here, and best tracks the overall maximum, which is the answer.",
+    "tags": [
+     "kadane",
+     "dp",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Maximum Product Subarray",
+    "slug": "maximum-product-subarray",
+    "difficulty": "medium",
+    "description": "Find the contiguous subarray with the largest product.",
+    "constraints": "1 <= n <= 2 * 10^4",
+    "hints": [
+     "Why must you also track the minimum product?",
+     "How do negatives flip the roles of min and max?"
+    ],
+    "approach": "Track both the maximum and minimum product ending at the current element, because a negative times the minimum becomes the new maximum.",
+    "pattern": "Classic Kadane",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Maintain cur_max and cur_min; at each element compute the three-way candidates including the element times the previous max and min, then update the global best.",
+    "tags": [
+     "kadane",
+     "dp",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Maximum Sum Circular Subarray",
+    "slug": "maximum-sum-circular-subarray",
+    "difficulty": "medium",
+    "description": "Find the maximum sum of a contiguous subarray in a circular array.",
+    "constraints": "1 <= n <= 3 * 10^4",
+    "hints": [
+     "When does the best subarray wrap around the ends?",
+     "How is the wrapped case related to the minimum subarray?"
+    ],
+    "approach": "Compute the straight maximum subarray and the wrapped case as total minus the minimum subarray sum.",
+    "pattern": "Maximum circular subarray",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "The answer is the max of the ordinary maximum subarray and total minus the minimum subarray; special-case when every element is negative.",
+    "tags": [
+     "kadane",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Best Time to Buy and Sell Stock",
+    "slug": "best-time-to-buy-and-sell-stock",
+    "difficulty": "easy",
+    "description": "Given daily prices, find the maximum profit from buying then selling on later days.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "What should you track as you scan the prices?",
+     "Can this be reduced to a max difference over a running minimum?"
+    ],
+    "approach": "Track the minimum price seen so far and the best profit of selling on the current day.",
+    "pattern": "Classic Kadane",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Keep the lowest price seen and update profit with price - min_price each day; this is Kadane on the daily differences without materializing them.",
+    "tags": [
+     "kadane",
+     "arrays"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "sorting-based-problems",
+  "name": "Sorting-based problems",
+  "difficulty": "medium",
+  "overview": "Sorting-based problems treat sorting as a preprocessing step that simplifies the remaining work, such as turning searches into binary search or grouping equal elements together. After sorting, many O(n^2) problems become O(n log n) or O(n).",
+  "why": "Sorting is a universal assumption in interview problems, and mentioning a sort-based approach shows you can trade O(n log n) preprocessing for simpler logic. Many problems explicitly expect a sort-first strategy.",
+  "when": "Reach for sorting when a problem does not specify order but grouping, ranking, or nearest-neighbor comparisons would help. Sort when you need the k-th largest, intervals that can be merged, or pairs whose difference matters.",
+  "complexity": {
+   "time": "O(n log n) for the sort plus subsequent pass",
+   "space": "O(1) to O(n)"
+  },
+  "concepts": [
+   {
+    "name": "Sorting as preprocessing",
+    "description": "Ordering input so later comparisons, searches, or groupings become trivial."
+   },
+   {
+    "name": "Comparator and key functions",
+    "description": "Custom orderings via keys or comparators for tuples, intervals, or strings."
+   },
+   {
+    "name": "Stability",
+    "description": "Preserving relative order of equal elements, useful for multi-key sorts."
+   },
+   {
+    "name": "Two-pointer after sort",
+    "description": "Sorted arrays enable the linear two-pointer search patterns for sums and differences."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Sort then two pointers",
+    "description": "Sort the array and use opposite-direction pointers.",
+    "code": "def three_sum_closest(a, t):\n    a.sort()\n    best = a[0] + a[1] + a[2]\n    for i in range(len(a) - 2):\n        lo, hi = i + 1, len(a) - 1\n        while lo < hi:\n            s = a[i] + a[lo] + a[hi]\n            if abs(s - t) < abs(best - t):\n                best = s\n            if s < t:\n                lo += 1\n            else:\n                hi -= 1\n    return best"
+   },
+   {
+    "name": "Sort by start then merge intervals",
+    "description": "Order by start time and merge overlapping ranges in one pass.",
+    "code": "def merge(intervals):\n    intervals.sort(key=lambda x: x[0])\n    out = []\n    for s, e in intervals:\n        if not out or s > out[-1][1]:\n            out.append([s, e])\n        else:\n            out[-1][1] = max(out[-1][1], e)\n    return out"
+   },
+   {
+    "name": "Sort for k-th element",
+    "description": "Sort once and pick the k-th index directly.",
+    "code": "def kth_largest(a, k):\n    a.sort()\n    return a[-k]"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Merge intervals",
+    "problem": "Merge all overlapping intervals in a list of [start, end] pairs.",
+    "input": "[[1, 3], [2, 6], [8, 10], [15, 18]]",
+    "output": "[[1, 6], [8, 10], [15, 18]]",
+    "explanation": "After sorting by start, [1,3] and [2,6] overlap because 2 <= 3, so they merge into [1,6]. [8,10] starts after 6, so it begins a new interval.",
+    "steps": [
+     "Sort intervals by their start value.",
+     "Start an output list with the first interval.",
+     "For each interval, if its start exceeds the last end, append it.",
+     "Otherwise extend the last interval's end to the max."
+    ],
+    "complexity": {
+     "time": "O(n log n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Assuming sorting is always O(n) or forgetting the sort dominates the complexity.",
+    "fix": "State the full complexity as O(n log n) when a sort is part of the solution."
+   },
+   {
+    "mistake": "Sorting by the wrong field for interval problems.",
+    "fix": "For merging, sort by start; for greedy interval selection, sort by end."
+   },
+   {
+    "mistake": "Using an unstable sort where tie-breaking between equal keys matters.",
+    "fix": "Add a secondary key or use a stable sort to preserve intended ordering."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Merge Intervals",
+    "slug": "merge-intervals",
+    "difficulty": "medium",
+    "description": "Given an array of intervals, merge all overlapping intervals.",
+    "constraints": "1 <= n <= 10^4",
+    "hints": [
+     "What order makes overlaps easy to detect?",
+     "When do you extend the current interval versus start a new one?"
+    ],
+    "approach": "Sort by start time, then scan and merge intervals that overlap with the current one.",
+    "pattern": "Sort by start then merge intervals",
+    "time": "O(n log n)",
+    "space": "O(n)",
+    "solution": "Sort by start, then for each interval either merge into the current one (extending its end) or push a new interval when it is disjoint.",
+    "tags": [
+     "sorting",
+     "intervals"
+    ]
+   },
+   {
+    "name": "3Sum",
+    "slug": "3sum",
+    "difficulty": "medium",
+    "description": "Find all unique triplets in an array that sum to zero.",
+    "constraints": "3 <= n <= 3000",
+    "hints": [
+     "How does sorting help avoid duplicate triplets?",
+     "Can two pointers solve the pair-sum for each fixed element?"
+    ],
+    "approach": "Sort, fix one element, and run two pointers over the rest to find pairs summing to its negation, skipping duplicates.",
+    "pattern": "Sort then two pointers",
+    "time": "O(n^2)",
+    "space": "O(1) excluding output",
+    "solution": "For each i, run two pointers from i+1 to the end seeking the pair summing to -nums[i]; skip equal values to avoid duplicate triplets.",
+    "tags": [
+     "sorting",
+     "two-pointers"
+    ]
+   },
+   {
+    "name": "Kth Largest Element in an Array",
+    "slug": "kth-largest-element-in-an-array",
+    "difficulty": "medium",
+    "description": "Return the k-th largest element in an unsorted array.",
+    "constraints": "1 <= k <= n <= 10^5",
+    "hints": [
+     "What index holds the k-th largest after sorting?",
+     "Could a heap do this with less than a full sort?"
+    ],
+    "approach": "Sort descending and pick index k-1, or maintain a min-heap of size k.",
+    "pattern": "Sort for k-th element",
+    "time": "O(n log n)",
+    "space": "O(1)",
+    "solution": "Sorting descending makes the k-th largest the element at index k-1; a heap-based alternative keeps only the top k elements.",
+    "tags": [
+     "sorting",
+     "heap"
+    ]
+   },
+   {
+    "name": "Non-overlapping Intervals",
+    "slug": "non-overlapping-intervals",
+    "difficulty": "medium",
+    "description": "Find the minimum number of intervals to remove so the rest do not overlap.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "Which interval should be kept when two overlap?",
+     "What does sorting by end time buy you?"
+    ],
+    "approach": "Sort by end time, greedily keep the interval that finishes earliest and count removals when overlaps occur.",
+    "pattern": "Sort by start then merge intervals",
+    "time": "O(n log n)",
+    "space": "O(1)",
+    "solution": "Sort by end. Always keep the earliest-finishing interval; whenever the next starts before the kept one ends, count it for removal.",
+    "tags": [
+     "sorting",
+     "greedy",
+     "intervals"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "string-manipulation",
+  "name": "String manipulation",
+  "difficulty": "medium",
+  "overview": "String manipulation covers building, splitting, reversing, and transforming strings while respecting immutability and encoding. Strings are immutable in Python, so transforms typically create new strings, and character-by-character scans are the heart of most string algorithms.",
+  "why": "String problems are a large share of interview questions, from palindrome checks to anagram detection to word reversals. Comfort with char arrays, joins, and index math separates clean solutions from messy ones.",
+  "when": "Reach for string manipulation when a problem involves ordering characters, splitting on delimiters, reversing words, or transforming text. Pair it with hashing when comparison must ignore ordering.",
+  "complexity": {
+   "time": "O(n) for single scans and joins",
+   "space": "O(n) for new strings"
+  },
+  "concepts": [
+   {
+    "name": "Immutability",
+    "description": "Strings cannot be modified in place; rebuilding produces a new string."
+   },
+   {
+    "name": "Join and split",
+    "description": "Split a string on delimiters and rejoin pieces efficiently with ''.join."
+   },
+   {
+    "name": "Character indexing",
+    "description": "Accessing characters by position and slicing substrings in O(length)."
+   },
+   {
+    "name": "Reversal",
+    "description": "Reversing a whole string or reversing the order of words without reversing letters."
+   },
+   {
+    "name": "Case and normalization",
+    "description": "Lowercasing and stripping non-alphanumerics to make comparisons uniform."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Reverse words in a sentence",
+    "description": "Split on spaces, reverse the list, and rejoin.",
+    "code": "def reverse_words(s):\n    return ' '.join(reversed(s.split()))"
+   },
+   {
+    "name": "Build a char list then swap",
+    "description": "Mutable work via a list of characters.",
+    "code": "def reverse_string(s):\n    a = list(s)\n    i, j = 0, len(a) - 1\n    while i < j:\n        a[i], a[j] = a[j], a[i]\n        i, j = i + 1, j - 1\n    return ''.join(a)"
+   },
+   {
+    "name": "Compress by runs",
+    "description": "Scan once and count consecutive runs of characters.",
+    "code": "def compress(s):\n    out = []\n    i = 0\n    while i < len(s):\n        j = i\n        while j < len(s) and s[j] == s[i]:\n            j += 1\n        out.append(s[i] + str(j - i))\n        i = j\n    return ''.join(out)"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Reverse words in a sentence",
+    "problem": "Reverse the order of words in a sentence while preserving each word's letters.",
+    "input": "the sky is blue",
+    "output": "blue is sky the",
+    "explanation": "Split on whitespace into ['the','sky','is','blue'], reverse the list, then join with single spaces.",
+    "steps": [
+     "Split the input on whitespace to get words.",
+     "Reverse the resulting list in place.",
+     "Join the reversed words with a single space.",
+     "Return the joined string."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Attempting in-place edits on an immutable string, causing TypeErrors.",
+    "fix": "Convert to a list, edit, then join, or build a new string with concatenation."
+   },
+   {
+    "mistake": "Building strings with += in a loop, which is quadratic.",
+    "fix": "Collect pieces in a list and use ''.join once."
+   },
+   {
+    "mistake": "Ignoring multiple spaces or leading/trailing spaces when splitting words.",
+    "fix": "Use s.split() which handles all whitespace runs, instead of splitting on a single space."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Reverse Words in a String",
+    "slug": "reverse-words-in-a-string",
+    "difficulty": "medium",
+    "description": "Reverse the order of words in a string while removing extra spaces.",
+    "constraints": "1 <= len(s) <= 10^4",
+    "hints": [
+     "How does split() normalize whitespace?",
+     "What does joining the reversed words give you?"
+    ],
+    "approach": "Split on whitespace, reverse the words, and join with single spaces.",
+    "pattern": "Reverse words in a sentence",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "s.split() splits on any whitespace and drops empties, reversed() gives reverse order, and join restores a clean single-spaced sentence.",
+    "tags": [
+     "strings",
+     "two-pointers"
+    ]
+   },
+   {
+    "name": "Reverse String",
+    "slug": "reverse-string",
+    "difficulty": "easy",
+    "description": "Reverse a string in place by treating it as an array of characters.",
+    "constraints": "1 <= len(s) <= 10^5",
+    "hints": [
+     "Which two positions get swapped first?",
+     "When do the pointers stop?"
+    ],
+    "approach": "Use two pointers from both ends, swapping characters until they meet.",
+    "pattern": "Build a char list then swap",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Swap the characters at symmetric positions working inward from both ends until the pointers cross.",
+    "tags": [
+     "strings",
+     "two-pointers"
+    ]
+   },
+   {
+    "name": "Valid Anagram",
+    "slug": "valid-anagram",
+    "difficulty": "easy",
+    "description": "Check whether two strings are anagrams, containing the same characters with the same counts.",
+    "constraints": "1 <= len(s), len(t) <= 5 * 10^4",
+    "hints": [
+     "What must be equal for two strings to be anagrams?",
+     "Can sorting make the comparison trivial?"
+    ],
+    "approach": "Sort both strings and compare, or count character frequencies and compare the counts.",
+    "pattern": "Compress by runs",
+    "time": "O(n log n) sorted, O(n) with counting",
+    "space": "O(1)",
+    "solution": "Two strings are anagrams iff their sorted forms are identical, or equivalently iff their character frequency maps match.",
+    "tags": [
+     "strings",
+     "sorting",
+     "frequency-counting"
+    ]
+   },
+   {
+    "name": "Longest Palindromic Substring",
+    "slug": "longest-palindromic-substring",
+    "difficulty": "medium",
+    "description": "Find the longest substring that reads the same forward and backward.",
+    "constraints": "1 <= len(s) <= 1000",
+    "hints": [
+     "Can you expand around the center of a palindrome?",
+     "What are the two possible center shapes?"
+    ],
+    "approach": "Expand around every possible center, handling both odd-length and even-length palindromes.",
+    "pattern": "Build a char list then swap",
+    "time": "O(n^2)",
+    "space": "O(1)",
+    "solution": "For each center, grow outward while characters match, tracking the longest palindrome; try both single-char and two-char centers.",
+    "tags": [
+     "strings",
+     "two-pointers"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "frequency-counting-hashing",
+  "name": "Frequency counting / hashing",
+  "difficulty": "easy",
+  "overview": "Frequency counting records how many times each distinct value appears, typically in a hash map or counter. It is the fastest way to answer questions about duplicates, most common elements, and whether multisets match.",
+  "why": "Counting frequencies is the backbone of a huge family of interview problems: anagrams, majority elements, and duplicate detection. Interviewers love seeing a clean Counter-based solution where a naive approach would be quadratic.",
+  "when": "Reach for frequency counting when you need the count of each distinct element, the most or least frequent element, or a quick equality check between multisets.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(distinct elements)"
+  },
+  "concepts": [
+   {
+    "name": "Frequency map",
+    "description": "A dictionary mapping each distinct element to how many times it appears."
+   },
+   {
+    "name": "Counter as a multiset",
+    "description": "Two collections are equal as multisets iff their frequency maps match."
+   },
+   {
+    "name": "Mode and majority",
+    "description": "Finding the most frequent element or an element appearing more than n/2 times."
+   },
+   {
+    "name": "Negative vs positive counts",
+    "description": "Using a single counter with increments and decrements to compare two multisets."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Build a counter",
+    "description": "Count occurrences of each element in one pass.",
+    "code": "def counter(a):\n    freq = {}\n    for x in a:\n        freq[x] = freq.get(x, 0) + 1\n    return freq"
+   },
+   {
+    "name": "Anagram check by counts",
+    "description": "Build a counter, subtract, and verify all zeros.",
+    "code": "def is_anagram(s, t):\n    if len(s) != len(t):\n        return False\n    c = counter(s)\n    for ch in t:\n        c[ch] = c.get(ch, 0) - 1\n        if c[ch] < 0:\n            return False\n    return True"
+   },
+   {
+    "name": "Most frequent element",
+    "description": "Scan the counter to find the element with the highest count.",
+    "code": "def most_common(freq):\n    best = None\n    for x, c in freq.items():\n        if best is None or c > freq[best]:\n            best = x\n    return best"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Finding the mode",
+    "problem": "Given an array, find the element that appears most frequently.",
+    "input": "[1, 3, 2, 3, 1, 3, 4]",
+    "output": "3",
+    "explanation": "Counting yields 3 appearing three times, more than any other value. A single pass to count and a second pass to select gives the answer.",
+    "steps": [
+     "Initialize an empty frequency dictionary.",
+     "Increment the count of each element while scanning.",
+     "After the pass, scan the dictionary for the max count.",
+     "Return the element with the highest count."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(distinct values)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using a list of size equal to the value range when values are large or negative.",
+    "fix": "Use a dictionary or Counter; array-based counting only fits small non-negative ranges."
+   },
+   {
+    "mistake": "Mutating a dictionary while iterating over its items.",
+    "fix": "Iterate over a copy or collect keys first, then update."
+   },
+   {
+    "mistake": "Forgetting that frequency maps must handle missing keys on lookup.",
+    "fix": "Use freq.get(key, 0) so absent keys behave as zero without raising KeyError."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Majority Element",
+    "slug": "majority-element",
+    "difficulty": "easy",
+    "description": "Find the element that appears more than n/2 times in an array.",
+    "constraints": "1 <= n <= 5 * 10^4",
+    "hints": [
+     "What is the count threshold for majority?",
+     "Can a single counter tell you the answer as you scan?"
+    ],
+    "approach": "Count frequencies in a map and return any element whose count exceeds n/2, or use Boyer-Moore voting.",
+    "pattern": "Build a counter",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Build a frequency map and return the key with count above n/2. The Boyer-Moore variant achieves this in O(1) space.",
+    "tags": [
+     "frequency-counting",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Valid Anagram",
+    "slug": "valid-anagram-frequency",
+    "difficulty": "easy",
+    "description": "Check if two strings contain exactly the same characters in the same counts.",
+    "constraints": "1 <= len(s), len(t) <= 5 * 10^4",
+    "hints": [
+     "What does it mean for two strings to share a frequency map?",
+     "How can decrementing detect a mismatch early?"
+    ],
+    "approach": "Count one string, then subtract the characters of the other and verify the counts never go negative.",
+    "pattern": "Anagram check by counts",
+    "time": "O(n)",
+    "space": "O(distinct chars)",
+    "solution": "Build a counter for s, then for each char of t decrement; a negative count or leftover positive count means the strings differ.",
+    "tags": [
+     "frequency-counting",
+     "strings"
+    ]
+   },
+   {
+    "name": "Top K Frequent Elements",
+    "slug": "top-k-frequent-elements",
+    "difficulty": "medium",
+    "description": "Given an array, return the k most frequently occurring elements in any order.",
+    "constraints": "1 <= n <= 10^5, k distinct elements exist",
+    "hints": [
+     "What structure gives you counts per element first?",
+     "How do you extract the top k from the counts?"
+    ],
+    "approach": "Count frequencies, then use a heap or bucket sort over the counts to pick the top k.",
+    "pattern": "Build a counter",
+    "time": "O(n log k)",
+    "space": "O(n)",
+    "solution": "Build frequency counts, then push (count, element) into a min-heap of size k, or bucket elements by frequency and scan from the top.",
+    "tags": [
+     "frequency-counting",
+     "heap"
+    ]
+   },
+   {
+    "name": "Ransom Note",
+    "slug": "ransom-note",
+    "difficulty": "easy",
+    "description": "Determine whether a magazine string can construct a ransom note using its letters.",
+    "constraints": "1 <= len(note), len(magazine) <= 10^5",
+    "hints": [
+     "Which counts must the magazine satisfy?",
+     "When can you early-return false?"
+    ],
+    "approach": "Count magazine letters, then consume them while building the note and fail if any letter runs out.",
+    "pattern": "Anagram check by counts",
+    "time": "O(n + m)",
+    "space": "O(distinct chars)",
+    "solution": "Count each letter in the magazine; for each note letter decrement its count and return false if it drops below zero.",
+    "tags": [
+     "frequency-counting",
+     "strings"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "arrays-strings",
+  "name": "Arrays & Strings",
+  "difficulty": "easy",
+  "overview": "Arrays and strings form the foundational data structures of most interview problems. Strings are effectively character arrays, so the techniques that work on arrays - indexing, two pointers, sliding windows, prefix sums - transfer directly with small adaptations for immutability and encoding.",
+  "why": "A large fraction of interview questions are framed as array or string problems, and mastering this category first builds the confidence and toolkit for trees, graphs, and DP. Interviewers often use array-string questions to gauge basics quickly.",
+  "when": "Reach for this category whenever data is ordered and indexed, whether it is a list of numbers or a string of characters. Most entry-level and mid-level problems fall into this bucket.",
+  "complexity": {
+   "time": "O(n) typical single-pass solutions",
+   "space": "O(1) to O(n)"
+  },
+  "concepts": [
+   {
+    "name": "Indexing",
+    "description": "O(1) random access by position, with strict bounds checking."
+   },
+   {
+    "name": "Contiguity",
+    "description": "Arrays store elements in adjacent memory; strings are ordered character sequences."
+   },
+   {
+    "name": "String immutability",
+    "description": "String transforms create new strings; mutable work requires char lists."
+   },
+   {
+    "name": "Subarray vs subsequence",
+    "description": "Subarrays are contiguous slices; subsequences skip elements while preserving order."
+   },
+   {
+    "name": "Shared techniques",
+    "description": "Two pointers, sliding windows, and prefix sums all apply to both arrays and strings."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Scan and accumulate",
+    "description": "Single pass computing a running value such as a sum or max.",
+    "code": "def max_value(a):\n    best = a[0]\n    for x in a[1:]:\n        if x > best:\n            best = x\n    return best"
+   },
+   {
+    "name": "Compare from both ends",
+    "description": "Mirror checks using two pointers, common for strings.",
+    "code": "def palindrome_pairs(a):\n    return all(a[i] == a[-1 - i] for i in range(len(a) // 2))"
+   },
+   {
+    "name": "In-place overwrite",
+    "description": "Reuse the front of the array to compact or transform data.",
+    "code": "def compact_nonzero(a):\n    w = 0\n    for x in a:\n        if x != 0:\n            a[w] = x\n            w += 1\n    return a[:w]"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Single-pass best value",
+    "problem": "Find the maximum value in an integer array.",
+    "input": "[3, 8, 2, 10, 5]",
+    "output": "10",
+    "explanation": "Initialize best to the first element and update whenever a larger value appears. The answer after one pass is 10.",
+    "steps": [
+     "Set best to the first element.",
+     "Visit each remaining element.",
+     "Update best when the element is larger.",
+     "Return best after the scan."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(1)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Confusing a subsequence with a subarray and solving the wrong problem.",
+    "fix": "Check whether elements must be contiguous; subarray problems often use sliding windows or prefix sums."
+   },
+   {
+    "mistake": "Mutating a string as if it were mutable.",
+    "fix": "Work with a character list or build new strings, then join at the end."
+   },
+   {
+    "mistake": "Off-by-one errors when converting between 1-based problem statements and 0-based indexing.",
+    "fix": "Pin down the mapping early and test boundaries like the first and last elements."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Best Time to Buy and Sell Stock",
+    "slug": "best-time-to-buy-and-sell-stock-array-strings",
+    "difficulty": "easy",
+    "description": "Given daily prices, find the maximum profit from one buy and one later sell.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "What running value makes each day's profit easy to compute?",
+     "Can one pass track both the min price and the best profit?"
+    ],
+    "approach": "Track the minimum price seen so far and the best profit achievable at each step.",
+    "pattern": "Scan and accumulate",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "For each price, the best profit is price minus the minimum seen so far; keep the overall maximum across all days.",
+    "tags": [
+     "arrays",
+     "kadane"
+    ]
+   },
+   {
+    "name": "Two Sum",
+    "slug": "two-sum-array-strings",
+    "difficulty": "easy",
+    "description": "Given an array and a target, return the indices of two numbers that add up to the target.",
+    "constraints": "2 <= n <= 10^4",
+    "hints": [
+     "What complement do you look for as you scan?",
+     "What data structure stores seen values and their indices?"
+    ],
+    "approach": "Scan once, storing each value's index in a hash map and checking for the complement.",
+    "pattern": "Scan and accumulate",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "For each element, check whether target minus the element was seen before; if so return both indices, otherwise record the element.",
+    "tags": [
+     "arrays",
+     "hashing"
+    ]
+   },
+   {
+    "name": "Contains Duplicate",
+    "slug": "contains-duplicate",
+    "difficulty": "easy",
+    "description": "Determine if an array contains any duplicate elements.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "What happens when you insert a value into a set twice?",
+     "Can sorting detect duplicates more simply?"
+    ],
+    "approach": "Insert each element into a set and return false on the first repeat.",
+    "pattern": "Scan and accumulate",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Track seen values in a set; if an element is already present, a duplicate exists.",
+    "tags": [
+     "arrays",
+     "hashing"
+    ]
+   },
+   {
+    "name": "First Unique Character in a String",
+    "slug": "first-unique-character-in-a-string",
+    "difficulty": "easy",
+    "description": "Find the index of the first character in a string that does not repeat.",
+    "constraints": "1 <= len(s) <= 10^5",
+    "hints": [
+     "What two passes over the string do you need?",
+     "How do you know a character is unique after the first pass?"
+    ],
+    "approach": "Count character frequencies in one pass, then scan again for the first character with count 1.",
+    "pattern": "Scan and accumulate",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "First pass builds a frequency map; second pass returns the index of the first character whose count is exactly 1.",
+    "tags": [
+     "strings",
+     "frequency-counting"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "hashing",
+  "name": "Hashing",
+  "difficulty": "easy",
+  "overview": "Hashing maps keys to array slots using a hash function, giving near-constant-time insert, lookup, and delete on average. Hash maps and sets trade a bit of extra memory for dramatic speedups, turning many O(n^2) scans into O(n) lookups.",
+  "why": "Hash maps are the single most used data structure in interviews, showing up in two-sum, anagram, frequency, and deduplication problems. Using hashing well signals that you can trade space for time deliberately.",
+  "when": "Reach for hashing whenever you need fast membership tests, value lookups by key, or frequency counts. Use a hash set for uniqueness and a hash map when each key must carry associated data.",
+  "complexity": {
+   "time": "O(1) average per operation",
+   "space": "O(n) for stored keys"
+  },
+  "concepts": [
+   {
+    "name": "Hash function",
+    "description": "A function mapping a key to an integer index within a fixed-size table."
+   },
+   {
+    "name": "Collision",
+    "description": "Two distinct keys landing on the same slot; handled by chaining or open addressing."
+   },
+   {
+    "name": "Load factor",
+    "description": "The ratio of stored items to table size; growing the table when it is high keeps lookups fast."
+   },
+   {
+    "name": "Set vs map",
+    "description": "A set stores unique keys; a map stores key-value pairs for retrieval."
+   },
+   {
+    "name": "Average vs worst case",
+    "description": "Operations are O(1) on average; adversarial keys can degrade to O(n)."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Two-sum scan",
+    "description": "Store complements and look them up while scanning.",
+    "code": "def two_sum(nums, target):\n    seen = {}\n    for i, x in enumerate(nums):\n        if target - x in seen:\n            return [seen[target - x], i]\n        seen[x] = i\n    return []"
+   },
+   {
+    "name": "Deduplicate with a set",
+    "description": "Reject elements already seen.",
+    "code": "def dedupe(a):\n    seen = set()\n    out = []\n    for x in a:\n        if x not in seen:\n            seen.add(x)\n            out.append(x)\n    return out"
+   },
+   {
+    "name": "Group by key",
+    "description": "Bucket values under a computed key.",
+    "code": "def group_by_len(words):\n    g = {}\n    for w in words:\n        g.setdefault(len(w), []).append(w)\n    return g"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Two-sum with a hash map",
+    "problem": "Find two array elements whose values add up to a target and return their indices.",
+    "input": "nums = [2, 7, 11, 15], target = 9",
+    "output": "[0, 1]",
+    "explanation": "Scanning, 2 is stored. When 7 is reached, its complement 2 is already in the map, so indices 0 and 1 are returned in one pass.",
+    "steps": [
+     "Initialize an empty dictionary mapping value to index.",
+     "For each element compute the complement target - x.",
+     "If the complement is stored, return both indices.",
+     "Otherwise store the current element with its index."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Treating hashing as O(1) worst case instead of average case.",
+    "fix": "State 'expected O(1)' per operation and note the worst-case O(n) possibility under collisions."
+   },
+   {
+    "mistake": "Using an array of size max-value for sparse or negative keys.",
+    "fix": "Prefer a dictionary; array indexing is only viable for dense non-negative small ranges."
+   },
+   {
+    "mistake": "Forgetting that tuples are hashable but lists are not.",
+    "fix": "Use tuples for compound keys and lists only as stored values."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Two Sum",
+    "slug": "two-sum-hashing",
+    "difficulty": "easy",
+    "description": "Return the indices of two numbers that add up to a target, assuming exactly one solution.",
+    "constraints": "2 <= n <= 10^4",
+    "hints": [
+     "What complement do you search for at each step?",
+     "Where do you record each value as you go?"
+    ],
+    "approach": "Single pass storing value-to-index in a hash map and checking complements.",
+    "pattern": "Two-sum scan",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "For each element, look up its complement in the map; if found return both indices, otherwise record the current value and index.",
+    "tags": [
+     "hashing",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Contains Duplicate",
+    "slug": "contains-duplicate-hashing",
+    "difficulty": "easy",
+    "description": "Return true if any value appears at least twice in the array.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "What structure makes membership checks cheap?",
+     "When should you return true immediately?"
+    ],
+    "approach": "Insert elements into a hash set, returning true on the first insertion failure.",
+    "pattern": "Deduplicate with a set",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Scan and add each value to a set; if an element is already present, a duplicate exists and the answer is true.",
+    "tags": [
+     "hashing",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Intersection of Two Arrays",
+    "slug": "intersection-of-two-arrays",
+    "difficulty": "easy",
+    "description": "Given two arrays, return their distinct common elements.",
+    "constraints": "1 <= n, m <= 10^3",
+    "hints": [
+     "Which array should you turn into a set?",
+     "How do you ensure the result has no duplicates?"
+    ],
+    "approach": "Put one array in a set and collect elements of the other that are present.",
+    "pattern": "Deduplicate with a set",
+    "time": "O(n + m)",
+    "space": "O(n)",
+    "solution": "Convert the smaller array to a set, iterate the other, and add to a result set every element found in it.",
+    "tags": [
+     "hashing",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Group Anagrams",
+    "slug": "group-anagrams",
+    "difficulty": "medium",
+    "description": "Given a list of strings, group words that are anagrams of each other.",
+    "constraints": "1 <= len(words) <= 10^4",
+    "hints": [
+     "What canonical key do all anagrams share?",
+     "How do you map each word to its key?"
+    ],
+    "approach": "Use the sorted form or a character-count tuple as a hash key to bucket words together.",
+    "pattern": "Group by key",
+    "time": "O(n * k log k)",
+    "space": "O(n * k)",
+    "solution": "For each word, compute a key from its sorted characters (or a frequency tuple) and append the word to the bucket for that key.",
+    "tags": [
+     "hashing",
+     "strings"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "prefix-sum-hashing-problems",
+  "name": "Prefix-sum + hashing problems",
+  "difficulty": "hard",
+  "overview": "Combining prefix sums with hashing solves a family of hard-looking subarray problems in linear time. The key insight is that a subarray sum equals the difference of two prefix sums, so 'find a subarray with property X' becomes 'find two prefixes that differ in the right way'.",
+  "why": "These problems are favorite hard/medium interview questions because the O(n^2) brute force is obvious but the linear solution requires insight. The prefix-hash combo is a signature skill that separates strong candidates.",
+  "when": "Reach for prefix sums plus hashing when a problem asks for subarrays with a given sum, the longest subarray with sum k, or counts of subarrays whose sum has a divisibility property.",
+  "complexity": {
+   "time": "O(n)",
+   "space": "O(n)"
+  },
+  "concepts": [
+   {
+    "name": "Prefix difference identity",
+    "description": "sum(i..j) = pref[j] - pref[i-1], so subarray sums reduce to differences of prefixes."
+   },
+   {
+    "name": "Complement prefix",
+    "description": "To find sum k ending at j, look for a previous prefix equal to pref[j] - k."
+   },
+   {
+    "name": "Earliest occurrence",
+    "description": "Storing only the first index of each prefix gives the longest valid subarray."
+   },
+   {
+    "name": "Counting occurrences",
+    "description": "Storing counts of each prefix yields the number of valid subarrays."
+   },
+   {
+    "name": "Modular transformations",
+    "description": "For divisibility constraints, store prefixes reduced modulo the divisor."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Count subarrays summing to k",
+    "description": "Track prefix counts and look up the complement.",
+    "code": "def subarray_sum(nums, k):\n    pref = 0\n    counts = {0: 1}\n    total = 0\n    for x in nums:\n        pref += x\n        total += counts.get(pref - k, 0)\n        counts[pref] = counts.get(pref, 0) + 1\n    return total"
+   },
+   {
+    "name": "Longest subarray summing to k",
+    "description": "Keep the earliest index where each prefix first appeared.",
+    "code": "def longest_sum_k(nums, k):\n    first = {0: -1}\n    pref = 0\n    best = 0\n    for i, x in enumerate(nums):\n        pref += x\n        if pref - k in first:\n            best = max(best, i - first[pref - k])\n        first.setdefault(pref, i)\n    return best"
+   },
+   {
+    "name": "Count subarrays divisible by k",
+    "description": "Store prefix counts by remainder mod k.",
+    "code": "def subarrays_divisible(nums, k):\n    pref = 0\n    rem = {0: 1}\n    total = 0\n    for x in nums:\n        pref = (pref + x) % k\n        total += rem.get(pref, 0)\n        rem[pref] = rem.get(pref, 0) + 1\n    return total"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Counting subarrays that sum to k",
+    "problem": "Count contiguous subarrays whose elements sum exactly to k.",
+    "input": "nums = [1, 2, 3], k = 3",
+    "output": "2",
+    "explanation": "Prefixes are 1, 3, 6. Subarray [1,2] (prefixes 3-1=2 difference 2... tracing: pref 1 then pref 3 with pref-k=0 exists once) and subarray [3] (pref 6 with pref-k=3 exists) sum to 3, giving 2.",
+    "steps": [
+     "Initialize running prefix and a map with {0: 1}.",
+     "For each element, add it to the running prefix.",
+     "Add the count of previous prefixes equal to prefix - k.",
+     "Record the current prefix count and continue."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Forgetting to seed the map with {0: 1} for zero-length subarrays.",
+    "fix": "The empty prefix equals 0, so a whole-array or full-prefix match counts correctly only when 0 is pre-seeded."
+   },
+   {
+    "mistake": "Storing prefix values after the lookup instead of before, missing the current subarray.",
+    "fix": "Look up the complement before recording the current prefix so subarrays ending here are counted."
+   },
+   {
+    "mistake": "Using indices where counts are needed, or counts where earliest indices are needed.",
+    "fix": "Use counts when the number of subarrays is asked and earliest indices when the longest length is asked."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Subarray Sum Equals K",
+    "slug": "subarray-sum-equals-k-prefix-hash",
+    "difficulty": "medium",
+    "description": "Count the number of contiguous subarrays whose sum equals k.",
+    "constraints": "1 <= n <= 2 * 10^4, values can be negative",
+    "hints": [
+     "How is a subarray sum expressed as two prefix sums?",
+     "What should you count in the hash map?"
+    ],
+    "approach": "Maintain running prefix sums and a hash map of prefix counts, adding the count of prefix - k at each step.",
+    "pattern": "Count subarrays summing to k",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Each prefix minus a previous prefix is a subarray sum. At each step add how many previous prefixes equal current - k, then record the current prefix.",
+    "tags": [
+     "prefix-sum",
+     "hashing"
+    ]
+   },
+   {
+    "name": "Maximum Size Subarray Sum Equals k",
+    "slug": "maximum-size-subarray-sum-equals-k",
+    "difficulty": "medium",
+    "description": "Find the length of the longest subarray whose sum equals k.",
+    "constraints": "1 <= n <= 2 * 10^4, negative values allowed",
+    "hints": [
+     "Which prefix value gives the longest match at index i?",
+     "Why store only the first occurrence of each prefix?"
+    ],
+    "approach": "Store the earliest index of each prefix sum and compute the longest span to an earlier prefix equal to current - k.",
+    "pattern": "Longest subarray summing to k",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Record only the first time each prefix appears. At each index, if prefix - k was seen, the length is i minus its first index; keep the max.",
+    "tags": [
+     "prefix-sum",
+     "hashing"
+    ]
+   },
+   {
+    "name": "Subarray Sums Divisible by K",
+    "slug": "subarray-sums-divisible-by-k",
+    "difficulty": "medium",
+    "description": "Count subarrays whose sum is divisible by k.",
+    "constraints": "1 <= n <= 3 * 10^4",
+    "hints": [
+     "What remainder property must two prefixes share?",
+     "How do you normalize negative remainders in Python?"
+    ],
+    "approach": "Count prefix sums by their remainder modulo k; equal remainders mark divisible subarrays.",
+    "pattern": "Count subarrays divisible by k",
+    "time": "O(n)",
+    "space": "O(k)",
+    "solution": "Two prefixes with the same remainder mod k differ by a multiple of k. Normalize remainders with % k (Python handles negatives) and sum the pair counts.",
+    "tags": [
+     "prefix-sum",
+     "modular-arithmetic"
+    ]
+   },
+   {
+    "name": "Binary Subarrays With Sum",
+    "slug": "binary-subarrays-with-sum",
+    "difficulty": "medium",
+    "description": "Count binary subarrays whose sum equals a given goal.",
+    "constraints": "1 <= n <= 3 * 10^4",
+    "hints": [
+     "How does prefix counting apply to binary values?",
+     "Can you reuse the subarray-sum-equals-k idea?"
+    ],
+    "approach": "Apply the prefix-sum plus hashing pattern directly, treating goal as k over a binary array.",
+    "pattern": "Count subarrays summing to k",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Track running prefix counts and add the number of previous prefixes equal to prefix - goal at each step.",
+    "tags": [
+     "prefix-sum",
+     "hashing"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "hashmap-hashset",
+  "name": "HashMap / HashSet",
+  "difficulty": "easy",
+  "overview": "HashMap and HashSet are the two concrete hash-based collections: a map stores key-value pairs while a set stores unique keys alone. They both provide average O(1) operations and are the go-to tools for membership, deduplication, and lookup problems.",
+  "why": "Knowing when to pick a map versus a set is a frequent interview distinction, and both appear in an enormous share of easy and medium problems. Correctly choosing between them often determines whether a solution stays linear.",
+  "when": "Reach for a HashSet when you only need to know if something exists. Reach for a HashMap when each key must be associated with data such as indices, counts, or values.",
+  "complexity": {
+   "time": "O(1) average for insert/delete/lookup",
+   "space": "O(n)"
+  },
+  "concepts": [
+   {
+    "name": "HashMap",
+    "description": "A dictionary mapping unique keys to values with average O(1) access."
+   },
+   {
+    "name": "HashSet",
+    "description": "A set of unique keys used for fast membership and deduplication."
+   },
+   {
+    "name": "Key requirements",
+    "description": "Keys must be hashable and immutable, such as ints, strings, and tuples."
+   },
+   {
+    "name": "Overwrite semantics",
+    "description": "Inserting an existing key in a map replaces its value; sets simply ignore the duplicate."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Index lookup map",
+    "description": "Map values to their positions for O(1) index retrieval.",
+    "code": "def index_map(nums):\n    m = {}\n    for i, x in enumerate(nums):\n        m[x] = i\n    return m"
+   },
+   {
+    "name": "Membership set",
+    "description": "Quickly test whether a value has appeared.",
+    "code": "def has_appeared(a, x):\n    return x in set(a)"
+   },
+   {
+    "name": "Value counting map",
+    "description": "Count occurrences with get default.",
+    "code": "def freq(nums):\n    m = {}\n    for x in nums:\n        m[x] = m.get(x, 0) + 1\n    return m"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Building an index map",
+    "problem": "Store the position of each value in an array for fast lookups.",
+    "input": "nums = ['a', 'b', 'a', 'c']",
+    "output": "{'a': 2, 'b': 1, 'c': 3}",
+    "explanation": "Scanning left to right records each value's index, with later occurrences overwriting earlier ones for 'a'.",
+    "steps": [
+     "Create an empty dictionary.",
+     "Iterate with both value and index.",
+     "Assign the index as the value for each key.",
+     "Return the completed map."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using a set when you need per-key data such as indices or counts.",
+    "fix": "Upgrade to a map (dict) whenever each key must carry associated information."
+   },
+   {
+    "mistake": "Using a map when only membership matters, wasting memory and clarity.",
+    "fix": "Downshift to a set when the values would never be read."
+   },
+   {
+    "mistake": "Trying to use mutable keys like lists in a dict or set.",
+    "fix": "Convert to an immutable form like a tuple before using it as a key."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Contains Duplicate",
+    "slug": "contains-duplicate-hashmap-hashset",
+    "difficulty": "easy",
+    "description": "Return true if any value appears more than once.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "Which collection detects a repeat in O(1)?",
+     "Do you need any data besides membership?"
+    ],
+    "approach": "Insert each element into a HashSet and return true on the first duplicate.",
+    "pattern": "Membership set",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Add each value to a set; if an element is already present, a duplicate exists.",
+    "tags": [
+     "hashset",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Two Sum",
+    "slug": "two-sum-hashmap",
+    "difficulty": "easy",
+    "description": "Find two numbers that sum to a target and return their indices.",
+    "constraints": "2 <= n <= 10^4",
+    "hints": [
+     "Why do you need a map rather than a set here?",
+     "What data rides along with each key?"
+    ],
+    "approach": "Use a HashMap storing value-to-index and check for complements while scanning.",
+    "pattern": "Index lookup map",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "For each element, check if its complement exists in the map; if so return both indices, otherwise record the value with its index.",
+    "tags": [
+     "hashmap",
+     "arrays"
+    ]
+   },
+   {
+    "name": "Valid Sudoku",
+    "slug": "valid-sudoku",
+    "difficulty": "medium",
+    "description": "Determine whether a 9x9 Sudoku board is valid without checking solvability.",
+    "constraints": "9x9 board with digits 1-9 or '.'",
+    "hints": [
+     "What three sets of constraints must be checked?",
+     "How do you key each 3x3 box?"
+    ],
+    "approach": "Use HashSets for each row, column, and 3x3 box, rejecting duplicate digits.",
+    "pattern": "Membership set",
+    "time": "O(81)",
+    "space": "O(81)",
+    "solution": "Track seen digits per row, per column, and per box keyed by (r // 3, c // 3); any duplicate digit in a track makes the board invalid.",
+    "tags": [
+     "hashset",
+     "matrix"
+    ]
+   },
+   {
+    "name": "Word Pattern",
+    "slug": "word-pattern",
+    "difficulty": "easy",
+    "description": "Check whether a string follows a bijective mapping from pattern letters to words.",
+    "constraints": "1 <= len(pattern) <= 300",
+    "hints": [
+     "What two mappings must be bijective?",
+     "Why check both directions?"
+    ],
+    "approach": "Maintain a HashMap from pattern char to word and another from word to char, rejecting violations of injectivity.",
+    "pattern": "Index lookup map",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Split the string into words; if pattern and words differ in length return false. Map each char to a word and each word to a char, failing on any conflict.",
+    "tags": [
+     "hashmap",
+     "strings"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "frequency-maps",
+  "name": "Frequency maps",
+  "difficulty": "easy",
+  "overview": "A frequency map (or Counter) maps each distinct element to the number of times it appears. It is the natural structure for 'how many times does X occur' questions and enables O(n) solutions to anagram, majority, and top-k problems.",
+  "why": "Frequency maps are so common that interviewers routinely expect the Counter-based approach for anagrams, duplicates, and occurrence-counting problems. Demonstrating mastery of counting is a quick credibility win.",
+  "when": "Reach for a frequency map whenever you must answer questions about occurrence counts, most/least frequent values, or compare multisets of elements.",
+  "complexity": {
+   "time": "O(n) to build and scan",
+   "space": "O(distinct elements)"
+  },
+  "concepts": [
+   {
+    "name": "Build and query",
+    "description": "One pass to increment counts, then O(1) queries per element."
+   },
+   {
+    "name": "Counter equality",
+    "description": "Two collections match as multisets when their frequency maps are equal."
+   },
+   {
+    "name": "Decrement as consumption",
+    "description": "Subtracting counts models using up occurrences, failing when counts go negative."
+   },
+   {
+    "name": "Top k selection",
+    "description": "Sorting counts or using a heap extracts the most frequent elements."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Count and select max",
+    "description": "Build counts, then find the highest count.",
+    "code": "def mode(a):\n    from collections import Counter\n    return Counter(a).most_common(1)[0][0]"
+   },
+   {
+    "name": "Build with defaultdict",
+    "description": "Avoid get() boilerplate with a default factory.",
+    "code": "from collections import defaultdict\n\ndef freq_default(nums):\n    m = defaultdict(int)\n    for x in nums:\n        m[x] += 1\n    return dict(m)"
+   },
+   {
+    "name": "Reconciling two strings",
+    "description": "Increment for one string, decrement for the other.",
+    "code": "def same_letters(s, t):\n    if len(s) != len(t):\n        return False\n    m = Counter(s)\n    for ch in t:\n        m[ch] -= 1\n        if m[ch] < 0:\n            return False\n    return True"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Finding the mode with a Counter",
+    "problem": "Return the most frequent element in an array.",
+    "input": "[3, 1, 3, 2, 1, 3]",
+    "output": "3",
+    "explanation": "The Counter gives 3 a count of three, 1 a count of two, and 2 a count of one, so 3 is the mode.",
+    "steps": [
+     "Build a Counter over the array.",
+     "Inspect the counts: 3 appears three times.",
+     "Select the entry with the largest count.",
+     "Return its key, which is 3."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Forgetting to import Counter or misusing it on a non-iterable.",
+    "fix": "Counter expects an iterable; pass the collection itself, not a nested structure."
+   },
+   {
+    "mistake": "Checking counts with m[ch] on a missing key, which inserts it or raises.",
+    "fix": "Use m.get(ch, 0) for lookups that should not mutate the map."
+   },
+   {
+    "mistake": "Assuming frequency maps are sorted by count by default.",
+    "fix": "Use most_common() or sort by value; plain iteration order is insertion order."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Ransom Note",
+    "slug": "ransom-note-frequency-maps",
+    "difficulty": "easy",
+    "description": "Check whether a magazine contains enough letters to build a ransom note.",
+    "constraints": "1 <= len(note), len(magazine) <= 10^5",
+    "hints": [
+     "Which letters and how many does the note need?",
+     "When does the magazine run out?"
+    ],
+    "approach": "Count magazine letters, then consume them per note letter and fail on a shortfall.",
+    "pattern": "Reconciling two strings",
+    "time": "O(n + m)",
+    "space": "O(distinct letters)",
+    "solution": "Build a Counter from the magazine, decrement per note character, and return false whenever a count would go negative.",
+    "tags": [
+     "frequency-maps",
+     "strings"
+    ]
+   },
+   {
+    "name": "Kth Largest Element in a Stream",
+    "slug": "kth-largest-element-in-a-stream",
+    "difficulty": "easy",
+    "description": "Design a class that returns the k-th largest element from a stream of numbers added over time.",
+    "constraints": "1 <= k <= 10^4, up to 10^4 additions",
+    "hints": [
+     "Which heap size keeps the k-th largest at the top?",
+     "When should an added value be ignored?"
+    ],
+    "approach": "Maintain a min-heap of size k so the smallest element in the heap is the k-th largest overall.",
+    "pattern": "Count and select max",
+    "time": "O(log k) per add",
+    "space": "O(k)",
+    "solution": "Push each value into a min-heap; when the heap exceeds k, pop the smallest. The heap top is always the k-th largest.",
+    "tags": [
+     "heap",
+     "streams"
+    ]
+   },
+   {
+    "name": "Sort Characters By Frequency",
+    "slug": "sort-characters-by-frequency",
+    "difficulty": "medium",
+    "description": "Sort a string by character frequency in decreasing order.",
+    "constraints": "1 <= len(s) <= 5 * 10^5",
+    "hints": [
+     "What do you build first to know each count?",
+     "How do you rebuild the string in frequency order?"
+    ],
+    "approach": "Count characters, sort by count descending, and repeat each character that many times.",
+    "pattern": "Count and select max",
+    "time": "O(n log n)",
+    "space": "O(n)",
+    "solution": "Build a Counter, sort its items by frequency, and join each character repeated its count times.",
+    "tags": [
+     "frequency-maps",
+     "sorting"
+    ]
+   },
+   {
+    "name": "Find All Duplicates in an Array",
+    "slug": "find-all-duplicates-in-an-array",
+    "difficulty": "medium",
+    "description": "Given an array where values are in range [1, n], return all values appearing twice.",
+    "constraints": "1 <= n <= 10^5",
+    "hints": [
+     "How does the value range help with indexing?",
+     "Can a frequency map do this in O(n)?"
+    ],
+    "approach": "Count frequencies and collect elements whose count equals two.",
+    "pattern": "Build with defaultdict",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "Build a Counter over the array and return every key whose count is exactly two; the value range guarantees such keys always exist.",
+    "tags": [
+     "frequency-maps",
+     "arrays"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "collision-concepts",
+  "name": "Collision concepts",
+  "difficulty": "medium",
+  "overview": "A collision occurs when two distinct keys hash to the same table slot, and how a hash table resolves collisions determines its worst-case behavior. The two classic strategies are chaining, where each slot holds a linked list or other structure, and open addressing, which probes to find alternate slots.",
+  "why": "Understanding collisions explains why hash operations are O(1) on average but can degrade to O(n), and why Python's dict and set stay fast in practice. Interviewers occasionally probe this to test whether you know more than the API.",
+  "when": "Reach for collision concepts when designing a custom hash table, analyzing worst-case inputs, or comparing hashing strategies. Know that good load factors and hash functions keep average cases near O(1).",
+  "complexity": {
+   "time": "O(1) average, O(n) worst case per operation",
+   "space": "O(n)"
+  },
+  "concepts": [
+   {
+    "name": "Collision",
+    "description": "Two distinct keys landing on the same bucket after hashing."
+   },
+   {
+    "name": "Chaining",
+    "description": "Each bucket stores a linked structure of keys that hash to it; lookup scans that chain."
+   },
+   {
+    "name": "Open addressing",
+    "description": "The table itself stores one value per slot; collisions probe linearly or quadratically for the next free slot."
+   },
+   {
+    "name": "Load factor",
+    "description": "The fraction of occupied slots; higher load factors raise collision probability and slow lookups."
+   },
+   {
+    "name": "Resizing",
+    "description": "Growing the table when the load factor exceeds a threshold to restore average O(1) operations."
+   },
+   {
+    "name": "Hash function quality",
+    "description": "A good hash function spreads keys evenly; a weak one clusters them and degrades performance."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Chained hash table",
+    "description": "A list of buckets, each a list of (key, value) pairs.",
+    "code": "class ChainMap:\n    def __init__(self, size=8):\n        self.buckets = [[] for _ in range(size)]\n\n    def _bucket(self, key):\n        return self.buckets[hash(key) % len(self.buckets)]\n\n    def put(self, key, val):\n        b = self._bucket(key)\n        for i, (k, v) in enumerate(b):\n            if k == key:\n                b[i] = (key, val)\n                return\n        b.append((key, val))"
+   },
+   {
+    "name": "Linear probing",
+    "description": "Find the next free slot by walking forward and wrapping around.",
+    "code": "def probe_index(keys, start, size):\n    i = start\n    while keys[i] is not None:\n        i = (i + 1) % size\n    return i"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Chaining resolves a collision",
+    "problem": "Insert keys that hash to the same bucket and explain how lookups still work.",
+    "input": "buckets = 2, keys = 10 and 12 hashing to bucket 0",
+    "output": "bucket 0 holds [10, 12] as a chain",
+    "explanation": "Both keys hash to bucket 0, so they are stored as a two-element chain. A lookup for 12 must scan the chain to distinguish it from 10.",
+    "steps": [
+     "Hash each key to a bucket index.",
+     "Append the colliding key to the bucket's chain.",
+     "On lookup, compare each chain element by key equality.",
+     "The chain length equals the number of colliding keys."
+    ],
+    "complexity": {
+     "time": "O(1) average, O(chain length) worst",
+     "space": "O(n)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Claiming hash operations are always O(1) with no caveats.",
+    "fix": "Say average O(1) and note the O(n) worst case when many keys collide."
+   },
+   {
+    "mistake": "Treating the hash value as the final index without taking a modulus.",
+    "fix": "Reduce the hash to the table size with hash % size so it lands within bounds."
+   },
+   {
+    "mistake": "Using a weak hash function that clusters similar keys together.",
+    "fix": "Design the hash to spread keys evenly, or rely on a language-standard hash such as Python's."
+   }
+  ],
+  "problems": [
+   {
+    "name": "Design HashMap",
+    "slug": "design-hashmap",
+    "difficulty": "easy",
+    "description": "Design a hash map supporting put, get, and remove with a fixed-size array of buckets.",
+    "constraints": "1 <= operations <= 10^4, keys in a bounded integer range",
+    "hints": [
+     "How do you map a key to a bucket index?",
+     "What structure resolves keys that share a bucket?"
+    ],
+    "approach": "Use chaining with an array of buckets; map each key to a bucket by modulus and manage the chain.",
+    "pattern": "Chained hash table",
+    "time": "O(1) average, O(n) worst",
+    "space": "O(n)",
+    "solution": "Buckets hold lists of key-value pairs. Put updates or appends, get scans the bucket for the key, and remove deletes the matching pair.",
+    "tags": [
+     "design",
+     "hashing"
+    ]
+   },
+   {
+    "name": "Design HashSet",
+    "slug": "design-hashset",
+    "difficulty": "easy",
+    "description": "Design a hash set supporting add, contains, and remove.",
+    "constraints": "1 <= operations <= 10^4",
+    "hints": [
+     "How is a set like a map without values?",
+     "What handles keys that land in the same bucket?"
+    ],
+    "approach": "Chain keys in buckets, adding only if absent and removing by equality.",
+    "pattern": "Chained hash table",
+    "time": "O(1) average, O(n) worst",
+    "space": "O(n)",
+    "solution": "Store keys as a list of buckets; contains checks membership, add inserts if missing, remove deletes the matching key.",
+    "tags": [
+     "design",
+     "hashing"
+    ]
+   },
+   {
+    "name": "Analyze worst-case hashing",
+    "slug": "analyze-worst-case-hashing",
+    "difficulty": "medium",
+    "description": "Given a bad hash function that maps everything to one bucket, analyze lookup complexity.",
+    "constraints": "n keys, one bucket",
+    "hints": [
+     "How long does a chain get when everything collides?",
+     "What does that imply for a single lookup?"
+    ],
+    "approach": "All keys land in one chain, so a lookup may scan all of them.",
+    "pattern": "Chained hash table",
+    "time": "O(n) worst case",
+    "space": "O(n)",
+    "solution": "With every key in a single bucket, the chain holds n entries and a lookup can degrade to scanning all of them, hence O(n) worst case.",
+    "tags": [
+     "hashing",
+     "complexity"
+    ]
+   }
+  ]
+ },
+ {
+  "slug": "hashing-with-arrays-strings",
+  "name": "Hashing with arrays/strings",
+  "difficulty": "easy",
+  "overview": "Hashing is the standard companion to array and string problems, enabling membership checks, frequency counts, and complement lookups that turn quadratic scans into linear ones. The data being hashed is usually array elements, characters, or substrings.",
+  "why": "The majority of array and string interview problems are solved with a hash map or set in the loop, so knowing how to hash integers, characters, and longer keys is a core skill. It directly unlocks two-sum, anagrams, and duplicate detection.",
+  "when": "Reach for hashing when an array or string problem needs repeated lookups, counts of characters or values, or pair/complement detection that a naive double loop would handle slowly.",
+  "complexity": {
+   "time": "O(n) typical with hash lookups",
+   "space": "O(distinct keys)"
+  },
+  "concepts": [
+   {
+    "name": "Hashing array values",
+    "description": "Storing numbers or objects from an array for O(1) membership and lookup."
+   },
+   {
+    "name": "Hashing characters",
+    "description": "Using characters as keys for frequency and comparison problems."
+   },
+   {
+    "name": "String keys",
+    "description": "Hashing whole strings or their sorted/frequency forms to group related words."
+   },
+   {
+    "name": "Complement lookup",
+    "description": "Storing seen values so the partner needed to complete a condition is found in O(1)."
+   }
+  ],
+  "patterns": [
+   {
+    "name": "Character frequency",
+    "description": "Count character occurrences for anagram and uniqueness checks.",
+    "code": "def char_counts(s):\n    m = {}\n    for ch in s:\n        m[ch] = m.get(ch, 0) + 1\n    return m"
+   },
+   {
+    "name": "Seen-set deduplication",
+    "description": "Skip elements already seen while scanning a list.",
+    "code": "def unique_ordered(a):\n    seen = set()\n    out = []\n    for x in a:\n        if x not in seen:\n            seen.add(x)\n            out.append(x)\n    return out"
+   },
+   {
+    "name": "Complement with arrays",
+    "description": "Look up the needed partner for each element.",
+    "code": "def find_pair(a, target):\n    seen = set()\n    for x in a:\n        if target - x in seen:\n            return (target - x, x)\n        seen.add(x)\n    return None"
+   }
+  ],
+  "examples": [
+   {
+    "title": "Hashing characters for uniqueness",
+    "problem": "Return true if a string contains all distinct characters.",
+    "input": "s = 'abcade'",
+    "output": "False",
+    "explanation": "Hashing each character into a set detects the duplicate 'a', so the string is not all-distinct.",
+    "steps": [
+     "Initialize an empty set.",
+     "Visit each character of the string.",
+     "If already in the set, return false.",
+     "Otherwise add it and continue, returning true at the end."
+    ],
+    "complexity": {
+     "time": "O(n)",
+     "space": "O(distinct chars)"
+    }
+   }
+  ],
+  "mistakes": [
+   {
+    "mistake": "Using a set when the index or count of each element is also needed.",
+    "fix": "Upgrade to a dictionary mapping the key to its index or count."
+   },
+   {
+    "mistake": "Building a hash structure repeatedly inside a loop instead of once.",
+    "fix": "Precompute the map or set before the main loop and only query it inside."
+   },
+   {
+    "mistake": "Using mutable strings or lists as hash keys.",
+    "fix": "Keys must be immutable; use tuples or normalized strings for compound keys."
+   }
+  ],
+  "problems": [
+   {
+    "name": "First Unique Character in a String",
+    "slug": "first-unique-character-in-a-string-hashing",
+    "difficulty": "easy",
+    "description": "Return the index of the first non-repeating character in a string, or -1 if none exists.",
+    "constraints": "1 <= len(s) <= 10^5",
+    "hints": [
+     "What must you know before you can detect uniqueness?",
+     "How many passes over the string do you need?"
+    ],
+    "approach": "Count characters with a hash map in one pass, then rescan for the first character with count 1.",
+    "pattern": "Character frequency",
+    "time": "O(n)",
+    "space": "O(1)",
+    "solution": "Build a frequency map, then walk the string again returning the index of the first character whose count equals 1.",
+    "tags": [
+     "strings",
+     "frequency-counting"
+    ]
+   },
+   {
+    "name": "Two Sum",
+    "slug": "two-sum-hashing-array-strings",
+    "difficulty": "easy",
+    "description": "Return the indices of two numbers that add to a target.",
+    "constraints": "2 <= n <= 10^4",
+    "hints": [
+     "Which seen values should you remember and how?",
+     "What complement finishes the pair?"
+    ],
+    "approach": "Store each value's index in a hash map and check for the target minus the current value.",
+    "pattern": "Complement with arrays",
+    "time": "O(n)",
+    "space": "O(n)",
+    "solution": "For each element, look up its complement; if present return both indices, otherwise store the value with its index.",
+    "tags": [
+     "arrays",
+     "hashing"
+    ]
+   },
+   {
+    "name": "Longest Substring Without Repeating Characters",
+    "slug": "longest-substring-without-repeating-characters-hashing",
+    "difficulty": "medium",
+    "description": "Find the length of the longest substring with all distinct characters.",
+    "constraints": "0 <= len(s) <= 5 * 10^4",
+    "hints": [
+     "How do you remember the last position of each character?",
+     "Where does the window restart on a repeat?"
+    ],
+    "approach": "Keep a map of the last seen index per character and slide a window, jumping its left edge past repeats.",
+    "pattern": "Character frequency",
+    "time": "O(n)",
+    "space": "O(distinct chars)",
+    "solution": "Scan with a window; when a character repeats inside the window, move the left edge just past its prior occurrence using the stored index map.",
+    "tags": [
+     "strings",
+     "sliding-window"
+    ]
+   },
+   {
+    "name": "Group Anagrams",
+    "slug": "group-anagrams-hashing-array-strings",
+    "difficulty": "medium",
+    "description": "Group words that are anagrams of one another.",
+    "constraints": "1 <= len(words) <= 10^4",
+    "hints": [
+     "What key represents a group of anagrams?",
+     "How do you compute that key from a word?"
+    ],
+    "approach": "Key each word by its sorted characters and bucket words under matching keys.",
+    "pattern": "Character frequency",
+    "time": "O(n * k log k)",
+    "space": "O(n * k)",
+    "solution": "Sort each word's letters to form a canonical key (or build a frequency tuple) and append the word to that key's bucket.",
+    "tags": [
+     "strings",
+     "hashing"
+    ]
+   }
+  ]
+ }
+]

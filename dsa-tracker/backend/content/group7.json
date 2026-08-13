@@ -1,0 +1,1564 @@
+[
+  {
+    "slug": "greedy",
+    "name": "Greedy",
+    "difficulty": "medium",
+    "overview": "Greedy algorithms build up a solution piece by piece, always choosing the option that looks best at the moment. They never revisit past decisions, relying on a local choice being globally optimal.",
+    "why": "Greedy problems appear in interviews to test whether you can spot a structure where local optimality implies global optimality. Correctly proving the greedy choice is often harder than implementing it.",
+    "when": "Use greedy when a problem asks to maximize or minimize a measurable quantity and you can argue that the best first move never hurts the final answer. If exchange arguments fail, consider DP or backtracking instead.",
+    "complexity": { "time": "O(n) or O(n log n) typical", "space": "O(1) or O(n)" },
+    "concepts": [
+      { "name": "Greedy choice property", "description": "A globally optimal solution can be reached by making a locally optimal choice at each step." },
+      { "name": "Optimal substructure", "description": "The optimal solution to the whole problem contains optimal solutions to its subproblems." },
+      { "name": "Exchange argument", "description": "A proof technique that swaps two decisions in an optimal solution to show a greedy choice is never worse." },
+      { "name": "Sorting first", "description": "Most greedy algorithms begin by sorting items by some key, which turns the greedy choice into scanning the list once." },
+      { "name": "Counterexamples", "description": "The best way to validate a greedy idea is to search for small cases where the greedy pick leads to a suboptimal answer." }
+    ],
+    "patterns": [
+      {
+        "name": "Sort then scan",
+        "description": "Sort items by a chosen metric, then process in order while maintaining the running answer.",
+        "code": "items.sort(key=lambda x: x[1])\nans, last = 0, float('-inf')\nfor s, e in items:\n    if s >= last:\n        ans += 1\n        last = e"
+      },
+      {
+        "name": "Two pointers for assignments",
+        "description": "Greedily match the smallest feasible resource to each demand using two sorted arrays.",
+        "code": "children.sort(); cookies.sort()\ni = j = happy = 0\nwhile i < len(children) and j < len(cookies):\n    if cookies[j] >= children[i]:\n        happy += 1; i += 1\n    j += 1"
+      },
+      {
+        "name": "Maintain a running max/min",
+        "description": "Track the best-so-far value while scanning, updating the answer when a better opportunity appears.",
+        "code": "best = float('-inf'); ans = 0\nfor p in prices:\n    best = max(best, p)\n    ans = max(ans, best - p)"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Assign cookies",
+        "problem": "Given child greed factors and cookie sizes, maximize the number of satisfied children.",
+        "input": "children = [1,2,3], cookies = [1,1]",
+        "output": "1",
+        "explanation": "Sort both arrays. The smallest cookie 1 satisfies child 1; cookie 1 cannot satisfy child 2, so only one child is fed.",
+        "steps": ["Sort children and cookies.", "Point at the smallest unassigned child and cookie.", "If the cookie satisfies the child, count it and advance both.", "Otherwise advance the cookie pointer and try again."],
+        "complexity": { "time": "O(n log n)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Applying greedy without proving optimality, e.g. taking largest-first for unbounded knapsack.", "fix": "Run exchange-argument reasoning or test counterexamples before committing." },
+      { "mistake": "Forgetting to sort, which silently breaks the whole algorithm.", "fix": "Always state the ordering rule and sort the input by it first." },
+      { "mistake": "Confusing greedy with DP: greedy makes one irreversible pass, DP evaluates all options.", "fix": "If the current pick can later prove wrong, the problem likely needs DP or backtracking." }
+    ],
+    "problems": [
+      {
+        "name": "Assign Cookies",
+        "slug": "assign-cookies",
+        "difficulty": "easy",
+        "description": "Satisfy as many children as possible where each child needs a cookie of at least their greed factor.",
+        "constraints": "1 <= g.length, s.length <= 3 * 10^4",
+        "hints": ["Sort both arrays.", "Use two pointers and feed the smallest feasible cookie."],
+        "approach": "Sort both lists, then walk both pointers greedily.",
+        "pattern": "Sort then scan",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "Sort children and cookies. For each child try to assign the smallest cookie that satisfies them; if none qualifies, no larger cookie for this child helps.",
+        "tags": ["greedy", "two-pointers", "sorting"]
+      },
+      {
+        "name": "Lemonade Change",
+        "slug": "lemonade-change",
+        "difficulty": "easy",
+        "description": "Determine if you can give correct change to a queue of customers paying $5, $10, or $20 for lemonade costing $5.",
+        "constraints": "1 <= bills.length <= 10^5",
+        "hints": ["Always hand back the largest bill first.", "Track counts of 5s and 10s."],
+        "approach": "Simulate the register, giving priority to larger denominations.",
+        "pattern": "Maintain a running max/min",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Track how many 5 and 10 dollar bills you hold. For a $20, use a 10 + 5 when possible, otherwise three 5s. If any customer cannot be served, return false.",
+        "tags": ["greedy", "simulation"]
+      },
+      {
+        "name": "Maximum Subarray",
+        "slug": "maximum-subarray",
+        "difficulty": "medium",
+        "description": "Find the contiguous subarray with the largest sum in an integer array.",
+        "constraints": "1 <= nums.length <= 10^5, -10^4 <= nums[i] <= 10^4",
+        "hints": ["Discard a negative running total and restart.", "Track the best total seen."],
+        "approach": "Kadane's algorithm: extend or reset the running sum at each element.",
+        "pattern": "Maintain a running max/min",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Keep a running sum; if it drops below 0, reset it to 0 and start fresh. Record the maximum running sum seen. This works because a negative prefix can never help a future suffix.",
+        "tags": ["greedy", "array", "dp"]
+      },
+      {
+        "name": "Jump Game",
+        "slug": "jump-game",
+        "difficulty": "medium",
+        "description": "Given an array where each element is the max jump length, decide if you can reach the last index.",
+        "constraints": "1 <= nums.length <= 10^4, 0 <= nums[i] <= 10^5",
+        "hints": ["Track the furthest index reachable so far.", "If you ever pass the furthest reachable index, fail."],
+        "approach": "Greedily extend the reachable window as you scan.",
+        "pattern": "Maintain a running max/min",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Maintain a variable for the farthest index reachable. At each position, update it with i + nums[i]. If i exceeds the reachable bound at any point, return false; otherwise true.",
+        "tags": ["greedy", "array"]
+      },
+      {
+        "name": "Gas Station",
+        "slug": "gas-station",
+        "difficulty": "medium",
+        "description": "Find the starting gas station index from which you can complete a circular trip, or return -1.",
+        "constraints": "n == gas.length == cost.length, 1 <= n <= 10^5",
+        "hints": ["If total gas is less than total cost, no answer exists.", "Restart the candidate whenever the running tank goes negative."],
+        "approach": "Single pass tracking the running deficit and candidate start.",
+        "pattern": "Maintain a running max/min",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Track total gas minus total cost; if negative return -1. Otherwise scan, resetting the candidate start whenever the running tank would go below zero, because any start before that point also fails.",
+        "tags": ["greedy", "array"]
+      }
+    ]
+  },
+  {
+    "slug": "activity-selection",
+    "name": "Activity selection",
+    "difficulty": "easy",
+    "overview": "Activity selection picks the maximum number of non-overlapping intervals (activities) given their start and end times. It is a canonical greedy problem taught as the template for interval scheduling.",
+    "why": "It is a classic interview and course question that demonstrates the greedy choice property: picking the activity that finishes earliest leaves the most room for others.",
+    "when": "Reach for it whenever you must maximize the count of non-overlapping intervals, such as booking rooms or scheduling meetings.",
+    "complexity": { "time": "O(n log n)", "space": "O(n) or O(1)" },
+    "concepts": [
+      { "name": "Earliest finish time", "description": "Choosing the interval that ends soonest maximizes the remaining time for other intervals." },
+      { "name": "Non-overlapping intervals", "description": "Two intervals overlap if one starts before the other finishes; valid selections must be disjoint." },
+      { "name": "Greedy choice property", "description": "The earliest-finishing activity is always part of some optimal solution." },
+      { "name": "Exchange argument", "description": "Swap the first activity of an optimal solution with the earliest-finishing one without hurting the count." },
+      { "name": "Interval graph independence", "description": "The problem is equivalent to finding a maximum independent set in an interval graph." }
+    ],
+    "patterns": [
+      {
+        "name": "Sort by end time",
+        "description": "Sort activities by finish time, then always take the next activity that starts after the last chosen one ends.",
+        "code": "acts.sort(key=lambda x: x[1])\ncount, last_end = 0, -1\nfor s, e in acts:\n    if s >= last_end:\n        count += 1\n        last_end = e"
+      },
+      {
+        "name": "Greedy removal of overlaps",
+        "description": "To remove the minimum number of intervals, keep the earliest finisher whenever two overlap.",
+        "code": "intervals.sort(key=lambda x: x[1])\nkeep, last_end = 0, -1\nfor s, e in intervals:\n    if s >= last_end:\n        keep += 1\n        last_end = e\nremoved = len(intervals) - keep"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Maximum non-overlapping meetings",
+        "problem": "Choose the maximum number of meetings that do not overlap in time.",
+        "input": "meetings = [(1, 3), (2, 4), (3, 5), (5, 7)]",
+        "output": "3 (intervals (1,3), (3,5), (5,7))",
+        "explanation": "Sorting by finish time gives (1,3), (2,4), (3,5), (5,7). Picking (1,3) rules out (2,4) but allows (3,5), then (5,7), yielding 3 meetings.",
+        "steps": ["Sort meetings by end time.", "Select the first meeting.", "Skip any meeting that starts before the last selected end.", "Select every meeting whose start is at or after the last end."],
+        "complexity": { "time": "O(n log n)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Sorting by start time or duration instead of end time.", "fix": "Always sort by the finish time; that is what the greedy proof depends on." },
+      { "mistake": "Using strictly greater than for non-overlap when meetings sharing an instant should count.", "fix": "Read the problem: use >= for touching intervals that are allowed, < otherwise." },
+      { "mistake": "Choosing the longest or earliest-starting activity first.", "fix": "Test the (1,10) trap: a long early interval blocks everything after it." }
+    ],
+    "problems": [
+      {
+        "name": "Non-overlapping Intervals",
+        "slug": "non-overlapping-intervals",
+        "difficulty": "medium",
+        "description": "Return the minimum number of intervals to remove so the rest are non-overlapping.",
+        "constraints": "1 <= intervals.length <= 10^5",
+        "hints": ["Find how many intervals you can keep.", "Answer is total minus kept."],
+        "approach": "Sort by end, greedily keep compatible intervals.",
+        "pattern": "Greedy removal of overlaps",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "Sort intervals by end time. Keep an interval if it starts at or after the last kept end; otherwise skip it. The number removed is the total minus the number kept.",
+        "tags": ["greedy", "interval", "sorting"]
+      },
+      {
+        "name": "Minimum Number of Arrows to Burst Balloons",
+        "slug": "minimum-number-of-arrows",
+        "difficulty": "medium",
+        "description": "Find the fewest arrows needed to burst all balloons given their x-intervals, one arrow bursting every overlapping balloon.",
+        "constraints": "1 <= points.length <= 10^5",
+        "hints": ["One arrow covers all balloons sharing a common point.", "Track the current overlap range."],
+        "approach": "Sort by end, shoot an arrow at each non-overlapping interval.",
+        "pattern": "Greedy removal of overlaps",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "Sort balloons by end coordinate. Start with one arrow at the first balloon's end; whenever a later balloon starts after the current arrow position, fire a new arrow and move the position.",
+        "tags": ["greedy", "interval", "sorting"]
+      },
+      {
+        "name": "Maximum Length of Pair Chain",
+        "slug": "maximum-length-of-pair-chain",
+        "difficulty": "medium",
+        "description": "Build the longest chain of pairs where each next pair starts strictly after the previous pair ends.",
+        "constraints": "1 <= pairs.length <= 10^3",
+        "hints": ["Sort pairs by their second element.", "Take a pair when its start exceeds the last end."],
+        "approach": "Sort by second element and greedily chain compatible pairs.",
+        "pattern": "Sort by end time",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "Sort by the second value. Keep a running last-end, append any pair whose first value is greater than it, and update the end. This maximizes the chain length.",
+        "tags": ["greedy", "interval", "sorting"]
+      },
+      {
+        "name": "Meeting Rooms II",
+        "slug": "meeting-rooms-ii",
+        "difficulty": "medium",
+        "description": "Compute the minimum number of conference rooms required to host all meetings.",
+        "constraints": "1 <= intervals.length <= 10^4",
+        "hints": ["The answer equals the maximum number of simultaneous meetings.", "Use a min-heap of end times."],
+        "approach": "Sort by start and track the earliest freeing room with a heap.",
+        "pattern": "Sort then scan",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort meetings by start time. Use a min-heap of end times: for each meeting, if the room that frees earliest is free, reuse it; otherwise allocate a new room. The heap size is the room count.",
+        "tags": ["greedy", "interval", "heap"]
+      }
+    ]
+  },
+  {
+    "slug": "fractional-knapsack",
+    "name": "Fractional Knapsack",
+    "difficulty": "medium",
+    "overview": "Fractional Knapsack fills a knapsack of capacity W by taking whole or fractional parts of items to maximize total value. Because items can be split, the greedy of value-per-unit-weight is provably optimal.",
+    "why": "It is the standard contrast to the 0/1 Knapsack: greedy works here but fails there, a distinction interviewers love to probe.",
+    "when": "Use it whenever you may take any fraction of an item and must maximize value under a capacity limit, such as mixing bulk materials.",
+    "complexity": { "time": "O(n log n)", "space": "O(1)" },
+    "concepts": [
+      { "name": "Value density", "description": "The ratio value/weight that determines which item is best to take first." },
+      { "name": "Fractional take", "description": "When capacity runs out mid-item, you may take only a fraction of it." },
+      { "name": "Duality with 0/1 knapsack", "description": "0/1 knapsack forbids splitting and therefore needs DP, not greedy." },
+      { "name": "Continuous relaxation", "description": "Fractional knapsack is the linear-programming relaxation of the 0/1 problem." },
+      { "name": "Optimal by exchange", "description": "Any optimal solution can be transformed into one that uses the highest density items first without losing value." }
+    ],
+    "patterns": [
+      {
+        "name": "Sort by value/weight",
+        "description": "Take items in descending order of value per weight, filling until capacity runs out.",
+        "code": "items.sort(key=lambda x: x[0]/x[1], reverse=True)\ntotal = 0.0\nfor v, w in items:\n    if W >= w:\n        total += v; W -= w\n    else:\n        total += v * (W / w)\n        break"
+      },
+      {
+        "name": "Weighted average tail",
+        "description": "For the last partially taken item, credit value proportional to the fraction used.",
+        "code": "frac = W / item.weight\ntotal_value += item.value * frac"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Fill a capacity-50 bag",
+        "problem": "Maximize value with items that can be split, given weights and values.",
+        "input": "W = 50; items = [(60,10),(100,20),(120,30)]",
+        "output": "240.0",
+        "explanation": "Densities are 6, 5, and 4. Take all of item 1 (60), all of item 2 (100), then 20 of the 30 weight from item 3 gives 80, totaling 240.",
+        "steps": ["Compute value/weight for each item.", "Sort descending by density.", "Fill with whole items while possible.", "Finish by taking the fraction of the next item that fits."],
+        "complexity": { "time": "O(n log n)", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Using the fractional greedy on 0/1 Knapsack, where splitting is forbidden.", "fix": "If items cannot be split, switch to 0/1 DP; greedy is wrong there." },
+      { "mistake": "Sorting by value or weight alone instead of value/weight ratio.", "fix": "Sort by density value/weight, not by absolute value." },
+      { "mistake": "Ignoring floating point and comparing ratios with ==.", "fix": "Use a tolerance or sort with exact cross-multiplication v1*w2 > v2*w1." }
+    ],
+    "problems": [
+      {
+        "name": "Fractional Knapsack",
+        "slug": "fractional-knapsack",
+        "difficulty": "medium",
+        "description": "Compute the maximum value obtainable by filling a knapsack with splittable items of given weight and value.",
+        "constraints": "1 <= n <= 10^5, weights and values positive",
+        "hints": ["Sort by value per weight.", "Fill the tail item fractionally."],
+        "approach": "Sort descending by density and greedily fill.",
+        "pattern": "Sort by value/weight",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "Sort items by value/weight descending. Take items whole while capacity allows, then take a fraction of the next item to use the remaining capacity.",
+        "tags": ["greedy", "knapsack", "sorting"]
+      },
+      {
+        "name": "Minimum Cost to Fill Bag with Water",
+        "slug": "minimum-cost-to-fill-water",
+        "difficulty": "medium",
+        "description": "Buy water from cost/bottle-size options to reach exactly L liters at minimum cost, bottles can be split.",
+        "constraints": "n cost sizes and liters, 1 <= n <= 10^5",
+        "hints": ["Lower cost per liter is better.", "Buy whole liters then the remaining fraction."],
+        "approach": "Sort by cost per liter and buy from cheapest.",
+        "pattern": "Sort by value/weight",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "For each option the cost per liter is cost/size. Sort ascending and buy the required liters from the cheapest sources, splitting the last purchase as needed.",
+        "tags": ["greedy", "sorting"]
+      },
+      {
+        "name": "Maximum Units on a Truck",
+        "slug": "maximum-units-on-a-truck",
+        "difficulty": "easy",
+        "description": "Load up to truckSize boxes to maximize total units, where each box type has a fixed unit count.",
+        "constraints": "1 <= boxTypes.length <= 10^3",
+        "hints": ["Sort by units per box descending.", "Take as many whole boxes as fit."],
+        "approach": "Sort by unit count and fill the truck.",
+        "pattern": "Sort by value/weight",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "Sort box types by units per box descending and take boxes until the truck capacity is exhausted, accumulating units along the way.",
+        "tags": ["greedy", "sorting"]
+      }
+    ]
+  },
+  {
+    "slug": "job-scheduling",
+    "name": "Job scheduling",
+    "difficulty": "medium",
+    "overview": "Job scheduling assigns jobs to time slots (usually with deadlines and profits) to maximize total profit or throughput. The canonical version schedules unit-length jobs with deadlines and profits on a single machine.",
+    "why": "It blends sorting with greedy choices and appears in interviews as a mix of deadline handling and profit maximization.",
+    "when": "Use it when each job occupies one slot and has a deadline, and you want the max profit set of jobs that can all be done on time.",
+    "complexity": { "time": "O(n log n)", "space": "O(n)" },
+    "concepts": [
+      { "name": "Deadline", "description": "The latest time slot by which a job must be scheduled." },
+      { "name": "Slot packing", "description": "Assign jobs to distinct time slots from 1 up to the maximum deadline." },
+      { "name": "Profit maximization", "description": "Choose the highest-value feasible subset of jobs." },
+      { "name": "Sorted deadlines", "description": "Sorting jobs by profit descending and placing each as late as possible keeps slots flexible." },
+      { "name": "Disjoint set optimization", "description": "Union-find speeds up finding a free slot for each job to near-linear time." }
+    ],
+    "patterns": [
+      {
+        "name": "Sort by profit, slot as late as possible",
+        "description": "Process jobs in decreasing profit and place each in the latest free slot at or before its deadline.",
+        "code": "jobs.sort(key=lambda x: -x[2])  # (id, deadline, profit)\nslots = [False] * (max_deadline + 1)\ntotal = 0\nfor _, d, p in jobs:\n    for t in range(d, 0, -1):\n        if not slots[t]:\n            slots[t] = True\n            total += p\n            break"
+      },
+      {
+        "name": "Union-find free slot",
+        "description": "Use DSU to jump directly to the nearest free slot before a deadline.",
+        "code": "parent = list(range(max_deadline + 1))\ndef find(x):\n    while parent[x] != x:\n        parent[x] = parent[parent[x]]\n        x = parent[x]\n    return x\n# for slot request d: f = find(d); if f>0 schedule at f, parent[f]=f-1"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Schedule jobs with deadlines",
+        "problem": "Maximize total profit scheduling unit-time jobs before their deadlines.",
+        "input": "jobs = [(1, 2, 100), (2, 1, 19), (3, 2, 27), (4, 1, 25), (5, 3, 15)]",
+        "output": "142 (jobs 1, 3, 5)",
+        "explanation": "Sort by profit: job1(100,deadline2), job3(27,dl2), job4(25,dl1), job2(19,dl1), job5(15,dl3). Slot job1 at 2, job3 at 1, job5 at 3; job4 and job2 find no free slots.",
+        "steps": ["Sort jobs by profit descending.", "For each job find the latest free slot before its deadline.", "Assign the slot and add profit.", "Skip jobs with no free slot."],
+        "complexity": { "time": "O(n^2) or O(n log n) with DSU", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Scheduling each job at the earliest free slot, which crowds out later high-profit jobs.", "fix": "Place each job in the latest available slot at or before its deadline." },
+      { "mistake": "Assuming deadlines are guaranteed sorted or contiguous.", "fix": "Sort jobs by profit yourself and size the slot array by the max deadline." },
+      { "mistake": "Scheduling jobs that do not actually fit by their deadline.", "fix": "Always check the deadline constraint before assigning a slot." }
+    ],
+    "problems": [
+      {
+        "name": "Job Sequencing with Deadlines",
+        "slug": "job-sequencing-with-deadlines",
+        "difficulty": "medium",
+        "description": "Schedule unit-time jobs with deadlines and profits to maximize total profit.",
+        "constraints": "1 <= n <= 10^5, deadlines <= n",
+        "hints": ["Sort by profit descending.", "Place each job at the latest free slot before its deadline."],
+        "approach": "Sort by profit and slot jobs as late as possible.",
+        "pattern": "Sort by profit, slot as late as possible",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort jobs by profit descending. Maintain occupied slots; for each job scan backwards from its deadline to find the latest free slot, scheduling it there if one exists.",
+        "tags": ["greedy", "scheduling", "sorting"]
+      },
+      {
+        "name": "Course Schedule III",
+        "slug": "course-schedule-iii",
+        "difficulty": "hard",
+        "description": "Given courses with duration and last-day deadline, take the maximum number of courses.",
+        "constraints": "1 <= courses.length <= 10^4",
+        "hints": ["Sort by deadline.", "Use a max-heap of durations to swap out the longest course when over budget."],
+        "approach": "Sort by deadline, keep the shortest set with a max-heap.",
+        "pattern": "Sort then scan",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort courses by last day. Track total time; for each course add its duration and push it into a max-heap. If total exceeds the deadline, remove the longest course from the heap and from total.",
+        "tags": ["greedy", "heap", "scheduling"]
+      },
+      {
+        "name": "Maximum Profit in Job Scheduling",
+        "slug": "maximum-profit-in-job-scheduling",
+        "difficulty": "hard",
+        "description": "Maximize profit by scheduling non-overlapping jobs with start, end, and profit.",
+        "constraints": "1 <= jobCount <= 5 * 10^4",
+        "hints": ["This needs DP over sorted end times, not plain greedy.", "Binary search for the last job that ends before start."],
+        "approach": "Sort by end time and use DP with binary search.",
+        "pattern": "Sort then scan",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort jobs by end time. Let dp[i] be the best profit using the first i jobs: either skip job i or take it plus the best profit of jobs ending before its start, found via binary search. Greedy fails here because profits differ.",
+        "tags": ["dp", "binary-search", "scheduling"]
+      },
+      {
+        "name": "Task Scheduler",
+        "slug": "task-scheduler",
+        "difficulty": "medium",
+        "description": "Given tasks and a cooldown n, return the least number of time units to finish all tasks.",
+        "constraints": "1 <= tasks.length <= 10^4, 0 <= n <= 100",
+        "hints": ["The most frequent task dictates the framework.", "Fill idle slots with other tasks."],
+        "approach": "Count frequencies and compute idle slots, or use the formula with the max frequency.",
+        "pattern": "Maintain a running max/min",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Count task frequencies. Let f be the max frequency. The minimum time is max(len(tasks), (f-1)*(n+1) + count_of_tasks_with_frequency_f). This packs the most frequent tasks with at most n others between occurrences.",
+        "tags": ["greedy", "array"]
+      }
+    ]
+  },
+  {
+    "slug": "interval-problems",
+    "name": "Interval problems",
+    "difficulty": "medium",
+    "overview": "Interval problems reason about ranges [start, end] on a number line, dealing with overlaps, merges, insertions, and conflicts. They are a family of problems unified by sorting and careful boundary handling.",
+    "why": "Intervals appear constantly in scheduling, resource allocation, and calendar questions, making them one of the most frequently tested families.",
+    "when": "Reach for interval techniques whenever input is a list of (start, end) ranges and the task involves merging, detecting overlap, or maximizing compatible selections.",
+    "complexity": { "time": "O(n log n) sorting dominated", "space": "O(n)" },
+    "concepts": [
+      { "name": "Overlap condition", "description": "Intervals [a,b] and [c,d] overlap iff a <= d and c <= b." },
+      { "name": "Sorting by start or end", "description": "Sorting intervals by a chosen endpoint turns overlap checks into a linear scan." },
+      { "name": "Merging intervals", "description": "Combine overlapping ranges by extending the current end to the max end seen." },
+      { "name": "Meeting point sweep", "description": "Sweep the line marking +1 at starts and -1 at ends to count simultaneous events." },
+      { "name": "Inclusive vs exclusive", "description": "Whether touching endpoints count as overlap depends on the problem statement." }
+    ],
+    "patterns": [
+      {
+        "name": "Merge intervals",
+        "description": "Sort by start, then merge when the next start is within the current range.",
+        "code": "intervals.sort()\nmerged = []\nfor s, e in intervals:\n    if not merged or s > merged[-1][1]:\n        merged.append([s, e])\n    else:\n        merged[-1][1] = max(merged[-1][1], e)"
+      },
+      {
+        "name": "Sweep line counting",
+        "description": "Map each start to +1 and end to -1, then prefix-sum to get concurrent coverage.",
+        "code": "events = []\nfor s, e in intervals:\n    events.append((s, 1)); events.append((e, -1))\nevents.sort()\ncur = peak = 0\nfor _, d in events:\n    cur += d\n    peak = max(peak, cur)"
+      },
+      {
+        "name": "Find overlapping interval",
+        "description": "Binary search for the interval whose end is nearest to a query start.",
+        "code": "ends = sorted(e for _, e in intervals)\nimport bisect\nk = bisect.bisect_right(ends, query_start)\n# intervals[:k] all end before or at query_start"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Merge overlapping intervals",
+        "problem": "Merge all intervals that overlap into non-overlapping ranges.",
+        "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+        "output": "[[1,6],[8,10],[15,18]]",
+        "explanation": "After sorting, [1,3] and [2,6] overlap since 2 <= 3, so they merge to [1,6]; the rest do not overlap.",
+        "steps": ["Sort by start time.", "Start a merged range with the first interval.", "Extend the current end if the next interval starts before it.", "Else push the range and start a new one."],
+        "complexity": { "time": "O(n log n)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Forgetting to sort before scanning, causing wrong overlap decisions.", "fix": "Always sort by start time first." },
+      { "mistake": "Merging touching intervals when the problem treats them as separate.", "fix": "Check inclusivity: use s <= current_end vs s < current_end." },
+      { "mistake": "Off-by-one in sweep line at shared endpoints.", "fix": "Decide whether the end contributes -1 before or after the next start; test with adjacent intervals." }
+    ],
+    "problems": [
+      {
+        "name": "Merge Intervals",
+        "slug": "merge-intervals",
+        "difficulty": "medium",
+        "description": "Merge all overlapping intervals into a list of non-overlapping intervals.",
+        "constraints": "1 <= intervals.length <= 10^4",
+        "hints": ["Sort by start.", "Compare next start with current end."],
+        "approach": "Sort and merge in one pass.",
+        "pattern": "Merge intervals",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Sort by start. Walk the list, merging any interval whose start is at most the current end by extending the end to the max; otherwise start a new merged interval.",
+        "tags": ["interval", "sorting", "array"]
+      },
+      {
+        "name": "Insert Interval",
+        "slug": "insert-interval",
+        "difficulty": "medium",
+        "description": "Insert a new interval into a sorted non-overlapping list, merging as needed.",
+        "constraints": "1 <= intervals.length <= 10^4",
+        "hints": ["Handle intervals before, overlapping, and after separately.", "Merge only the overlapping window."],
+        "approach": "Linear scan splitting into three phases.",
+        "pattern": "Merge intervals",
+        "time": "O(n)",
+        "space": "O(n)",
+        "solution": "Append intervals that end before the new interval starts, then merge every interval that overlaps the new one by extending its bounds, then append the rest.",
+        "tags": ["interval", "array"]
+      },
+      {
+        "name": "Interval List Intersections",
+        "slug": "interval-list-intersections",
+        "difficulty": "medium",
+        "description": "Return the intersection of two sorted lists of disjoint intervals.",
+        "constraints": "1 <= lengths <= 1000",
+        "hints": ["Two pointers, one per list.", "Advance the interval that ends first."],
+        "approach": "Two-pointer scan computing overlaps.",
+        "pattern": "Sort then scan",
+        "time": "O(n + m)",
+        "space": "O(n + m)",
+        "solution": "Point i and j at both lists. The overlap is [max(starts), min(ends)] if the max start is at most the min end; then advance the pointer whose interval ends first.",
+        "tags": ["interval", "two-pointers"]
+      },
+      {
+        "name": "Employee Free Time",
+        "slug": "employee-free-time",
+        "difficulty": "hard",
+        "description": "Find the gaps of free time common to all employees' busy schedules.",
+        "constraints": "total intervals <= 10^4",
+        "hints": ["Flatten all intervals and sort.", "Track the running max end to find gaps."],
+        "approach": "Merge all intervals, then report gaps between them.",
+        "pattern": "Merge intervals",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Flatten every employee's intervals, sort by start, and merge. Every gap between consecutive merged intervals is free time for all employees.",
+        "tags": ["interval", "sorting"]
+      }
+    ]
+  },
+  {
+    "slug": "huffman-coding",
+    "name": "Huffman coding",
+    "difficulty": "hard",
+    "overview": "Huffman coding builds a prefix-free binary code that compresses data by giving frequent symbols short codes and rare symbols long codes. It constructs an optimal binary tree via repeated merging of the two lowest-probability nodes.",
+    "why": "It is the canonical greedy-on-a-tree problem and the foundation of file compression, frequently cited in interviews and exams for its optimality proof.",
+    "when": "Use it when you must assign optimal variable-length codes to symbols or merge the smallest elements repeatedly, which is a common greedy+heap pattern.",
+    "complexity": { "time": "O(n log n)", "space": "O(n)" },
+    "concepts": [
+      { "name": "Prefix-free codes", "description": "No code word is a prefix of another, which makes decoding unambiguous." },
+      { "name": "Huffman tree", "description": "A binary tree whose leaves are symbols; the code of a symbol is the root-to-leaf path." },
+      { "name": "Merge smallest two", "description": "Repeatedly combining the two least frequent nodes gives minimum expected code length." },
+      { "name": "Optimality via exchange", "description": "Swapping codes in an optimal tree never decreases quality, proving the two smallest symbols are siblings." },
+      { "name": "Greedy + heap", "description": "A min-heap supplies the two smallest frequencies in O(log n) per merge." }
+    ],
+    "patterns": [
+      {
+        "name": "Min-heap merging",
+        "description": "Repeatedly pop the two smallest frequencies and push their sum until one node remains.",
+        "code": "import heapq\nheap = [[f, [s, '']] for s, f in freqs.items()]\nheapq.heapify(heap)\nwhile len(heap) > 1:\n    lo = heapq.heappop(heap)\n    hi = heapq.heappop(heap)\n    for pair in lo[1]: pair[1] = '0' + pair[1]\n    for pair in hi[1]: pair[1] = '1' + pair[1]\n    heapq.heappush(heap, [lo[0] + hi[0], lo[1] + hi[1]])"
+      },
+      {
+        "name": "Compute total cost only",
+        "description": "When only the total encoded length matters, sum the internal node weights.",
+        "code": "import heapq\nheap = list(freqs.values())\nheapq.heapify(heap)\ntotal = 0\nwhile len(heap) > 1:\n    a = heapq.heappop(heap); b = heapq.heappop(heap)\n    s = a + b; total += s\n    heapq.heappush(heap, s)"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Encode a small alphabet",
+        "problem": "Build Huffman codes minimizing expected encoded length.",
+        "input": "freqs = {'a': 45, 'b': 13, 'c': 12, 'd': 16, 'e': 9, 'f': 5}",
+        "output": "a=0, b=101, c=100, d=111, e=1101, f=1100",
+        "explanation": "Merge f(5)+e(9)=14, c(12)+b(13)=25, 14+16=30, 25+30=55, 45+55=100. Codes follow the merge tree, giving 100-bit total, the textbook minimum.",
+        "steps": ["Push all frequencies into a min-heap.", "Pop the two smallest and merge into a parent of summed weight.", "Repeat until one root node remains.", "Assign 0/1 to left/right edges to read off codes."],
+        "complexity": { "time": "O(n log n)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Assigning codes without building the tree, e.g. by simple frequency order.", "fix": "Always build the merge tree; prefix-freedom requires it." },
+      { "mistake": "Using a max-heap or sorting only once without reinserting merged weights.", "fix": "Reinsert each merged sum; new weights change the ordering." },
+      { "mistake": "Confusing the encoded length total with just the sum of leaf frequencies.", "fix": "Total length equals the sum of internal node weights (WPL)." }
+    ],
+    "problems": [
+      {
+        "name": "Huffman Coding",
+        "slug": "huffman-coding",
+        "difficulty": "hard",
+        "description": "Given symbol frequencies, build Huffman codes and report the total encoded length or the tree.",
+        "constraints": "1 <= n <= 10^5",
+        "hints": ["Use a min-heap.", "Total length is the sum of internal node weights."],
+        "approach": "Merge smallest frequencies until one tree remains.",
+        "pattern": "Min-heap merging",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Insert all frequencies into a min-heap. Repeatedly pop the two smallest, push their sum, and accumulate the sum into the total length. The accumulated total is the minimum expected encoded length.",
+        "tags": ["greedy", "heap", "tree"]
+      },
+      {
+        "name": "Connect Sticks",
+        "slug": "connect-sticks",
+        "difficulty": "medium",
+        "description": "Minimize the total cost of connecting sticks by always joining the two shortest sticks.",
+        "constraints": "1 <= sticks.length <= 10^4",
+        "hints": ["Each join costs the sum of the two sticks.", "Always join the two smallest."],
+        "approach": "Min-heap, repeatedly merge two smallest.",
+        "pattern": "Min-heap merging",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Push all lengths into a min-heap. Pop the two smallest, add their sum to cost, and push the sum back until one stick remains. This greedy is optimal by the same exchange argument as Huffman.",
+        "tags": ["greedy", "heap"]
+      },
+      {
+        "name": "Last Stone Weight",
+        "slug": "last-stone-weight",
+        "difficulty": "easy",
+        "description": "Repeatedly smash the two heaviest stones; return the weight of the last remaining stone.",
+        "constraints": "1 <= stones.length <= 30",
+        "hints": ["A max-heap keeps the two heaviest at hand.", "If both equal, both are destroyed."],
+        "approach": "Use a max-heap (negated values) and smash.",
+        "pattern": "Min-heap merging",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Push all weights negated into a heap. Repeatedly pop the two largest; if they differ push back the difference. The final single element, or 0, is the answer.",
+        "tags": ["greedy", "heap"]
+      },
+      {
+        "name": "Minimum Cost to Merge Stones",
+        "slug": "minimum-cost-to-merge-stones",
+        "difficulty": "hard",
+        "description": "Merge piles of stones merging exactly K piles at a time, minimizing total cost.",
+        "constraints": "1 <= piles <= 30, 1 <= K <= 30",
+        "hints": ["This is a DP problem, greedy fails.", "State is (start, end) and transition splits at K-1 strides."],
+        "approach": "Interval DP with prefix sums.",
+        "pattern": "Min-heap merging",
+        "time": "O(n^3)",
+        "space": "O(n^2)",
+        "solution": "Unlike connect-sticks, merging exactly K piles cannot be solved greedily. Use interval DP where dp[l][r] is the min cost to merge piles l..r, adding the range sum when (r-l) % (K-1) == 0.",
+        "tags": ["dp", "interval"]
+      }
+    ]
+  },
+  {
+    "slug": "greedy-sorting",
+    "name": "Greedy + sorting",
+    "difficulty": "medium",
+    "overview": "Greedy plus sorting combines an ordering step with a single linear greedy pass. Sorting materializes the greedy choice property so each next item is simply the best remaining option.",
+    "why": "A large fraction of greedy interview problems are instantly recognizable by the sort-then-scan shape, making this combination a high-value interview skill.",
+    "when": "Whenever a problem about maximizing or minimizing over a collection lets you sort by some key first, try sorting and then making a single forward pass.",
+    "complexity": { "time": "O(n log n)", "space": "O(1) or O(n)" },
+    "concepts": [
+      { "name": "Sort key selection", "description": "Choosing the right ordering key is the entire difficulty; wrong keys break the greedy." },
+      { "name": "Forward pass", "description": "After sorting, one scan with a running state produces the answer." },
+      { "name": "Tie-breaking", "description": "Secondary sort keys resolve cases where the primary key leaves multiple candidates." },
+      { "name": "Proof by exchange", "description": "Shows that reordering any solution into sorted order never hurts." },
+      { "name": "Custom comparators", "description": "Python's functools.cmp_to_key allows arbitrary comparison rules for special sorts." }
+    ],
+    "patterns": [
+      {
+        "name": "Sort with custom comparator",
+        "description": "Sort by a derived key or comparison rule, then greedily combine adjacent items.",
+        "code": "from functools import cmp_to_key\nnums.sort(key=cmp_to_key(lambda a, b: (b + a > a + b) - (a + b > b + a)))\n# biggest concatenation: compares 'ab' vs 'ba'"
+      },
+      {
+        "name": "Sort by one endpoint then scan",
+        "description": "Choose the endpoint that encodes the greedy rule and process in order.",
+        "code": "pairs.sort(key=lambda p: p[1])\ncount, end = 0, float('-inf')\nfor s, e in pairs:\n    if s > end:\n        count += 1; end = e"
+      },
+      {
+        "name": "Sort counts descending",
+        "description": "For frequency-based problems, sort counts and greedily place the most common first.",
+        "code": "counts = sorted(Counter(s).values(), reverse=True)\nused = 0\nfor c in counts:\n    # place c copies respecting spacing rules\n    pass"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Largest number from digits",
+        "problem": "Arrange numbers so their concatenation is as large as possible.",
+        "input": "nums = [3, 30, 34, 5, 9]",
+        "output": "9534330",
+        "explanation": "Comparing concatenations, '9' > '5' > '34' > '3' > '30', because '34' vs '3': '343' < '334'? No: '3'+'34'='334' and '34'+'3'='343', so 34 sorts before 3, giving 9534330.",
+        "steps": ["Define comparison a+b vs b+a.", "Sort with that comparator.", "Concatenate all strings.", "Strip leading zeros edge case."],
+        "complexity": { "time": "O(n log n)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Using a sort key that does not encode the greedy choice correctly.", "fix": "Derive the key from an exchange argument before coding." },
+      { "mistake": "Forgetting tie-breaking, leading to wrong output on equal keys.", "fix": "Add a secondary key or careful comparator." },
+      { "mistake": "Sorting in place and losing the original association with weights/profits.", "fix": "Sort tuples of (key, payload) or keep parallel arrays." }
+    ],
+    "problems": [
+      {
+        "name": "Largest Number",
+        "slug": "largest-number",
+        "difficulty": "medium",
+        "description": "Arrange numbers so the concatenated result is the largest possible.",
+        "constraints": "1 <= nums.length <= 100, nums[i] <= 10^9",
+        "hints": ["Compare a+b versus b+a.", "Handle the all-zero case."],
+        "approach": "Custom-comparator sort then concatenate.",
+        "pattern": "Sort with custom comparator",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Convert numbers to strings and sort with the comparator x+y > y+x. Concatenate the sorted strings; if the result starts with '0' the answer is '0'.",
+        "tags": ["greedy", "sorting", "string"]
+      },
+      {
+        "name": "Minimum Difference Between Highest and Lowest of K Scores",
+        "slug": "minimum-difference-k-scores",
+        "difficulty": "easy",
+        "description": "Choose K scores minimizing the difference between the highest and lowest chosen.",
+        "constraints": "1 <= k <= nums.length <= 1000",
+        "hints": ["Sort the scores.", "Slide a window of size k."],
+        "approach": "Sort and slide a k-window.",
+        "pattern": "Sort by one endpoint then scan",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "Sort the array. The minimum range covering k elements is the smallest nums[i+k-1] - nums[i] over all window starts i.",
+        "tags": ["greedy", "sorting", "sliding-window"]
+      },
+      {
+        "name": "Minimum Number of Boats to Save People",
+        "slug": "boats-to-save-people",
+        "difficulty": "medium",
+        "description": "Pair up people so each boat holds at most two and weight limit, minimizing boats.",
+        "constraints": "1 <= people.length <= 5 * 10^4",
+        "hints": ["Sort by weight.", "Pair the heaviest with the lightest."],
+        "approach": "Two pointers after sorting.",
+        "pattern": "Sort by one endpoint then scan",
+        "time": "O(n log n)",
+        "space": "O(1)",
+        "solution": "Sort weights. Use two pointers; always take the heaviest person, and if the lightest still fits alongside, pair them. Each pass uses one boat.",
+        "tags": ["greedy", "two-pointers", "sorting"]
+      },
+      {
+        "name": "Minimum Sum of Four Digit Number After Splitting Digits",
+        "slug": "minimum-sum-four-digit-split",
+        "difficulty": "easy",
+        "description": "Split a four digit number into two numbers using its digits, minimizing their sum.",
+        "constraints": "1000 <= num <= 9999",
+        "hints": ["Sort digits ascending.", "Distribute digits alternately to the tens and ones places."],
+        "approach": "Sort digits and form two smallest numbers.",
+        "pattern": "Sort by one endpoint then scan",
+        "time": "O(1)",
+        "space": "O(1)",
+        "solution": "Sort the four digits. Place the two smallest as the tens digits and the two largest as the ones digits, then sum. For example 2932 gives 23 + 29 = 52.",
+        "tags": ["greedy", "sorting", "math"]
+      }
+    ]
+  },
+  {
+    "slug": "subsets",
+    "name": "Subsets",
+    "difficulty": "easy",
+    "overview": "Subsets enumerates all 2^n combinations of elements without regard to order. Standard generators are iterative doubling, bitmasking, and backtracking.",
+    "why": "Subsets is the base problem for combination, partitioning, and bitmask DP questions, and is asked directly at nearly every level.",
+    "when": "Use subset enumeration whenever you must explore every possible selection of elements from a set.",
+    "complexity": { "time": "O(n * 2^n)", "space": "O(n)" },
+    "concepts": [
+      { "name": "Power set", "description": "The set of all subsets, containing 2^n elements." },
+      { "name": "Choice at each element", "description": "Each element is either included or excluded, giving a binary decision tree." },
+      { "name": "Bitmask representation", "description": "An n-bit integer where bit i marks whether element i is in the subset." },
+      { "name": "Order independence", "description": "[1,2] and [2,1] are the same subset, so generation must avoid both." },
+      { "name": "Distinct handling", "description": "Duplicates in input require sorting and skipping repeated elements at the same depth." }
+    ],
+    "patterns": [
+      {
+        "name": "Iterative doubling",
+        "description": "Start with [[]] and append each element to every existing subset.",
+        "code": "result = [[]]\nfor x in nums:\n    result += [s + [x] for s in result]"
+      },
+      {
+        "name": "Bitmask enumeration",
+        "description": "Iterate over all masks from 0 to 2^n - 1 and collect set bits.",
+        "code": "res = []\nfor mask in range(1 << len(nums)):\n    res.append([nums[i] for i in range(len(nums)) if mask >> i & 1])"
+      },
+      {
+        "name": "Backtracking choice loop",
+        "description": "DFS that at each element branches include/exclude, using an index to keep order.",
+        "code": "def dfs(i):\n    if i == len(nums):\n        res.append(path[:]); return\n    path.append(nums[i]); dfs(i + 1); path.pop()\n    dfs(i + 1)"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Power set of three elements",
+        "problem": "Return all subsets of a distinct integer array.",
+        "input": "nums = [1, 2, 3]",
+        "output": "[[], [1], [2], [1,2], [3], [1,3], [2,3], [1,2,3]]",
+        "explanation": "Every element independently joins or skips, doubling the count at each step from 1 to 8 subsets.",
+        "steps": ["Start with the empty subset.", "For each element, add it to every current subset.", "Continue until all elements are processed."],
+        "complexity": { "time": "O(n * 2^n)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Producing permutations instead of subsets by varying order.", "fix": "Keep elements in sorted/index order and only branch include/exclude." },
+      { "mistake": "Sharing the same list object across results and mutating it later.", "fix": "Append path[:] (a copy) whenever recording a subset." },
+      { "mistake": "Forgetting to skip duplicates, generating duplicate subsets.", "fix": "Sort input and skip equal neighbors at the same recursion depth." }
+    ],
+    "problems": [
+      {
+        "name": "Subsets",
+        "slug": "subsets",
+        "difficulty": "medium",
+        "description": "Return all possible subsets (the power set) of a distinct integer array.",
+        "constraints": "1 <= nums.length <= 10",
+        "hints": ["Each element is in or out.", "Iterative doubling is shortest."],
+        "approach": "Iterative doubling or bitmasking.",
+        "pattern": "Iterative doubling",
+        "time": "O(n * 2^n)",
+        "space": "O(n * 2^n)",
+        "solution": "Begin with the empty set. For each element, append a copy of every current subset with the element added. Return the full collection.",
+        "tags": ["backtracking", "bitmask", "array"]
+      },
+      {
+        "name": "Subsets II",
+        "slug": "subsets-ii",
+        "difficulty": "medium",
+        "description": "Return all unique subsets when the input may contain duplicates.",
+        "constraints": "1 <= nums.length <= 10",
+        "hints": ["Sort the input first.", "Skip duplicate values at the same depth."],
+        "approach": "Backtracking with duplicate skipping.",
+        "pattern": "Backtracking choice loop",
+        "time": "O(n * 2^n)",
+        "space": "O(n)",
+        "solution": "Sort nums. In the backtracking loop, only branch on the first occurrence of each value at a given depth, skipping equal following elements to avoid duplicate subsets.",
+        "tags": ["backtracking", "array"]
+      },
+      {
+        "name": "Partition Equal Subset Sum",
+        "slug": "partition-equal-subset-sum",
+        "difficulty": "medium",
+        "description": "Decide whether the array can be partitioned into two subsets of equal sum.",
+        "constraints": "1 <= nums.length <= 200",
+        "hints": ["Target is half the total sum.", "This is a 0/1 knapsack feasibility check."],
+        "approach": "Boolean DP over achievable sums.",
+        "pattern": "Backtracking choice loop",
+        "time": "O(n * target)",
+        "space": "O(target)",
+        "solution": "If the total sum is odd return false. Use a boolean set of reachable sums; for each number, add it to all currently reachable sums. Return true if target is reachable.",
+        "tags": ["dp", "subset", "knapsack"]
+      },
+      {
+        "name": "Maximum Product of the Length of Two Palindromic Subsequences",
+        "slug": "max-product-palindromic-subsequences",
+        "difficulty": "medium",
+        "description": "Choose two disjoint palindromic subsequences maximizing the product of their lengths.",
+        "constraints": "2 <= s.length <= 12",
+        "hints": ["Enumerate subsets by bitmask.", "A subset is palindromic if its chars read the same."],
+        "approach": "Iterate over complementary subset pairs via bitmask.",
+        "pattern": "Bitmask enumeration",
+        "time": "O(3^n)",
+        "space": "O(2^n)",
+        "solution": "For each bitmask subset, check if it forms a palindrome and record its length. Then for every pair of complementary masks, multiply lengths and maximize.",
+        "tags": ["bitmask", "string", "subset"]
+      }
+    ]
+  },
+  {
+    "slug": "subsequences",
+    "name": "Subsequences",
+    "difficulty": "medium",
+    "overview": "Subsequences are ordered selections where elements keep their relative order but may skip positions. Unlike subsets, order matters for validity, and unlike subarrays, elements need not be contiguous.",
+    "why": "Subsequence problems dominate DP interviews, including longest increasing subsequence, edit distance, and matching problems.",
+    "when": "Reach for subsequence techniques whenever order-preserving selections from a sequence are involved and skipping elements is allowed.",
+    "complexity": { "time": "O(n^2) typical", "space": "O(n)" },
+    "concepts": [
+      { "name": "Relative order", "description": "A subsequence preserves the original order of its elements." },
+      { "name": "Not contiguous", "description": "Elements may be skipped, unlike subarrays." },
+      { "name": "Two-pointer matching", "description": "Deciding if one string is a subsequence of another is a linear two-pointer scan." },
+      { "name": "DP state (index, index)", "description": "Many subsequence problems define dp[i][j] over two strings or positions." },
+      { "name": "Patience sorting for LIS", "description": "Binary search on tails computes the longest increasing subsequence in O(n log n)." }
+    ],
+    "patterns": [
+      {
+        "name": "Two-pointer subsequence check",
+        "description": "Scan the target and source together, advancing source only on matches.",
+        "code": "i = j = 0\nwhile i < len(t) and j < len(s):\n    if t[i] == s[j]: i += 1\n    j += 1\nreturn i == len(t)"
+      },
+      {
+        "name": "Longest increasing subsequence (tails)",
+        "description": "Maintain a sorted tails array; each element replaces the first tail >= it.",
+        "code": "tails = []\nfor x in nums:\n    k = bisect_left(tails, x)\n    if k == len(tails): tails.append(x)\n    else: tails[k] = x\nreturn len(tails)"
+      },
+      {
+        "name": "DP over two sequences",
+        "description": "For LCS-like problems, dp[i][j] depends on equal or unequal chars.",
+        "code": "dp = [[0]*(m+1) for _ in range(n+1)]\nfor i in range(1, n+1):\n    for j in range(1, m+1):\n        if a[i-1] == b[j-1]:\n            dp[i][j] = dp[i-1][j-1] + 1\n        else:\n            dp[i][j] = max(dp[i-1][j], dp[i][j-1])"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Check if one string is a subsequence",
+        "problem": "Determine whether s is a subsequence of t.",
+        "input": "s = 'abc', t = 'ahbgdc'",
+        "output": "True",
+        "explanation": "Walk t and match a, b, then c greedily; all three match in order so s is a subsequence.",
+        "steps": ["Initialize pointers i on s and j on t.", "Advance i whenever chars match.", "Advance j always.", "Return whether i reached the end of s."],
+        "complexity": { "time": "O(len(t))", "space": "O(1)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Treating subsequences as contiguous subarrays and over-constraining the solution.", "fix": "Remember skipping is allowed; only relative order matters." },
+      { "mistake": "Reusing the same index element twice when matching.", "fix": "Track positions and only match later elements." },
+      { "mistake": "Applying greedy to subsequence problems that need DP (e.g. LIS with duplicates or weighted).", "fix": "Recognize when optimal substructure demands a table, not a single pass." }
+    ],
+    "problems": [
+      {
+        "name": "Is Subsequence",
+        "slug": "is-subsequence",
+        "difficulty": "easy",
+        "description": "Check whether string s is a subsequence of string t.",
+        "constraints": "0 <= s.length <= 100, 0 <= t.length <= 10^4",
+        "hints": ["Two pointers.", "Match greedily."],
+        "approach": "Linear two-pointer scan.",
+        "pattern": "Two-pointer subsequence check",
+        "time": "O(len(t))",
+        "space": "O(1)",
+        "solution": "Walk both strings; whenever chars equal, advance the s pointer. At the end, s is a subsequence exactly when its pointer has reached the end.",
+        "tags": ["two-pointers", "string"]
+      },
+      {
+        "name": "Longest Increasing Subsequence",
+        "slug": "longest-increasing-subsequence",
+        "difficulty": "medium",
+        "description": "Find the length of the longest strictly increasing subsequence.",
+        "constraints": "1 <= nums.length <= 2500",
+        "hints": ["Binary search over tails.", "tails[k] is the smallest tail of an increasing subsequence of length k+1."],
+        "approach": "Patience sorting with bisect.",
+        "pattern": "Longest increasing subsequence (tails)",
+        "time": "O(n log n)",
+        "space": "O(n)",
+        "solution": "Keep tails sorted. For each number, replace the first tail >= it, or append if it is larger than all tails. The final length of tails is the LIS length.",
+        "tags": ["dp", "binary-search", "subsequence"]
+      },
+      {
+        "name": "Longest Common Subsequence",
+        "slug": "longest-common-subsequence",
+        "difficulty": "medium",
+        "description": "Return the length of the longest common subsequence of two strings.",
+        "constraints": "1 <= a.length, b.length <= 1000",
+        "hints": ["Classic 2D DP.", "Equal chars add 1 to the diagonal."],
+        "approach": "2D DP table over both strings.",
+        "pattern": "DP over two sequences",
+        "time": "O(n*m)",
+        "space": "O(n*m)",
+        "solution": "Build dp[i][j] = LCS of the first i chars and first j chars. If chars match add 1 to dp[i-1][j-1]; otherwise take the max of dropping a char from either side.",
+        "tags": ["dp", "string"]
+      },
+      {
+        "name": "Number of Longest Increasing Subsequence",
+        "slug": "number-of-longest-increasing-subsequence",
+        "difficulty": "medium",
+        "description": "Count how many longest increasing subsequences exist.",
+        "constraints": "1 <= nums.length <= 2000",
+        "hints": ["Track both length and count per position.", "Combine counts from earlier positions achieving the max length."],
+        "approach": "DP tracking lengths and counts.",
+        "pattern": "DP over two sequences",
+        "time": "O(n^2)",
+        "space": "O(n)",
+        "solution": "For each i, compute the longest length ending at i and how many subsequences achieve it by checking all earlier j with nums[j] < nums[i]. Sum counts at positions with the global max length.",
+        "tags": ["dp", "subsequence"]
+      }
+    ]
+  },
+  {
+    "slug": "permutations",
+    "name": "Permutations",
+    "difficulty": "medium",
+    "overview": "Permutations generate every ordering of a collection of elements, producing n! results. The standard generator is backtracking with a used-flag array or an in-place swap-based DFS.",
+    "why": "Permutations are a foundational backtracking problem and the base for arrangement, string, and next-lexicographic questions.",
+    "when": "Use permutation generation whenever the order of elements matters and you need to explore all orderings.",
+    "complexity": { "time": "O(n * n!)", "space": "O(n)" },
+    "concepts": [
+      { "name": "Order matters", "description": "A permutation is an arrangement, so [1,2] and [2,1] differ." },
+      { "name": "n! blowup", "description": "The number of permutations grows factorially, limiting inputs to small n." },
+      { "name": "Used-flag tracking", "description": "A boolean array marks which elements are already placed in the current prefix." },
+      { "name": "Swap-based generation", "description": "Swapping elements in place produces permutations without extra space." },
+      { "name": "Duplicate dedup", "description": "With repeated elements, skip a value if an identical one was already placed at this position." },
+      { "name": "Lexicographic order", "description": "The next-permutation algorithm steps between orderings in dictionary order." }
+    ],
+    "patterns": [
+      {
+        "name": "Backtracking with used flags",
+        "description": "Build a prefix, marking used elements, recursing until the prefix is full.",
+        "code": "res, path = [], []\nused = [False] * len(nums)\ndef dfs():\n    if len(path) == len(nums):\n        res.append(path[:]); return\n    for i, x in enumerate(nums):\n        if used[i]: continue\n        used[i] = True; path.append(x)\n        dfs(); path.pop(); used[i] = False\ndfs()"
+      },
+      {
+        "name": "Swap-based permutations",
+        "description": "Swap element i with each later position, recurse, and swap back.",
+        "code": "def permute(start):\n    if start == len(nums):\n        res.append(nums[:]); return\n    for j in range(start, len(nums)):\n        nums[start], nums[j] = nums[j], nums[start]\n        permute(start + 1)\n        nums[start], nums[j] = nums[j], nums[start]"
+      },
+      {
+        "name": "Next permutation",
+        "description": "Find the next lexicographic permutation by pivoting on the rightmost ascent.",
+        "code": "def next_perm(a):\n    i = len(a) - 2\n    while i >= 0 and a[i] >= a[i+1]: i -= 1\n    if i < 0: a.reverse(); return\n    j = len(a) - 1\n    while a[j] <= a[i]: j -= 1\n    a[i], a[j] = a[j], a[i]\n    a[i+1:] = reversed(a[i+1:])"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Permutations of three elements",
+        "problem": "Return every ordering of a distinct array.",
+        "input": "nums = [1, 2, 3]",
+        "output": "6 permutations such as [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]",
+        "explanation": "The first position picks any of 3, the second any of the remaining 2, the last is forced, giving 3! = 6 orderings.",
+        "steps": ["Fix the first position by trying each unused element.", "Recurse on the remaining positions.", "Unmark the element when backtracking.", "Record the prefix when it is full."],
+        "complexity": { "time": "O(n * n!)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Sharing path across branches without copying at record time.", "fix": "Append path[:] or a full copy before storing." },
+      { "mistake": "Forgetting to unmark used flags, producing incomplete permutations.", "fix": "Restore state immediately after recursion returns." },
+      { "mistake": "Generating duplicate permutations for inputs with repeated values.", "fix": "Sort and skip a value already tried at the current position." }
+    ],
+    "problems": [
+      {
+        "name": "Permutations",
+        "slug": "permutations",
+        "difficulty": "medium",
+        "description": "Return all possible permutations of a distinct integer array.",
+        "constraints": "1 <= nums.length <= 6",
+        "hints": ["Try each unused element at the current position.", "Backtrack with used flags."],
+        "approach": "Backtracking with a used boolean array.",
+        "pattern": "Backtracking with used flags",
+        "time": "O(n * n!)",
+        "space": "O(n)",
+        "solution": "Recursively fill each position by trying every unused element, marking it used, recursing, then unmarking. Record when the prefix is complete.",
+        "tags": ["backtracking", "permutation"]
+      },
+      {
+        "name": "Permutations II",
+        "slug": "permutations-ii",
+        "difficulty": "medium",
+        "description": "Return all unique permutations when duplicates exist.",
+        "constraints": "1 <= nums.length <= 8",
+        "hints": ["Sort the input.", "Skip a value already placed at this position."],
+        "approach": "Backtracking with duplicate skipping.",
+        "pattern": "Backtracking with used flags",
+        "time": "O(n * n!)",
+        "space": "O(n)",
+        "solution": "Sort nums so duplicates are adjacent. At each position, skip an element if the same value was already used earlier in this recursion level, which removes duplicate permutations.",
+        "tags": ["backtracking", "permutation"]
+      },
+      {
+        "name": "Next Permutation",
+        "slug": "next-permutation",
+        "difficulty": "medium",
+        "description": "Rearrange numbers into the next lexicographically greater permutation in place.",
+        "constraints": "1 <= nums.length <= 100",
+        "hints": ["Find the rightmost ascent.", "Swap with the smallest larger element to the right."],
+        "approach": "Three-step pivot, swap, reverse.",
+        "pattern": "Next permutation",
+        "time": "O(n)",
+        "space": "O(1)",
+        "solution": "Find the largest i with nums[i] < nums[i+1]. If none, reverse all. Else find the largest j > i with nums[j] > nums[i], swap them, and reverse the suffix from i+1.",
+        "tags": ["array", "permutation"]
+      },
+      {
+        "name": "Letter Case Permutation",
+        "slug": "letter-case-permutation",
+        "difficulty": "medium",
+        "description": "Return all strings achievable by toggling case on any letters.",
+        "constraints": "1 <= s.length <= 12",
+        "hints": ["Digits have only one branch.", "Letters branch into lowercase and uppercase."],
+        "approach": "Backtracking over characters.",
+        "pattern": "Backtracking with used flags",
+        "time": "O(2^n * n)",
+        "space": "O(n)",
+        "solution": "DFS over the string: for digits continue unchanged; for letters branch into both cases. Collect every complete string.",
+        "tags": ["backtracking", "string"]
+      }
+    ]
+  },
+  {
+    "slug": "combination-sum",
+    "name": "Combination Sum",
+    "difficulty": "medium",
+    "overview": "Combination Sum finds all subsets of candidates that add up to a target, with variants allowing unlimited reuse, forbidding reuse, or forbidding duplicates. The generator is a sorted backtracking DFS.",
+    "why": "It is one of the most frequently asked backtracking problems and a template for partition and change-making problems.",
+    "when": "Reach for it when you must enumerate every selection of numbers that sums to a target, whether reuse is allowed or not.",
+    "complexity": { "time": "O(n^(target/min)) worst case", "space": "O(target/min)" },
+    "concepts": [
+      { "name": "Unbounded reuse", "description": "The classic variant lets the same candidate be picked multiple times." },
+      { "name": "Sorted candidates", "description": "Sorting enables pruning and duplicate avoidance." },
+      { "name": "Index-based branching", "description": "Recursing with an index pointer only picks from the current position onward." },
+      { "name": "Pruning by remaining sum", "description": "Stop recursing once the running sum exceeds the target." },
+      { "name": "Duplicate elimination", "description": "For inputs with repeats, skip equal candidates at the same recursion level." }
+    ],
+    "patterns": [
+      {
+        "name": "Unbounded combination",
+        "description": "Allow re-picking the same index by recursing with start unchanged.",
+        "code": "def dfs(start, target):\n    if target == 0:\n        res.append(path[:]); return\n    for i in range(start, len(cand)):\n        if cand[i] > target: break\n        path.append(cand[i])\n        dfs(i, target - cand[i])\n        path.pop()"
+      },
+      {
+        "name": "Each element once",
+        "description": "Recurse with start + 1 so each candidate is used at most once.",
+        "code": "def dfs(start, target):\n    if target == 0:\n        res.append(path[:]); return\n    for i in range(start, len(cand)):\n        if cand[i] > target: break\n        path.append(cand[i])\n        dfs(i + 1, target - cand[i])\n        path.pop()"
+      },
+      {
+        "name": "Deduplicated combinations",
+        "description": "Sort input and skip equal neighbors at the same level.",
+        "code": "for i in range(start, len(cand)):\n    if i > start and cand[i] == cand[i-1]: continue\n    if cand[i] > target: break\n    path.append(cand[i])\n    dfs(i + 1, target - cand[i])\n    path.pop()"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Unbounded Combination Sum",
+        "problem": "Find all unique combinations summing to the target, reuse allowed.",
+        "input": "candidates = [2, 3, 6, 7], target = 7",
+        "output": "[[2,2,3],[7]]",
+        "explanation": "2+2+3 = 7 and 7 = 7. Branching keeps candidates sorted and non-decreasing so no ordering duplicates appear.",
+        "steps": ["Sort candidates.", "DFS with a start index and remaining target.", "Re-pick the same index for unbounded reuse.", "Prune when the candidate exceeds the remaining target."],
+        "complexity": { "time": "O(n^(target/min)) worst case", "space": "O(target/min)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Branching from index 0 at every call, producing order-duplicated results.", "fix": "Pass a start index so later picks never go back." },
+      { "mistake": "Allowing reuse when the problem forbids it.", "fix": "Recurse with start + 1 instead of start." },
+      { "mistake": "Missing duplicate combinations when candidates contain repeats.", "fix": "Skip cand[i] == cand[i-1] at the same level after sorting." }
+    ],
+    "problems": [
+      {
+        "name": "Combination Sum",
+        "slug": "combination-sum",
+        "difficulty": "medium",
+        "description": "Find all unique combinations of candidates that sum to target, each candidate reusable.",
+        "constraints": "1 <= candidates.length <= 30, 1 <= target <= 40",
+        "hints": ["Sort the candidates.", "Recurse with the same index to allow reuse."],
+        "approach": "Backtracking DFS with index-based branching.",
+        "pattern": "Unbounded combination",
+        "time": "O(n^(target/min))",
+        "space": "O(target/min)",
+        "solution": "Sort candidates. DFS choosing numbers from the current index forward, subtracting from the target; since the same index can be reused, pick it again. Record combinations when the target hits zero.",
+        "tags": ["backtracking", "combination"]
+      },
+      {
+        "name": "Combination Sum II",
+        "slug": "combination-sum-ii",
+        "difficulty": "medium",
+        "description": "Find all unique combinations summing to target, each candidate used once, no duplicate combinations.",
+        "constraints": "1 <= candidates.length <= 100",
+        "hints": ["Sort and skip equal neighbors at the same level.", "Recurse with start + 1."],
+        "approach": "Backtracking with skip-duplicates rule.",
+        "pattern": "Deduplicated combinations",
+        "time": "O(2^n)",
+        "space": "O(n)",
+        "solution": "Sort candidates. At each level, skip a value equal to the previous one to avoid duplicate combinations, and recurse with start + 1 so each candidate is used at most once.",
+        "tags": ["backtracking", "combination"]
+      },
+      {
+        "name": "Combination Sum III",
+        "slug": "combination-sum-iii",
+        "difficulty": "medium",
+        "description": "Find all combinations of k numbers from 1 to 9 that sum to exactly n, no repeats.",
+        "constraints": "2 <= k <= 9, 1 <= n <= 60",
+        "hints": ["Only digits 1..9, each used once.", "Branch with increasing start to avoid repeats."],
+        "approach": "Backtracking over digits 1..9.",
+        "pattern": "Each element once",
+        "time": "O(C(9,k))",
+        "space": "O(k)",
+        "solution": "DFS choosing digits in increasing order, tracking count and remaining sum. Prune when count exceeds k or sum goes below zero. Record when both reach their targets.",
+        "tags": ["backtracking", "combination"]
+      },
+      {
+        "name": "Target Sum",
+        "slug": "target-sum",
+        "difficulty": "medium",
+        "description": "Count ways to assign + or - to each number so the expression equals target.",
+        "constraints": "1 <= nums.length <= 20",
+        "hints": ["This is a subset-counting DP.", "Let P be the subset added: sum(P) = (total + target)/2."],
+        "approach": "Subset sum DP.",
+        "pattern": "Unbounded combination",
+        "time": "O(n * sum)",
+        "space": "O(sum)",
+        "solution": "The problem reduces to counting subsets with sum (total + target)/2 when that value is integral. Run a 0/1 knapsack count DP over reachable sums.",
+        "tags": ["dp", "subset"]
+      }
+    ]
+  },
+  {
+    "slug": "n-queens",
+    "name": "N-Queens",
+    "difficulty": "hard",
+    "overview": "N-Queens places n queens on an n x n board so no two attack each other. Backtracking places queens row by row while checking column and both diagonal constraints, pruning entire branches early.",
+    "why": "It is the classic constraint-satisfaction backtracking example and tests your ability to prune with set-based or array-based state.",
+    "when": "Use this template whenever placing items that conflict on multiple axes, such as boards, maps, or schedules with constraints.",
+    "complexity": { "time": "O(n!) worst case", "space": "O(n)" },
+    "concepts": [
+      { "name": "Attack rules", "description": "Queens share a row, column, or diagonal if they conflict." },
+      { "name": "Row-by-row placement", "description": "Placing exactly one queen per row reduces the search dramatically." },
+      { "name": "Diagonal identifiers", "description": "Cells share the main diagonal when r-c is equal, and the anti-diagonal when r+c is equal." },
+      { "name": "Early pruning", "description": "A partial board that already has a conflict can be abandoned immediately." },
+      { "name": "Symmetry", "description": "Boards have reflection and rotation symmetries that can cut search in half." }
+    ],
+    "patterns": [
+      {
+        "name": "Set-based conflict tracking",
+        "description": "Track used columns and both diagonals with sets for O(1) checks.",
+        "code": "cols, diag1, diag2 = set(), set(), set()\nboard = [['.']*n for _ in range(n)]\ndef place(r):\n    if r == n:\n        res.append([''.join(row) for row in board]); return\n    for c in range(n):\n        if c in cols or (r-c) in diag1 or (r+c) in diag2: continue\n        cols.add(c); diag1.add(r-c); diag2.add(r+c)\n        board[r][c] = 'Q'\n        place(r + 1)\n        board[r][c] = '.'\n        cols.discard(c); diag1.discard(r-c); diag2.discard(r+c)"
+      },
+      {
+        "name": "Boolean array tracking",
+        "description": "Use arrays indexed by column and diagonal offsets instead of sets.",
+        "code": "col = [False]*n\nmd = [False]*(2*n-1)   # r-c + (n-1)\nsd = [False]*(2*n-1)   # r+c\nfor c in range(n):\n    d1, d2 = r - c + n - 1, r + c\n    if col[c] or md[d1] or sd[d2]: continue\n    col[c] = md[d1] = sd[d2] = True\n    board[r][c] = 'Q'; place(r + 1)\n    col[c] = md[d1] = sd[d2] = False; board[r][c] = '.'"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Four queens on a 4x4 board",
+        "problem": "Place 4 queens so no two attack each other.",
+        "input": "n = 4",
+        "output": "[[.Q.., ...Q, Q..., ..Q.], [..Q., Q..., ...Q, .Q..]]",
+        "explanation": "The first queen at (0,1) leads to exactly two full solutions; every other first move fails early through pruning.",
+        "steps": ["Place a queen in row 0 at every valid column.", "Recurse row by row, skipping columns and diagonals under attack.", "Backtrack when a row has no valid column.", "Record the board when all rows are filled."],
+        "complexity": { "time": "O(n!)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Checking diagonals by scanning the whole board instead of using indices.", "fix": "Use r-c and r+c identities for O(1) diagonal checks." },
+      { "mistake": "Forgetting to restore state, corrupting later branches.", "fix": "Undo the column and diagonal marks right after recursion." },
+      { "mistake": "Reusing the same board row object, causing mirrored duplicates.", "fix": "Only record complete boards; placement order by row prevents duplicates." }
+    ],
+    "problems": [
+      {
+        "name": "N-Queens",
+        "slug": "n-queens",
+        "difficulty": "hard",
+        "description": "Return all distinct solutions placing n queens on an n x n board.",
+        "constraints": "1 <= n <= 9",
+        "hints": ["One queen per row.", "Track columns and both diagonals with sets."],
+        "approach": "Backtracking row by row with set-based constraints.",
+        "pattern": "Set-based conflict tracking",
+        "time": "O(n!)",
+        "space": "O(n)",
+        "solution": "Place one queen per row, trying each column, checking the used columns and the two diagonal families via r-c and r+c. Recurse and backtrack, recording full boards.",
+        "tags": ["backtracking", "board"]
+      },
+      {
+        "name": "N-Queens II",
+        "slug": "n-queens-ii",
+        "difficulty": "hard",
+        "description": "Count the number of distinct solutions for n queens without printing boards.",
+        "constraints": "1 <= n <= 9",
+        "hints": ["Same backtracking, count instead of store.", "Arrays are faster than sets here."],
+        "approach": "Backtracking with boolean arrays.",
+        "pattern": "Boolean array tracking",
+        "time": "O(n!)",
+        "space": "O(n)",
+        "solution": "Run the standard N-Queens backtracking but increment a counter at each complete placement, storing no boards.",
+        "tags": ["backtracking", "board"]
+      },
+      {
+        "name": "Sudoku Solver (queen-style constraint hint)",
+        "slug": "constraint-satisfaction-template",
+        "difficulty": "hard",
+        "description": "Use the same backtracking-constraint template to solve a 9x9 Sudoku board.",
+        "constraints": "board is a valid partially filled 9x9 grid",
+        "hints": ["Find an empty cell and try digits 1..9.", "Check row, column, and 3x3 box constraints."],
+        "approach": "Backtracking over empty cells with constraint checks.",
+        "pattern": "Set-based conflict tracking",
+        "time": "O(9^(empty cells)) worst case",
+        "space": "O(1) in place",
+        "solution": "Pick an empty cell, try each valid digit that respects its row, column, and box, recurse, and backtrack on failure. The constraint checks prune the search just like queens do.",
+        "tags": ["backtracking", "board"]
+      }
+    ]
+  },
+  {
+    "slug": "sudoku",
+    "name": "Sudoku",
+    "difficulty": "hard",
+    "overview": "Sudoku solving fills a 9x9 grid so every row, column, and 3x3 box contains digits 1-9. Backtracking fills cells one at a time, trying digits that satisfy row, column, and box constraints.",
+    "why": "It is the canonical real-world backtracking problem and an excellent stress test of constraint tracking with arrays or bitmasks.",
+    "when": "Use this pattern whenever filling a grid under per-cell constraints where an early wrong guess can be detected and undone.",
+    "complexity": { "time": "O(9^(empty cells)) worst case", "space": "O(1) in place" },
+    "concepts": [
+      { "name": "Row, column, box constraints", "description": "A digit must not repeat in its row, column, or 3x3 box." },
+      { "name": "Backtracking fill", "description": "Place digits in empty cells and undo when a branch fails." },
+      { "name": "Constraint arrays", "description": "Boolean arrays per row, column, and box give O(1) validity checks." },
+      { "name": "Bitmask optimization", "description": "Store each row, column, and box as a 9-bit integer mask for faster checks." },
+      { "name": "Least-constraining-value", "description": "Try the empty cell with the fewest candidates first to prune aggressively." }
+    ],
+    "patterns": [
+      {
+        "name": "Array-based constraint tracking",
+        "description": "Maintain used-sets for rows, columns, and boxes; try digits 1..9.",
+        "code": "rows = [set() for _ in range(9)]\ncols = [set() for _ in range(9)]\nboxes = [set() for _ in range(9)]\n# helper to index box: (r//3)*3 + c//3\n# for each cell: if d not in rows[r] and d not in cols[c] and d not in boxes[b]: place and recurse"
+      },
+      {
+        "name": "Bitmask solver",
+        "description": "Represent each constraint as a bitmask of usable digits.",
+        "code": "row = [0]*9; col = [0]*9; box = [0]*9\n# bit k set means digit k available\nfor d in 1..9:\n    if row[r] >> d & 1 and col[c] >> d & 1 and box[b] >> d & 1:\n        row[r] |= 1 << d; col[c] |= 1 << d; box[b] |= 1 << d\n        board[r][c] = str(d)\n        if solve(): return True\n        row[r] ^= 1 << d; col[c] ^= 1 << d; box[b] ^= 1 << d\nboard[r][c] = '.'"
+      },
+      {
+        "name": "Find MRV cell",
+        "description": "Pick the empty cell with the fewest possible digits to branch on.",
+        "code": "best = None\nfor r in range(9):\n    for c in range(9):\n        if board[r][c] == '.':\n            cands = [d for d in '123456789' if valid(r, c, d)]\n            if not cands: return False\n            if best is None or len(cands) < len(best_cands):\n                best, best_cands = (r, c), cands"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Solve a partial Sudoku",
+        "problem": "Fill the 9x9 board in place.",
+        "input": "A board with 51 given digits, 30 empty cells",
+        "output": "A fully filled valid grid",
+        "explanation": "Backtracking finds the first empty cell, tries digits respecting all constraints, and re-tries the next digit whenever a dead end is reached.",
+        "steps": ["Locate an empty cell.", "Try each candidate digit from 1 to 9 that respects all three constraints.", "Recurse to fill the next empty cell.", "Undo the digit and try the next if recursion fails."],
+        "complexity": { "time": "O(9^(empty cells)) worst case", "space": "O(1) in place" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Checking constraints by rescanning the whole board each time.", "fix": "Cache row, column, and box occupancy in arrays or bitmasks." },
+      { "mistake": "Not returning early after a solution, wasting exponential time.", "fix": "Return True up the call stack once the board is complete." },
+      { "mistake": "Indexing boxes wrong, treating the grid as rows of boxes.", "fix": "Use box index (r//3)*3 + (c//3)." }
+    ],
+    "problems": [
+      {
+        "name": "Sudoku Solver",
+        "slug": "sudoku-solver",
+        "difficulty": "hard",
+        "description": "Fill the 9x9 Sudoku board in place so every row, column, and box is valid.",
+        "constraints": "board is a 9x9 grid, exactly one solution",
+        "hints": ["Backtrack over empty cells.", "Track constraints with sets or bitmasks."],
+        "approach": "Backtracking with array-based constraint tracking.",
+        "pattern": "Array-based constraint tracking",
+        "time": "O(9^(empty cells))",
+        "space": "O(1)",
+        "solution": "Scan for the first empty cell, try each digit valid under row, column, and box constraints, recurse, and backtrack. Return True immediately when the board is solved.",
+        "tags": ["backtracking", "board"]
+      },
+      {
+        "name": "Valid Sudoku",
+        "slug": "valid-sudoku",
+        "difficulty": "medium",
+        "description": "Determine whether a partially filled board is valid without solving it.",
+        "constraints": "9x9 board with digits and '.'",
+        "hints": ["Track seen digits per row, column, and box.", "Use sets of tuples."],
+        "approach": "Single pass marking seen values.",
+        "pattern": "Array-based constraint tracking",
+        "time": "O(81)",
+        "space": "O(1)",
+        "solution": "For every filled cell, record its digit in the corresponding row set, column set, and box set; the board is invalid if any digit is already present in its group.",
+        "tags": ["array", "hash-table"]
+      },
+      {
+        "name": "N-Queens (constraint template)",
+        "slug": "n-queens-template",
+        "difficulty": "hard",
+        "description": "Apply the same constraint-backtracking approach to place queens instead of digits.",
+        "constraints": "1 <= n <= 9",
+        "hints": ["One queen per row.", "Same prune-and-undo loop."],
+        "approach": "Backtracking with constraint sets.",
+        "pattern": "Array-based constraint tracking",
+        "time": "O(n!)",
+        "space": "O(n)",
+        "solution": "The Sudoku solver's constraint-tracking loop generalizes: place queens row by row, rejecting columns and diagonals already occupied, and undo on failure.",
+        "tags": ["backtracking", "board"]
+      }
+    ]
+  },
+  {
+    "slug": "rat-in-a-maze",
+    "name": "Rat in a Maze",
+    "difficulty": "easy",
+    "overview": "Rat in a Maze finds a path from the top-left to the bottom-right corner of a grid, moving through open cells and blocked by walls. Backtracking explores moves and undoes them when a path dead-ends.",
+    "why": "It is the classic grid backtracking problem, the natural stepping stone to word search, unique paths, and island problems.",
+    "when": "Use it whenever you must find or count paths on a grid while visiting cells only once, such as maze traversal puzzles.",
+    "complexity": { "time": "O(4^(n*m)) worst case", "space": "O(n*m)" },
+    "concepts": [
+      { "name": "Grid traversal", "description": "Moving up, down, left, or right between adjacent open cells." },
+      { "name": "Visited marking", "description": "Cells on the current path are marked to prevent loops and revisits." },
+      { "name": "Backtracking undo", "description": "Unmark a cell when backtracking so other paths can use it." },
+      { "name": "Base cases", "description": "Walls, out-of-bounds, and already-visited cells terminate a branch." },
+      { "name": "Path recording", "description": "Recording the sequence of moves (D, L, R, U) as the path is built." }
+    ],
+    "patterns": [
+      {
+        "name": "DFS with visited undo",
+        "description": "Recursively try each direction, marking the cell before exploring and unmarking after.",
+        "code": "dirs = [(0,1),(1,0),(0,-1),(-1,0)]\ndef dfs(r, c, path):\n    if (r, c) == (n-1, m-1):\n        res.append(path); return\n    for dr, dc in dirs:\n        nr, nc = r + dr, c + dc\n        if 0 <= nr < n and 0 <= nc < m and grid[nr][nc] == 1:\n            grid[nr][nc] = 0\n            dfs(nr, nc, path + [f'{nr},{nc}'])\n            grid[nr][nc] = 1"
+      },
+      {
+        "name": "Four-direction word search",
+        "description": "The same template searches for a word instead of reaching a corner.",
+        "code": "def dfs(i, j, k):\n    if k == len(word): return True\n    if not (0 <= i < n and 0 <= j < m) or board[i][j] != word[k]: return False\n    tmp, board[i][j] = board[i][j], '#'\n    for di, dj in dirs:\n        if dfs(i + di, j + dj, k + 1): return True\n    board[i][j] = tmp\n    return False"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Find a path through a 4x4 maze",
+        "problem": "Move from (0,0) to (3,3) through cells marked 1, avoiding 0 cells.",
+        "input": "grid = [[1,0,0,0],[1,1,0,1],[0,1,0,0],[1,1,1,1]]",
+        "output": "[(0,0),(1,0),(1,1),(2,1),(3,1),(3,2),(3,3)]",
+        "explanation": "The rat moves down, right, down, right, right, down; dead-end branches like (1,3) are explored and abandoned.",
+        "steps": ["Start at the top-left corner.", "Try each of four moves in order.", "Mark cells on the current path as visited.", "Unmark when backtracking to allow other routes.", "Stop when the bottom-right is reached."],
+        "complexity": { "time": "O(4^(n*m)) worst case", "space": "O(n*m)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Forgetting to unmark cells, so later paths skip valid routes.", "fix": "Restore the cell to open right after the recursion returns." },
+      { "mistake": "Letting the rat revisit the current cell, causing infinite recursion.", "fix": "Mark the cell before recursing into neighbors." },
+      { "mistake": "Not checking bounds before indexing the grid.", "fix": "Validate both coordinates before any access." }
+    ],
+    "problems": [
+      {
+        "name": "Rat in a Maze",
+        "slug": "rat-in-a-maze",
+        "difficulty": "medium",
+        "description": "Return all paths from the top-left to the bottom-right of a binary maze.",
+        "constraints": "n, m <= 15",
+        "hints": ["Use D, L, R, U for move names.", "Mark visited and undo on backtrack."],
+        "approach": "DFS over four directions with visited marking.",
+        "pattern": "DFS with visited undo",
+        "time": "O(4^(n*m))",
+        "space": "O(n*m)",
+        "solution": "Recurse from (0,0) trying each direction, mark cells as blocked while on the path, and record a path string when reaching the destination. Unmark cells when backtracking.",
+        "tags": ["backtracking", "grid", "dfs"]
+      },
+      {
+        "name": "Word Search",
+        "slug": "word-search",
+        "difficulty": "medium",
+        "description": "Determine if a word exists in a grid by connecting adjacent cells, each cell used once.",
+        "constraints": "1 <= m, n <= 6, word.length <= 15",
+        "hints": ["Start DFS at each cell matching the first letter.", "Mark the cell while on the path."],
+        "approach": "Backtracking over grid cells matching word chars.",
+        "pattern": "Four-direction word search",
+        "time": "O(m * n * 4^L)",
+        "space": "O(L)",
+        "solution": "For every cell equal to word[0], run a DFS matching subsequent letters in four directions, temporarily marking visited cells, and undoing on backtrack.",
+        "tags": ["backtracking", "grid", "string"]
+      },
+      {
+        "name": "Unique Paths III",
+        "slug": "unique-paths-iii",
+        "difficulty": "hard",
+        "description": "Count paths from start to end that visit every empty cell exactly once.",
+        "constraints": "1 <= m, n <= 20",
+        "hints": ["Count how many empty cells must be visited.", "Mark visited cells and track the count."],
+        "approach": "Backtracking visiting all empties exactly once.",
+        "pattern": "DFS with visited undo",
+        "time": "O(4^(m*n)) worst case",
+        "space": "O(m*n)",
+        "solution": "Run DFS from start; when the end is reached, count the path only if every empty cell was visited. Mark visited cells and unmark on backtracking.",
+        "tags": ["backtracking", "grid"]
+      },
+      {
+        "name": "Number of Islands",
+        "slug": "number-of-islands",
+        "difficulty": "medium",
+        "description": "Count connected groups of 1s in a grid of 0s and 1s.",
+        "constraints": "1 <= m, n <= 300",
+        "hints": ["DFS floods an island when found.", "Sink visited land."],
+        "approach": "DFS that floods each island.",
+        "pattern": "DFS with visited undo",
+        "time": "O(m * n)",
+        "space": "O(m * n)",
+        "solution": "Scan every cell; on finding a 1, increment the count and flood-fill all connected 1s by marking them visited. This is the reachability cousin of maze path finding.",
+        "tags": ["grid", "dfs", "bfs"]
+      }
+    ]
+  },
+  {
+    "slug": "backtracking",
+    "name": "Backtracking",
+    "difficulty": "medium",
+    "overview": "Backtracking incrementally builds candidate solutions and abandons (backtracks) a branch as soon as it becomes invalid. It systematically explores a decision tree with state that is restored after each attempt.",
+    "why": "Backtracking powers a huge share of interview problems: permutations, combinations, subsets, Sudoku, and N-Queens all share one template.",
+    "when": "Use backtracking when the problem asks to enumerate all solutions or find any solution under constraints, especially when brute force is too slow to be naive.",
+    "complexity": { "time": "O(branches^depth)", "space": "O(depth)" },
+    "concepts": [
+      { "name": "Decision tree", "description": "Each recursion level chooses among candidate options, forming a tree of partial solutions." },
+      { "name": "Pruning", "description": "Stopping a branch early when a partial candidate can never lead to a valid solution." },
+      { "name": "State restore", "description": "Undoing modifications after recursion so siblings start from the original state." },
+      { "name": "Base case", "description": "A complete candidate that is recorded, typically a full-length path or satisfied target." },
+      { "name": "Choice + constraint loop", "description": "At each step: choose a candidate, check constraints, recurse, and undo." }
+    ],
+    "patterns": [
+      {
+        "name": "Generate all candidates",
+        "description": "The canonical shape: loop over options, modify state, recurse, undo.",
+        "code": "def backtrack(path):\n    if is_complete(path):\n        res.append(path[:]); return\n    for choice in options(path):\n        path.append(choice)\n        backtrack(path)\n        path.pop()"
+      },
+      {
+        "name": "Pruned constraints",
+        "description": "Apply the constraint check before recursing so invalid branches never expand.",
+        "code": "for choice in options:\n    if not is_valid(path, choice):\n        continue\n    make_move(choice)\n    backtrack(path)\n    undo_move(choice)"
+      },
+      {
+        "name": "Multiple solutions vs first solution",
+        "description": "Return early on the first solution by propagating True up the call stack.",
+        "code": "def solve():\n    if complete(): return True\n    for choice in options:\n        if valid(choice):\n            apply(choice)\n            if solve(): return True\n            undo(choice)\n    return False"
+      }
+    ],
+    "examples": [
+      {
+        "title": "Generate subsets with backtracking",
+        "problem": "Enumerate every subset of a small set.",
+        "input": "nums = [1, 2]",
+        "output": "[[], [1], [1,2], [2]]",
+        "explanation": "At each element the search either includes it (recurse) or excludes it (skip), and both choices are explored before moving to the next element.",
+        "steps": ["Record the current path as a valid subset.", "For each element after the current index, add it and recurse.", "Pop it after recursion to try the next element."],
+        "complexity": { "time": "O(n * 2^n)", "space": "O(n)" }
+      }
+    ],
+    "mistakes": [
+      { "mistake": "Mutating shared state without copying before storing results.", "fix": "Store path[:] copies, never the live list." },
+      { "mistake": "Forgetting to restore state, corrupting sibling branches.", "fix": "Undo every modification symmetrically right after recursion." },
+      { "mistake": "Not pruning, letting invalid branches expand exponentially.", "fix": "Check constraints before recursing whenever possible." }
+    ],
+    "problems": [
+      {
+        "name": "Generate Parentheses",
+        "slug": "generate-parentheses",
+        "difficulty": "medium",
+        "description": "Generate all well-formed parentheses strings of length 2n.",
+        "constraints": "1 <= n <= 8",
+        "hints": ["Track counts of open and close used.", "A close is only valid if opens exceed closes."],
+        "approach": "Backtracking over open/close choices.",
+        "pattern": "Pruned constraints",
+        "time": "O(4^n / sqrt(n))",
+        "space": "O(n)",
+        "solution": "Recursively append '(' while opens remain, then ')' only when opens exceed closes. Record strings of length 2n. The open count constraint prunes invalid prefixes.",
+        "tags": ["backtracking", "string"]
+      },
+      {
+        "name": "Letter Combinations of a Phone Number",
+        "slug": "letter-combinations-of-a-phone-number",
+        "difficulty": "medium",
+        "description": "Return all letter strings a phone number's digits can map to.",
+        "constraints": "0 <= digits.length <= 4",
+        "hints": ["Map each digit to its letters.", "Branch over letters at each digit position."],
+        "approach": "Backtracking choosing one letter per digit.",
+        "pattern": "Generate all candidates",
+        "time": "O(4^n)",
+        "space": "O(n)",
+        "solution": "For each digit, try every letter in its mapping and recurse to the next digit. Collect the string when all digits are consumed.",
+        "tags": ["backtracking", "string", "hash-table"]
+      },
+      {
+        "name": "Combination Sum (backtracking template)",
+        "slug": "combination-sum-template",
+        "difficulty": "medium",
+        "description": "Enumerate combinations of candidates that sum to a target.",
+        "constraints": "1 <= candidates.length <= 30",
+        "hints": ["Sort candidates and prune over-target picks.", "Use a start index to keep order."],
+        "approach": "Backtracking with index-based choice loop.",
+        "pattern": "Generate all candidates",
+        "time": "O(n^(target/min))",
+        "space": "O(target/min)",
+        "solution": "At each level choose a candidate from the current index onward, subtract from the target, and recurse. Prune when the candidate exceeds the remaining target.",
+        "tags": ["backtracking", "combination"]
+      },
+      {
+        "name": "Word Search (backtracking template)",
+        "slug": "word-search-template",
+        "difficulty": "medium",
+        "description": "Match a word across adjacent grid cells using each cell once.",
+        "constraints": "grid up to 6x6, word up to 15",
+        "hints": ["Mark cells on the path.", "Start DFS at cells equal to the first letter."],
+        "approach": "Backtracking with visited undo.",
+        "pattern": "Pruned constraints",
+        "time": "O(m * n * 4^L)",
+        "space": "O(L)",
+        "solution": "From each matching start cell, DFS through four neighbors matching the next letter, temporarily marking visited cells and undoing on backtrack.",
+        "tags": ["backtracking", "grid"]
+      },
+      {
+        "name": "Restore IP Addresses",
+        "slug": "restore-ip-addresses",
+        "difficulty": "medium",
+        "description": "Return all valid IP addresses that can be formed by inserting dots into a digit string.",
+        "constraints": "0 <= s.length <= 20",
+        "hints": ["Split into exactly 4 parts of 1 to 3 digits.", "Parts cannot have leading zeros unless single 0."],
+        "approach": "Backtracking over segment boundaries.",
+        "pattern": "Pruned constraints",
+        "time": "O(3^4)",
+        "space": "O(4)",
+        "solution": "Recursively choose segment lengths of 1-3 that form valid numbers, stopping when four segments cover the string. Prune invalid parts such as leading-zero values.",
+        "tags": ["backtracking", "string"]
+      }
+    ]
+  }
+]
