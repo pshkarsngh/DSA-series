@@ -2,10 +2,23 @@ import os
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(os.environ.get("DB_PATH", Path(__file__).resolve().parent.parent / "tracker.db"))
+_default_db = Path(__file__).resolve().parent.parent / "tracker.db"
+_env_db = os.environ.get("DB_PATH")
+if _env_db:
+    _p = Path(_env_db)
+    try:
+        _p.parent.mkdir(parents=True, exist_ok=True)
+        _default_db = _p
+    except OSError:
+        pass
+DB_PATH = _default_db
 
 
 def get_conn():
+    try:
+        DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
