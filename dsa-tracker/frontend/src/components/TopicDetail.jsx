@@ -8,6 +8,9 @@ export default function TopicDetail() {
   const [data, setData] = useState(null)
   const [topic, setTopic] = useState(null)
   const [error, setError] = useState(false)
+  const [form, setForm] = useState({ name: '', difficulty: 'medium', description: '', pattern: '' })
+  const [adding, setAdding] = useState(false)
+  const [formError, setFormError] = useState('')
 
   const load = useCallback(async () => {
     try {
@@ -40,6 +43,30 @@ export default function TopicDetail() {
   const t = topic
   const catStats = data.category_stats
   const pct = catStats.total ? Math.round((catStats.done || 0) / catStats.total * 100) : 0
+
+  async function addProblem(e) {
+    e.preventDefault()
+    setFormError('')
+    if (!form.name.trim()) {
+      setFormError('Problem name is required.')
+      return
+    }
+    try {
+      await api.createProblem({
+        topic_id: t.id,
+        topic: t.name,
+        name: form.name.trim(),
+        difficulty: form.difficulty,
+        description: form.description.trim(),
+        pattern: form.pattern.trim(),
+      })
+      setForm({ name: '', difficulty: 'medium', description: '', pattern: '' })
+      setAdding(false)
+      load()
+    } catch {
+      setFormError('Could not save the problem. Try again.')
+    }
+  }
 
   async function toggleDone() {
     const updated = await api.toggleTopic(t.id, !t.done)
@@ -195,6 +222,42 @@ export default function TopicDetail() {
       </Card>
 
       <Card title={`Practice problems (${doneProblems}/${data.problems.length} solved)`}>
+        {!adding ? (
+          <button className="primary ghost" onClick={() => setAdding(true)}>+ Add a problem</button>
+        ) : (
+          <form className="problem-form" onSubmit={addProblem}>
+            <div className="row">
+              <input
+                placeholder="Problem name (required)"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+              <select value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <input
+              placeholder="Pattern, e.g. Two pointers"
+              value={form.pattern}
+              onChange={(e) => setForm({ ...form, pattern: e.target.value })}
+            />
+            <textarea
+              rows={3}
+              placeholder="Short description of the problem"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+            {formError && <p className="muted" style={{ color: 'var(--red)' }}>{formError}</p>}
+            <div className="row">
+              <button type="submit" className="primary">Save problem</button>
+              <button type="button" className="primary ghost" onClick={() => { setAdding(false); setFormError('') }}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
         <ul className="problem-cards">
           {data.problems.length === 0 && <li className="muted">No problems yet.</li>}
           {data.problems.map((p) => (

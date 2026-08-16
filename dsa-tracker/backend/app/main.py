@@ -334,8 +334,14 @@ def create_problem(body: ProblemIn):
         (slug, body.session_id, body.topic_id, body.topic, body.name, body.difficulty,
          body.status, body.notes, body.description, body.pattern),
     )
+    pid = cur.lastrowid
+    if body.topic_id:
+        conn.execute(
+            "INSERT OR IGNORE INTO problem_topics (problem_id, topic_id) VALUES (?, ?)",
+            (pid, body.topic_id),
+        )
     conn.commit()
-    row = conn.execute("SELECT * FROM problems WHERE id = ?", (cur.lastrowid,)).fetchone()
+    row = conn.execute("SELECT * FROM problems WHERE id = ?", (pid,)).fetchone()
     conn.close()
     return row_to_problem(row)
 
