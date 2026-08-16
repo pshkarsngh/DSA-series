@@ -1036,6 +1036,155 @@ pre code {
   border-left: 4px solid var(--border);
 }
 
+/* ---------- Timetable ---------- */
+.timetable-table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.timetable-row {
+  display: grid;
+  grid-template-columns: 28px 130px 160px 1fr;
+  gap: 14px;
+  align-items: center;
+  padding: 11px 14px;
+}
+
+.timetable-row + .timetable-row {
+  border-top: 1px solid var(--border);
+}
+
+.timetable-head {
+  background: var(--bg-soft);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.timetable-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timetable-check input {
+  width: 17px;
+  height: 17px;
+}
+
+.timetable-time {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.timetable-focus {
+  color: var(--text-h);
+}
+
+.timetable-row.done .timetable-focus {
+  color: var(--green);
+}
+
+.timetable-row.done .timetable-time,
+.timetable-row.done .muted {
+  opacity: 0.6;
+}
+
+.timetable-list {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.timetable-list li {
+  margin: 4px 0;
+}
+
+.timetable-list + p {
+  margin-bottom: 0;
+}
+
+.timetable-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.timetable-date {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.timetable-date strong {
+  color: var(--text-h);
+}
+
+.timetable-actions .seg {
+  border: 1px solid var(--border);
+}
+
+.timetable-actions .seg:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.timetable-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.timetable-progress-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.tt-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.tt-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 4px;
+  background: var(--bg-soft);
+}
+
+.tt-day-label {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.tt-day-dot {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.tt-day.on {
+  border-color: var(--green);
+  background: var(--green-bg);
+}
+
+.tt-day.on .tt-day-dot {
+  color: var(--green);
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
   .grid-3 {
@@ -1071,6 +1220,31 @@ pre code {
 
   .brand {
     justify-content: space-between;
+  }
+
+  .timetable-row {
+    grid-template-columns: 28px 1fr;
+    gap: 4px 10px;
+  }
+
+  .timetable-head {
+    display: none;
+  }
+
+  .timetable-time {
+    grid-column: 2;
+  }
+
+  .timetable-focus {
+    grid-column: 2;
+  }
+
+  .timetable-row .muted {
+    grid-column: 2;
+  }
+
+  .tt-days {
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .app {

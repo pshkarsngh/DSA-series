@@ -5,6 +5,7 @@ import Topics from './components/Topics.jsx'
 import TopicDetail from './components/TopicDetail.jsx'
 import ProblemPage from './components/ProblemPage.jsx'
 import Sessions from './components/Sessions.jsx'
+import Timetable from './components/Timetable.jsx'
 import { api } from './api.js'
 
 function useScrollToTop() {
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/topics/:slug/problems/:problemSlug" element={<ProblemPage />} />
         <Route path="/problems/:problemSlug" element={<ProblemPage />} />
         <Route path="/sessions" element={<Sessions />} />
+        <Route path="/timetable" element={<Timetable />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
@@ -61,6 +63,7 @@ function Header() {
           <NavLink to="/" end className="nav">Dashboard</NavLink>
           <NavLink to="/topics" className="nav">Topics</NavLink>
           <NavLink to="/sessions" className="nav">Sessions</NavLink>
+          <NavLink to="/timetable" className="nav">Timetable</NavLink>
         </nav>
       </div>
 

@@ -39,4 +39,11 @@ export const api = {
     request(`/problems/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   deleteProblem: (id) =>
     request(`/problems/${id}`, { method: 'DELETE' }),
+  timetableDay: (d) => request(`/timetable/${d}`),
+  timetableToggle: (d, slot, done) =>
+    request(`/timetable/${d}/${slot}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ done }),
+    }),
+  timetableSummary: () => request('/timetable'),
 }

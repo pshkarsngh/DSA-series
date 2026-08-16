@@ -91,6 +91,10 @@ class ProblemUpdate(BaseModel):
     solved: bool | None = None
 
 
+class TimetableToggle(BaseModel):
+    done: bool
+
+
 def row_to_topic(r):
     return TopicOut(
         id=r["id"],
@@ -473,6 +477,68 @@ def update_session(session_id: int, body: SessionUpdate):
     ).fetchone()
     conn.close()
     return with_topic_name(row)
+
+
+# ---------- Timetable ----------
+TIMETABLE_KEYS = {
+    "dsa",
+    "system-design",
+    "ai-ml",
+    "english",
+    "web-dev",
+    "major-project",
+    "aptitude",
+}
+
+
+def timetable_payload(conn, d):
+    rows = conn.execute(
+        "SELECT slot, done FROM timetable_days WHERE date = ?", (d,)
+    ).fetchall()
+    slots = {r["slot"]: bool(r["done"]) for r in rows}
+    return {
+        "date": d,
+        "slots": slots,
+        "done": sum(1 for v in slots.values() if v),
+        "total": len(TIMETABLE_KEYS),
+    }
+
+
+@app.get("/api/timetable/{d}")
+def timetable_day(d: str):
+    conn = get_conn()
+    payload = timetable_payload(conn, d)
+    conn.close()
+    return payload
+
+
+@app.patch("/api/timetable/{d}/{slot}")
+def timetable_toggle(d: str, slot: str, body: TimetableToggle):
+    if slot not in TIMETABLE_KEYS:
+        raise HTTPException(status_code=400, detail="Unknown slot")
+    conn = get_conn()
+    conn.execute(
+        "INSERT INTO timetable_days (date, slot, done) VALUES (?, ?, ?) "
+        "ON CONFLICT(date, slot) DO UPDATE SET done = excluded.done",
+        (d, slot, 1 if body.done else 0),
+    )
+    conn.commit()
+    payload = timetable_payload(conn, d)
+    conn.close()
+    return payload
+
+
+@app.get("/api/timetable")
+def timetable_summary():
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT date, COUNT(*) AS done FROM timetable_days WHERE done = 1 "
+        "GROUP BY date ORDER BY date DESC"
+    ).fetchall()
+    conn.close()
+    days = [{"date": r["date"], "done": r["done"]} for r in rows]
+    active = {r["date"] for r in rows if r["done"] > 0}
+    return {"days": days, "streak": compute_streak(active)}
 
 
 # ---------- Stats ----------

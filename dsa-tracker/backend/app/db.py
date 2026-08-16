@@ -129,6 +129,13 @@ def init_db():
             FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE SET NULL
         );
 
+        CREATE TABLE IF NOT EXISTS timetable_days (
+            date TEXT NOT NULL,
+            slot TEXT NOT NULL,
+            done INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (date, slot)
+        );
+
         CREATE TABLE IF NOT EXISTS problem_topics (
             problem_id INTEGER NOT NULL,
             topic_id INTEGER NOT NULL,
