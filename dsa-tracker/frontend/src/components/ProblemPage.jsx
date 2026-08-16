@@ -3,6 +3,18 @@ import { Link, useParams } from 'react-router-dom'
 import { api } from '../api.js'
 import { Card, Difficulty, Pill } from './ui.jsx'
 
+const PLATFORMS = [
+  { name: 'LeetCode', url: (q) => `https://leetcode.com/problemset/?search=${q}` },
+  { name: 'GeeksforGeeks', url: (q) => `https://www.geeksforgeeks.org/?s=${q}` },
+  { name: 'Codeforces', url: (q) => `https://codeforces.com/problemset?name=${q}` },
+  { name: 'HackerRank', url: (q) => `https://www.hackerrank.com/search?query=${q}` },
+  { name: 'CodeChef', url: (q) => `https://www.codechef.com/problems?search=${q}` },
+  { name: 'HackerEarth', url: (q) => `https://www.hackerearth.com/practice/?search=${q}` },
+  { name: 'AtCoder', url: (q) => `https://atcoder.jp/contests/archive?lang=en&keyword=${q}` },
+  { name: 'InterviewBit', url: (q) => `https://www.interviewbit.com/practice/?q=${q}` },
+  { name: 'Codewars', url: (q) => `https://www.codewars.com/kata/search/?q=${q}` },
+]
+
 export default function ProblemPage() {
   const { problemSlug, slug: topicSlug } = useParams()
   const [problem, setProblem] = useState(null)
@@ -80,6 +92,23 @@ export default function ProblemPage() {
           </div>
         </div>
       </section>
+
+      <Card title="Solve it on a platform">
+        <p className="muted">Opens a search for this problem on each platform — pick the one you want to practice on.</p>
+        <div className="chip-row platform-row">
+          {PLATFORMS.map((pf) => (
+            <a
+              key={pf.name}
+              href={pf.url(encodeURIComponent(p.name))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="chip platform"
+            >
+              {pf.name} ↗
+            </a>
+          ))}
+        </div>
+      </Card>
 
       <Card title="Description">
         <p>{p.description || '—'}</p>

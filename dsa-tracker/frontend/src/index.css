@@ -874,6 +874,18 @@ pre code {
   background: var(--accent-bg);
 }
 
+.platform {
+  border-color: var(--border);
+  background: var(--card);
+  color: var(--text-h);
+}
+
+.platform:hover {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
 /* ---------- Lists ---------- */
 .activity,
 .plain-list {

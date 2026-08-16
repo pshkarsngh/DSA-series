@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api.js'
-import { Difficulty, Pill } from './ui.jsx'
+import { Card, Difficulty, Pill } from './ui.jsx'
 
 const ROADMAPS = [
   { id: 'must-do', label: 'Must Do' },
@@ -14,6 +14,11 @@ export default function Topics() {
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [difficulty, setDifficulty] = useState('all')
+  const navigate = useNavigate()
+
+  const [form, setForm] = useState({ name: '', topic: '', difficulty: 'medium', description: '', pattern: '' })
+  const [adding, setAdding] = useState(false)
+  const [error, setError] = useState('')
 
   const load = useCallback(async () => {
     setTopics(await api.topics(roadmap))
@@ -48,8 +53,75 @@ export default function Topics() {
 
   const done = topics.filter((t) => t.done).length
 
+  async function addProblem(e) {
+    e.preventDefault()
+    setError('')
+    if (!form.name.trim() || !form.topic.trim()) {
+      setError('Problem name and topic are required.')
+      return
+    }
+    try {
+      const p = await api.createProblem({
+        topic: form.topic.trim(),
+        name: form.name.trim(),
+        difficulty: form.difficulty,
+        description: form.description.trim(),
+        pattern: form.pattern.trim(),
+      })
+      setForm({ name: '', topic: '', difficulty: 'medium', description: '', pattern: '' })
+      setAdding(false)
+      navigate(`/problems/${p.slug}`)
+    } catch {
+      setError('Could not save the problem. Try again.')
+    }
+  }
+
   return (
     <div className="stack">
+      <Card title="Add a problem">
+        {!adding ? (
+          <button className="primary ghost" onClick={() => setAdding(true)}>+ Add a problem</button>
+        ) : (
+          <form className="problem-form" onSubmit={addProblem}>
+            <div className="row">
+              <input
+                placeholder="Problem name (required)"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+              <input
+                placeholder="Topic (required), e.g. Arrays"
+                value={form.topic}
+                onChange={(e) => setForm({ ...form, topic: e.target.value })}
+              />
+              <select value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })}>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <input
+              placeholder="Pattern, e.g. Two pointers"
+              value={form.pattern}
+              onChange={(e) => setForm({ ...form, pattern: e.target.value })}
+            />
+            <textarea
+              rows={3}
+              placeholder="Short description of the problem"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+            {error && <p className="muted" style={{ color: 'var(--red)' }}>{error}</p>}
+            <div className="row">
+              <button type="submit" className="primary">Save problem</button>
+              <button type="button" className="primary ghost" onClick={() => { setAdding(false); setError('') }}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+      </Card>
+
       <div className="toolbar">
         <div className="segmented">
           {ROADMAPS.map((r) => (

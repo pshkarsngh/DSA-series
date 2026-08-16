@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from .db import get_conn, init_db
-from .seed import assign_missing_slugs, seed
+from .seed import assign_missing_slugs, seed, slugify
 
 init_db()
 seed()
@@ -83,6 +83,8 @@ class ProblemIn(BaseModel):
     difficulty: str = "easy"
     status: str = "pending"
     notes: str = ""
+    description: str = ""
+    pattern: str = ""
 
 
 class ProblemUpdate(BaseModel):
@@ -319,10 +321,18 @@ def list_problems(session_id: int | None = None, status: str | None = None, topi
 @app.post("/api/problems")
 def create_problem(body: ProblemIn):
     conn = get_conn()
+    base = slugify(body.name)
+    slug = base
+    n = 1
+    while conn.execute("SELECT 1 FROM problems WHERE slug = ?", (slug,)).fetchone():
+        n += 1
+        slug = f"{base}-{n}"
     cur = conn.execute(
-        "INSERT INTO problems (session_id, topic_id, topic, name, difficulty, status, notes) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (body.session_id, body.topic_id, body.topic, body.name, body.difficulty, body.status, body.notes),
+        "INSERT INTO problems (slug, session_id, topic_id, topic, name, difficulty, status, "
+        "notes, description, pattern) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (slug, body.session_id, body.topic_id, body.topic, body.name, body.difficulty,
+         body.status, body.notes, body.description, body.pattern),
     )
     conn.commit()
     row = conn.execute("SELECT * FROM problems WHERE id = ?", (cur.lastrowid,)).fetchone()
