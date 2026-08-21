@@ -89,6 +89,16 @@ def init_db():
             FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE CASCADE
         );
 
+        CREATE TABLE IF NOT EXISTS topic_resources (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            topic_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            url TEXT NOT NULL,
+            kind TEXT DEFAULT 'link',
+            pos INTEGER NOT NULL DEFAULT 0,
+            FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE CASCADE
+        );
+
         CREATE TABLE IF NOT EXISTS problems (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             slug TEXT,

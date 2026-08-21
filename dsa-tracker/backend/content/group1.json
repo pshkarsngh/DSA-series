@@ -1113,9 +1113,16 @@
   ]
  },
  {
-  "slug": "two-pointers",
-  "name": "Two pointers",
-  "difficulty": "medium",
+   "slug": "two-pointers",
+   "name": "Two pointers",
+   "difficulty": "medium",
+   "resources": [
+    {
+     "title": "Two Pointers playlist - take U forward (Striver)",
+     "url": "https://youtube.com/playlist?list=PLgUwDviBIf0q7vrFA_HEWcqRqMpCXzYAL",
+     "kind": "playlist"
+    }
+   ],
   "overview": "The two-pointer technique uses two indices moving through an array, usually from both ends or at different speeds, to solve problems in a single pass. It exploits monotonicity or ordering to avoid nested loops and is a key linear-time tool for sorted arrays.",
   "why": "Two pointers is one of the most frequently tested patterns and often converts an O(n^2) brute force into O(n). Interviewers expect it for problems on sorted arrays, palindrome checks, and sum targets.",
   "when": "Reach for two pointers when the input is sorted, when you need to find pairs that satisfy a condition, or when a naive double loop feels wasteful. The pattern works whenever moving one pointer preserves the answer's feasibility region.",

@@ -456,3 +456,37 @@ def assign_missing_slugs():
     conn.commit()
     conn.close()
     return len(rows)
+
+
+def sync_resources():
+    """Refresh topic_resources from content JSONs.
+
+    Resources are static curated content, so they are wiped and reinserted on
+    every startup. This keeps existing databases (seeded before resources
+    existed) in sync without reseeding or losing progress.
+    """
+    conn = get_conn()
+    content = load_content()
+    conn.execute("DELETE FROM topic_resources")
+    count = 0
+    for r in conn.execute("SELECT id, slug, roadmap FROM topics").fetchall():
+        entry = content.get(r["slug"])
+        if entry is None:
+            suffix = f"-{r['roadmap']}"
+            base = r["slug"][: -len(suffix)] if r["slug"].endswith(suffix) else r["slug"]
+            entry = content.get(base)
+        if not entry:
+            continue
+        for i, res in enumerate(entry.get("resources", [])):
+            url = res.get("url", "")
+            if not url:
+                continue
+            conn.execute(
+                "INSERT INTO topic_resources (topic_id, title, url, kind, pos) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (r["id"], res.get("title", ""), url, res.get("kind", "link"), i),
+            )
+            count += 1
+    conn.commit()
+    conn.close()
+    return count

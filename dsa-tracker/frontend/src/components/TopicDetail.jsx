@@ -150,6 +150,21 @@ export default function TopicDetail() {
         </Card>
       </div>
 
+      {data.resources && data.resources.length > 0 && (
+        <Card title="Resources">
+          <ul className="resource-list">
+            {data.resources.map((res) => (
+              <li key={res.url}>
+                <a href={res.url} target="_blank" rel="noreferrer" className="link">
+                  {res.kind === 'playlist' ? '▶ ' : '🔗 '}{res.title}
+                </a>
+                <span className="muted">{res.kind}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
       <Card title="Core concepts">
         <ul className="concept-list">
           {data.concepts.length === 0 && <li className="muted">No concepts yet.</li>}

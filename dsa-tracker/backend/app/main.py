@@ -7,11 +7,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from .db import get_conn, init_db
-from .seed import assign_missing_slugs, seed, slugify
+from .seed import assign_missing_slugs, seed, slugify, sync_resources
 
 init_db()
 seed()
 assign_missing_slugs()
+sync_resources()
 
 app = FastAPI(title="DSA Tracker API")
 
@@ -211,6 +212,11 @@ def topic_detail(slug: str):
         (row["id"],),
     ).fetchall()]
 
+    resources = [dict(r) for r in conn.execute(
+        "SELECT title, url, kind FROM topic_resources WHERE topic_id = ? ORDER BY pos",
+        (row["id"],),
+    ).fetchall()]
+
     problems = []
     for r in conn.execute(
         "SELECT p.* FROM problems p JOIN problem_topics pt ON pt.problem_id = p.id "
@@ -253,6 +259,7 @@ def topic_detail(slug: str):
         "patterns": patterns,
         "examples": examples,
         "mistakes": mistakes,
+        "resources": resources,
         "problems": problems,
         "prev_topic": prev_topic,
         "next_topic": next_topic,
